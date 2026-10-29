@@ -231,7 +231,6 @@ input { font-family: inherit; }
   z-index: 15;
 }
 
-/* 中央开始/游戏结束遮罩图层 */
 .overlay-panel {
   position: absolute;
   top: 0;
@@ -279,9 +278,7 @@ input { font-family: inherit; }
   box-shadow: 0 6px 20px rgba(237, 97, 147, 0.6);
 }
 
-.center-btn:active {
-  transform: scale(0.95);
-}
+.center-btn:active { transform: scale(0.95); }
 
 .combo-banner {
   position: absolute;
@@ -498,21 +495,18 @@ input { font-family: inherit; }
       <canvas id="particleCanvas"></canvas>
       <div id="comboBanner" class="combo-banner">GOOD!</div>
 
-      <!-- 游戏初始开始面板 -->
       <div id="startOverlay" class="overlay-panel">
         <h2 id="welcomeTitle">🍓 水果大合并</h2>
-        <p id="welcomeDesc">放松心情，滑动合并！</p>
+        <p id="welcomeDesc">轻松解压，爽快连击！</p>
         <button class="center-btn" id="startBtn">▶️ 开始游戏 / Start</button>
       </div>
 
-      <!-- 游戏结束结算面板 -->
       <div id="gameOverOverlay" class="overlay-panel" style="display:none;">
         <h2>💥 GAME OVER</h2>
         <p id="finalScoreDesc">最终得分: <span id="finalScoreVal">0</span></p>
         <button class="center-btn" id="playAgainBtn">🔄 再来一局 / Play Again</button>
       </div>
 
-      <!-- 休闲模式暂停遮罩 -->
       <div id="pauseOverlay" class="overlay-panel" style="display:none;">
         <h2>⏸️ 游戏已暂停</h2>
         <p style="font-size: 14px; font-weight: normal; margin: 0;">Game Paused</p>
@@ -1203,21 +1197,26 @@ input { font-family: inherit; }
     makeFruit(level, bestX, bestY);
   }
 
+  // 强化版：死局保障与保底 8 个水果逻辑
   function ensurePlayable() {
     if (!running || isPaused) return;
 
+    // 1. 强制补齐水果数量至 8 个（生成低级基础水果 0-3 级）
     while (getFruits().length < 8) {
       addRandomFruit(Math.floor(Math.random() * 4));
     }
 
+    // 2. 防死局检查：如果没有可以配对的水果，强制复制场上已有的某个水果等级
     if (!hasPair()) {
       const existing = getFruits();
-      const level = Number(
-        existing[Math.floor(Math.random() * existing.length)].dataset.level
-      );
-
-      addRandomFruit(level);
-      message.textContent = say("replenished");
+      if (existing.length > 0) {
+        // 随机挑选场上已有的一种水果等级，再生成一个相同等级的水果
+        const targetLevel = Number(
+          existing[Math.floor(Math.random() * existing.length)].dataset.level
+        );
+        addRandomFruit(targetLevel);
+        message.textContent = say("replenished");
+      }
     }
   }
 
@@ -1474,7 +1473,6 @@ input { font-family: inherit; }
     playSound('gameover');
     saveScoreToLeaderboard(score);
 
-    // 弹出 GAME OVER 结算面板
     finalScoreVal.textContent = score;
     gameOverOverlay.style.display = "flex";
     message.textContent = say("gameOverMsg");
@@ -1489,7 +1487,6 @@ input { font-family: inherit; }
     running = true;
     isPaused = false;
 
-    // 隐藏遮罩弹窗
     startOverlay.style.display = "none";
     gameOverOverlay.style.display = "none";
     pauseOverlay.style.display = "none";
@@ -1523,6 +1520,7 @@ input { font-family: inherit; }
       timerEl.textContent = timeLeft;
     }
 
+    // 初始化固定生成 8 个初始水果
     for (let i = 0; i < 8; i++) {
       addRandomFruit(Math.floor(Math.random() * 4));
     }
