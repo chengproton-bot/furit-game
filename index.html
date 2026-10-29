@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Fruit Merge Challenge - Ultimate Edition</title>
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 15px 10px;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  color: #493344;
+  background: linear-gradient(135deg, #fff1d6, #ffd6e7);
+  transition: background 0.5s ease;
+  overflow-x: hidden;
+}
+
+/* 多阶段连击背景变化 */
+body.combo-tier-1 {
+  background: linear-gradient(135deg, #ffe1ff, #ffb6c1, #ff8da1);
+  animation: bgPulse 0.8s infinite alternate;
+}
+body.combo-tier-2 {
+  background: linear-gradient(135deg, #fffacd, #ffdfba, #ffb347);
+  animation: bgPulse 0.6s infinite alternate;
+}
+body.combo-tier-3 {
+  background: linear-gradient(135deg, #e0ffff, #b0e0e6, #87ceeb);
+  animation: bgPulse 0.4s infinite alternate;
+}
+body.combo-tier-4 {
+  background: linear-gradient(135deg, #e6e6fa, #dda0dd, #ba55d3);
+  animation: bgPulse 0.3s infinite alternate;
+}
+body.combo-tier-5 {
+  background: linear-gradient(135deg, #ff9a9e, #fecfef, #a1c4fd);
+  animation: rainbowBg 2s infinite linear;
+}
+
+@keyframes bgPulse {
+  0% { filter: brightness(1); }
+  100% { filter: brightness(1.08); }
+}
+
+@keyframes rainbowBg {
+  0% { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(360deg); }
+}
+
+h1 { font-size: 26px; margin-bottom: 10px; }
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+input {
+  font-family: inherit;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.control {
+  border: 0;
+  border-radius: 12px;
+  padding: 10px 16px;
+  margin: 3px;
+  background: #ed6193;
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+  transition: transform 0.1s;
+}
+
+.control:active {
+  transform: scale(0.95);
+}
+
+.mode-selector {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin: 8px 0;
+  flex-wrap: wrap;
+}
+
+.mode-btn {
+  border: 2px solid #ed6193;
+  border-radius: 10px;
+  padding: 5px 10px;
+  background: white;
+  color: #ed6193;
+  font-weight: bold;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.mode-btn.active {
+  background: #ed6193;
+  color: white;
+}
+
+.name-input-group {
+  margin: 8px 0;
+}
+
+.name-input-group input {
+  padding: 7px 12px;
+  border-radius: 8px;
+  border: 2px solid #ed6193;
+  font-size: 13px;
+  outline: none;
+  width: 170px;
+  text-align: center;
+}
+
+.stats {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 10px auto;
+}
+
+.stat {
+  background: white;
+  border-radius: 10px;
+  padding: 8px 10px;
+  min-width: 80px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  font-size: 13px;
+}
+.stat strong {
+  font-size: 15px;
+}
+
+/* 响应式多端布局 (Desktop / Tablet / Mobile) */
+.main-layout {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 15px;
+  max-width: 960px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+}
+
+.sidebar {
+  flex: 1;
+  min-width: 250px;
+  max-width: 280px;
+  background: white;
+  border-radius: 16px;
+  padding: 15px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+  text-align: left;
+}
+
+.sidebar h3 {
+  margin: 0 0 10px 0;
+  font-size: 15px;
+  text-align: center;
+  color: #ed6193;
+}
+
+.instructions-content {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #555;
+  margin: 0;
+  padding-left: 18px;
+}
+.instructions-content li {
+  margin-bottom: 6px;
+}
+
+.center-container {
+  flex: 0 0 360px;
+}
+
+#game {
+  position: relative;
+  width: 360px;
+  height: 410px;
+  margin: auto;
+  background: #fffaf3;
+  border: 4px solid white;
+  border-radius: 20px;
+  overflow: hidden;
+  touch-action: manipulation;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+#game.glow-tier-1 {
+  border-color: #ff3366;
+  box-shadow: 0 0 20px #ff69b4, inset 0 0 15px rgba(255, 105, 180, 0.3);
+}
+#game.glow-tier-2 {
+  border-color: #ff8c00;
+  box-shadow: 0 0 25px #ffa500, inset 0 0 20px rgba(255, 165, 0, 0.4);
+}
+#game.glow-tier-3 {
+  border-color: #00ffff;
+  box-shadow: 0 0 30px #00bfff, inset 0 0 25px rgba(0, 191, 255, 0.5);
+}
+#game.glow-tier-4 {
+  border-color: #9370db;
+  box-shadow: 0 0 35px #da70d6, inset 0 0 30px rgba(186, 85, 211, 0.6);
+}
+#game.glow-tier-5 {
+  border-color: #ff1493;
+  box-shadow: 0 0 40px #ff00ff, 0 0 60px #00ffff, inset 0 0 35px rgba(255, 20, 147, 0.7);
+  animation: borderRainbow 1.5s infinite linear;
+}
+
+@keyframes borderRainbow {
+  0% { border-color: #ff3366; }
+  33% { border-color: #00ffff; }
+  66% { border-color: #adff2f; }
+  100% { border-color: #ff3366; }
+}
+
+@keyframes shake {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  20% { transform: translate(-2px, 2px) rotate(-1deg); }
+  40% { transform: translate(2px, -2px) rotate(1deg); }
+  60% { transform: translate(-2px, -1px) rotate(0deg); }
+  80% { transform: translate(2px, 2px) rotate(-1deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+.shake-anim {
+  animation: shake 0.2s ease-in-out;
+}
+
+#comboBarContainer {
+  width: 360px;
+  height: 6px;
+  background: #eee;
+  margin: 6px auto;
+  border-radius: 3px;
+  overflow: hidden;
+  display: none;
+}
+#comboBar {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #ff69b4, #ff8c00);
+  transition: width 0.05s linear;
+}
+
+.floating-text {
+  position: absolute;
+  font-weight: bold;
+  font-size: 18px;
+  color: #ff3366;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  pointer-events: none;
+  animation: floatUp 0.8s ease-out forwards;
+  z-index: 10;
+}
+
+@keyframes floatUp {
+  0% { opacity: 1; transform: translateY(0) scale(0.8); }
+  50% { transform: translateY(-25px) scale(1.2); }
+  100% { opacity: 0; transform: translateY(-50px) scale(1); }
+}
+
+.fruit {
+  position: absolute;
+  width: 58px;
+  height: 58px;
+  border: 3px solid white;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  font-size: 32px;
+  box-shadow: 0 3px 7px #0002;
+  user-select: none;
+  transition: transform 0.15s ease;
+}
+
+.fruit.selected {
+  border: 4px solid #e83e82;
+  transform: scale(1.12);
+}
+
+#message {
+  min-height: 40px;
+  padding: 8px 4px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.leaderboard ol {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 13px;
+}
+
+.leaderboard li {
+  margin-bottom: 5px;
+}
+
+.zen-notice {
+  font-size: 13px;
+  color: #888;
+  text-align: center;
+  margin-top: 20px;
+  line-height: 1.5;
+}
+
+@media screen and (max-width: 900px) {
+  .main-layout {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .sidebar {
+    width: 100%;
+    max-width: 360px;
+    margin-bottom: 10px;
+  }
+
+  .center-container {
+    order: -1;
+    width: 100%;
+  }
+
+  #game, #comboBarContainer {
+    width: min(100%, 360px);
+  }
+}
+</style>
+</head>
+<body>
+
+<h1>🍓 Fruit Merge Challenge 🍉</h1>
+
+<div class="toolbar">
+  <button class="control" id="language">中文 / English</button>
+  <button class="control" id="restart">重新开始 / Restart</button>
+</div>
+
+<div class="mode-selector">
+  <button class="mode-btn active" data-mode="zen" id="modeZen">🧘 休闲 / Zen</button>
+  <button class="mode-btn" data-mode="normal" id="modeNormal">⏱️ 60秒限时 / 60s</button>
+  <button class="mode-btn" data-mode="blitz" id="modeBlitz">⚡ 30秒闪电 / 30s</button>
+</div>
+
+<div class="name-input-group">
+  <input type="text" id="playerName" placeholder="输入你的名字 / Your Name" maxlength="12">
+</div>
+
+<div class="stats">
+  <div class="stat">
+    <span id="scoreLabel">分数</span><br>
+    <strong id="score">0</strong>
+  </div>
+  <div class="stat">
+    <span id="timeLabel">时间</span><br>
+    <strong id="timer">--</strong>
+  </div>
+  <div class="stat">
+    <span id="bestLabel">最高分</span><br>
+    <strong id="best">0</strong>
+  </div>
+</div>
+
+<div class="main-layout">
+  <div class="sidebar" id="instructionsPanel">
+    <h3 id="rulesTitle">📖 游戏玩法说明</h3>
+    <ul class="instructions-content" id="rulesList">
+      <li>点击两个相同的水果进行合并得分。</li>
+      <li>共 12 种水果，从小到大不断合成升级！</li>
+      <li>2.5秒内连续消除可触发 <b>Combo 连击</b> 获得更高加分。</li>
+      <li>点错不同水果会重置连击！</li>
+    </ul>
+  </div>
+
+  <div class="center-container">
+    <div id="comboBarContainer">
+      <div id="comboBar"></div>
+    </div>
+    <div id="game"></div>
+    <div id="message">点击开始游戏！ / Press Start to play!</div>
+    <button class="control" id="start">开始游戏 / Start Game</button>
+  </div>
+
+  <div class="sidebar leaderboard" id="rightSidebar">
+    <h3 id="boardTitle">🏆 排行榜 (Top 5)</h3>
+    <ol id="leaderboardList"></ol>
+    <div id="zenNotice" class="zen-notice" style="display:none;">
+      休闲模式无排行榜，轻松享受合并解压吧！<br>Zen Mode has no leaderboard. Relax & enjoy!
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const game = document.getElementById("game");
+  const scoreEl = document.getElementById("score");
+  const timerEl = document.getElementById("timer");
+  const bestEl = document.getElementById("best");
+  const message = document.getElementById("message");
+  const nameInput = document.getElementById("playerName");
+  const leaderboardList = document.getElementById("leaderboardList");
+  const zenNotice = document.getElementById("zenNotice");
+  const boardTitle = document.getElementById("boardTitle");
+  const modeButtons = document.querySelectorAll(".mode-btn");
+  const comboBarContainer = document.getElementById("comboBarContainer");
+  const comboBar = document.getElementById("comboBar");
+
+  let currentMode = "zen";
+
+  let audioCtx = null;
+  let bgmInterval = null;
+  let bgmNoteIndex = 0;
+  
+  function initAudio() {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+  }
+
+  const bgmNotes = [261.63, 329.63, 392.00, 523.25, 392.00, 329.63, 293.66, 349.23];
+
+  function startBGM() {
+    stopBGM();
+    initAudio();
+    bgmNoteIndex = 0;
+    
+    let speed = 250; 
+    
+    bgmInterval = setInterval(() => {
+      if (!audioCtx) return;
+      
+      let freqMultiplier = 1;
+      if (combo >= 3 && combo < 10) { speed = 200; freqMultiplier = 1.2; }
+      else if (combo >= 10 && combo < 20) { speed = 160; freqMultiplier = 1.35; }
+      else if (combo >= 20 && combo < 30) { speed = 130; freqMultiplier = 1.5; }
+      else if (combo >= 30) { speed = 100; freqMultiplier = 1.75; }
+
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        const now = audioCtx.currentTime;
+        let freq = bgmNotes[bgmNoteIndex % bgmNotes.length] * freqMultiplier;
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, now);
+        
+        // 【已将 BGM 音量从 0.04 (4%) 提高至 0.15 (15%)】
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+        
+        osc.start(now);
+        osc.stop(now + 0.15);
+
+        bgmNoteIndex++;
+      } catch (e) {}
+    }, speed);
+  }
+
+  function stopBGM() {
+    if (bgmInterval) {
+      clearInterval(bgmInterval);
+      bgmInterval = null;
+    }
+    resetComboVisuals();
+  }
+
+  function resetComboVisuals() {
+    document.body.classList.remove("combo-tier-1", "combo-tier-2", "combo-tier-3", "combo-tier-4", "combo-tier-5");
+    game.classList.remove("glow-tier-1", "glow-tier-2", "glow-tier-3", "glow-tier-4", "glow-tier-5");
+    comboBarContainer.style.display = "none";
+  }
+
+  function updateComboVisuals() {
+    resetComboVisuals();
+    if (combo > 0) {
+      comboBarContainer.style.display = "block";
+    }
+
+    if (combo >= 50) {
+      document.body.classList.add("combo-tier-5");
+      game.classList.add("glow-tier-5");
+    } else if (combo >= 30) {
+      document.body.classList.add("combo-tier-4");
+      game.classList.add("glow-tier-4");
+    } else if (combo >= 20) {
+      document.body.classList.add("combo-tier-3");
+      game.classList.add("glow-tier-3");
+    } else if (combo >= 10) {
+      document.body.classList.add("combo-tier-2");
+      game.classList.add("glow-tier-2");
+    } else if (combo >= 3) {
+      document.body.classList.add("combo-tier-1");
+      game.classList.add("glow-tier-1");
+    }
+  }
+
+  function playSound(type, comboMultiplier = 1) {
+    try {
+      initAudio();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      const now = audioCtx.currentTime;
+
+      if (type === 'pop') {
+        osc.type = 'sine';
+        let baseFreq = 300 + Math.min(comboMultiplier * 30, 600);
+        osc.frequency.setValueAtTime(baseFreq, now);
+        osc.frequency.exponentialRampToValueAtTime(baseFreq * 2, now + 0.1);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+        osc.start(now);
+        osc.stop(now + 0.1);
+      } else if (type === 'tick') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(800, now);
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+        osc.start(now);
+        osc.stop(now + 0.05);
+      } else if (type === 'gameover') {
+        stopBGM();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(400, now);
+        osc.frequency.linearRampToValueAtTime(150, now + 0.4);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+        osc.start(now);
+        osc.stop(now + 0.4);
+      }
+    } catch (e) {}
+  }
+
+  const fruits = [
+    { emoji: "🍒", color: "#ffd9df" },
+    { emoji: "🍓", color: "#ffc7ce" },
+    { emoji: "🍊", color: "#ffe0ad" },
+    { emoji: "🍋", color: "#fff2a8" },
+    { emoji: "🍏", color: "#d9f2b4" },
+    { emoji: "🍉", color: "#c8efcb" },
+    { emoji: "🍍", color: "#ffe4a6" },
+    { emoji: "🍇", color: "#dfd0ff" },
+    { emoji: "🍑", color: "#ffccbb" },
+    { emoji: "🍈", color: "#d1ffd6" },
+    { emoji: "🥥", color: "#ebd2bc" },
+    { emoji: "👑", color: "#fff4b8" }
+  ];
+
+  const text = {
+    zh: {
+      score: "分数",
+      time: "时间",
+      best: "最高分",
+      start: "开始游戏 / Start Game",
+      restart: "重新开始 / Restart",
+      rulesTitle: "📖 游戏玩法说明",
+      rulesContent: [
+        "点击两个相同的水果进行合并得分。",
+        "共 12 种水果，从小到大不断合成升级！",
+        "2.5秒内连续消除可触发 <b>Combo 连击</b> 获得更高加分。",
+        "点错不同水果会重置连击！"
+      ],
+      ready: "点击开始游戏！",
+      playing: "请选择两个相同的水果。",
+      selected: "已选择",
+      chooseSame: "，请再选一个相同的水果！",
+      switched: "等级不同，连击中断已重置！",
+      merged: "合并成功！",
+      comboText: " 连击 x",
+      points: "分！",
+      replenished: "没有可配对的水果，已补充新水果！",
+      gameOver: "时间到！游戏结束！最终得分: ",
+      boardTitle: "🏆 排行榜 (Top 5)",
+      defaultName: "匿名玩家",
+      zenModeName: "🧘 休闲 / Zen",
+      normalModeName: "⏱️ 60秒限时 / 60s",
+      blitzModeName: "⚡ 30秒闪电 / 30s"
+    },
+    en: {
+      score: "Score",
+      time: "Time",
+      best: "Best",
+      start: "Start Game",
+      restart: "Restart",
+      rulesTitle: "📖 How to Play",
+      rulesContent: [
+        "Tap two matching fruits to merge and score.",
+        "12 fruit tiers in total — merge up to the Golden King!",
+        "Match within 2.5s to trigger <b>Combos</b> for bonus points.",
+        "Wrong taps will reset your combo!"
+      ],
+      ready: "Press Start Game to begin!",
+      playing: "Choose two matching fruits.",
+      selected: "Selected",
+      chooseSame: ". Choose another matching fruit!",
+      switched: "Different fruits! Combo reset.",
+      merged: "Merged! ",
+      comboText: " Combo x",
+      points: " pts!",
+      replenished: "New fruits added. Keep playing!",
+      gameOver: "Time's up! Game Over! Final Score: ",
+      boardTitle: "🏆 Leaderboard (Top 5)",
+      defaultName: "Anonymous",
+      zenModeName: "🧘 Zen",
+      normalModeName: "⏱️ 60s Timed",
+      blitzModeName: "⚡ 30s Blitz"
+    }
+  };
+
+  let lang = "en";
+  let score = 0;
+  let best = 0;
+  let allLeaderboards = {};
+  let timeLeft = 0;
+  let timerInterval = null;
+  let selectedId = null;
+  let nextId = 1;
+  let running = false;
+  
+  let combo = 0;
+  let lastMergeTime = 0;
+  const comboWindow = 2500;
+  let comboBarInterval = null;
+
+  try {
+    best = Number(localStorage.getItem("fruitBest")) || 0;
+    allLeaderboards = JSON.parse(localStorage.getItem("fruitAllLeaderboards")) || { normal: [], blitz: [] };
+  } catch (e) {}
+
+  bestEl.textContent = best;
+
+  function say(key) {
+    return text[lang][key];
+  }
+
+  function updateLeaderboardUI() {
+    if (currentMode === "zen") {
+      boardTitle.style.display = "none";
+      leaderboardList.style.display = "none";
+      zenNotice.style.display = "block";
+      return;
+    } else {
+      boardTitle.style.display = "block";
+      leaderboardList.style.display = "block";
+      zenNotice.style.display = "none";
+    }
+
+    leaderboardList.innerHTML = "";
+    const currentList = allLeaderboards[currentMode] || [];
+
+    if (currentList.length === 0) {
+      const li = document.createElement("li");
+      li.textContent = lang === "zh" ? "暂无记录" : "No records yet";
+      leaderboardList.appendChild(li);
+      return;
+    }
+    currentList.forEach(item => {
+      const li = document.createElement("li");
+      li.textContent = `${item.name}: ${item.score} pts`;
+      leaderboardList.appendChild(li);
+    });
+  }
+
+  function saveScoreToLeaderboard(finalScore) {
+    if (currentMode === "zen") return;
+
+    const name = nameInput.value.trim() || say("defaultName");
+    if (!allLeaderboards[currentMode]) {
+      allLeaderboards[currentMode] = [];
+    }
+    
+    allLeaderboards[currentMode].push({ name: name, score: finalScore });
+    allLeaderboards[currentMode].sort((a, b) => b.score - a.score);
+    allLeaderboards[currentMode] = allLeaderboards[currentMode].slice(0, 5);
+
+    try {
+      localStorage.setItem("fruitAllLeaderboards", JSON.stringify(allLeaderboards));
+    } catch (e) {}
+
+    updateLeaderboardUI();
+  }
+
+  function updateLanguage() {
+    document.getElementById("scoreLabel").textContent = say("score");
+    document.getElementById("timeLabel").textContent = say("time");
+    document.getElementById("bestLabel").textContent = say("best");
+    document.getElementById("start").textContent = say("start");
+    document.getElementById("restart").textContent = say("restart");
+    document.getElementById("boardTitle").textContent = say("boardTitle");
+    document.getElementById("rulesTitle").textContent = say("rulesTitle");
+    document.getElementById("modeZen").textContent = say("zenModeName");
+    document.getElementById("modeNormal").textContent = say("normalModeName");
+    document.getElementById("modeBlitz").textContent = say("blitzModeName");
+    
+    const rulesListEl = document.getElementById("rulesList");
+    rulesListEl.innerHTML = "";
+    say("rulesContent").forEach(rule => {
+      const li = document.createElement("li");
+      li.innerHTML = rule;
+      rulesListEl.appendChild(li);
+    });
+
+    nameInput.placeholder = lang === "zh" ? "输入你的名字 / Your Name" : "Your Name / 输入名字";
+    document.getElementById("language").textContent =
+      lang === "zh" ? "Switch to English" : "切换中文";
+    
+    if (!running) {
+      if (currentMode === "zen") {
+        timerEl.textContent = "--";
+      } else if (currentMode === "normal") {
+        timerEl.textContent = timeLeft > 0 ? timeLeft : "60";
+      } else if (currentMode === "blitz") {
+        timerEl.textContent = timeLeft > 0 ? timeLeft : "30";
+      }
+    }
+    updateLeaderboardUI();
+  }
+
+  function updateScore(points) {
+    score += points;
+    scoreEl.textContent = score;
+
+    if (score > best) {
+      best = score;
+      bestEl.textContent = best;
+
+      try {
+        localStorage.setItem("fruitBest", String(best));
+      } catch (e) {}
+    }
+  }
+
+  function getFruits() {
+    return [...game.querySelectorAll(".fruit")];
+  }
+
+  function hasPair() {
+    const counts = {};
+    for (const el of getFruits()) {
+      const level = el.dataset.level;
+      counts[level] = (counts[level] || 0) + 1;
+      if (counts[level] >= 2) return true;
+    }
+    return false;
+  }
+
+  function makeFruit(level, x, y) {
+    const el = document.createElement("button");
+    el.type = "button";
+    el.className = "fruit";
+    el.textContent = fruits[level].emoji;
+    el.style.backgroundColor = fruits[level].color;
+    el.style.left = x + "px";
+    el.style.top = y + "px";
+    el.dataset.id = String(nextId++);
+    el.dataset.level = String(level);
+
+    el.addEventListener("click", () => handleClick(el));
+    game.appendChild(el);
+    return el;
+  }
+
+  function addRandomFruit(level) {
+    if (!running) return;
+
+    const size = 58;
+    const maxX = Math.max(0, game.clientWidth - size);
+    const maxY = Math.max(0, game.clientHeight - size);
+    const existing = getFruits();
+
+    let bestX = Math.random() * maxX;
+    let bestY = Math.random() * maxY;
+    let bestDistance = -1;
+
+    for (let i = 0; i < 100; i++) {
+      const x = Math.random() * maxX;
+      const y = Math.random() * maxY;
+      let nearest = Infinity;
+
+      for (const other of existing) {
+        const ox = parseFloat(other.style.left);
+        const oy = parseFloat(other.style.top);
+        const distance = Math.hypot(x - ox, y - oy);
+        nearest = Math.min(nearest, distance);
+      }
+
+      if (nearest > bestDistance) {
+        bestDistance = nearest;
+        bestX = x;
+        bestY = y;
+      }
+
+      if (nearest >= size * 1.05) break;
+    }
+
+    makeFruit(level, bestX, bestY);
+  }
+
+  function ensurePlayable() {
+    if (!running) return;
+
+    while (getFruits().length < 2) {
+      addRandomFruit(Math.floor(Math.random() * 4));
+    }
+
+    if (!hasPair()) {
+      const existing = getFruits();
+      const level = Number(
+        existing[Math.floor(Math.random() * existing.length)].dataset.level
+      );
+
+      addRandomFruit(level);
+      message.textContent = say("replenished");
+    }
+  }
+
+  function showFloatingText(x, y, textString) {
+    const ft = document.createElement("div");
+    ft.className = "floating-text";
+    ft.textContent = textString;
+    ft.style.left = x + "px";
+    ft.style.top = y + "px";
+    game.appendChild(ft);
+    setTimeout(() => ft.remove(), 800);
+  }
+
+  function triggerShake() {
+    game.classList.remove("shake-anim");
+    void game.offsetWidth;
+    game.classList.add("shake-anim");
+  }
+
+  function handleClick(el) {
+    if (!running || !el.isConnected) return;
+
+    const id = el.dataset.id;
+    const level = Number(el.dataset.level);
+
+    if (selectedId === null) {
+      selectedId = id;
+      el.classList.add("selected");
+      message.textContent =
+        say("selected") + " " + el.textContent + say("chooseSame");
+      return;
+    }
+
+    if (selectedId === id) {
+      el.classList.remove("selected");
+      selectedId = null;
+      message.textContent = say("playing");
+      return;
+    }
+
+    const first = getFruits().find(
+      item => item.dataset.id === selectedId
+    );
+
+    if (!first) {
+      selectedId = null;
+      message.textContent = say("playing");
+      return;
+    }
+
+    const firstLevel = Number(first.dataset.level);
+
+    if (firstLevel !== level) {
+      first.classList.remove("selected");
+      selectedId = id;
+      el.classList.add("selected");
+      
+      combo = 0;
+      updateComboVisuals();
+      message.textContent = say("switched");
+      return;
+    }
+
+    const posX = parseFloat(el.style.left);
+    const posY = parseFloat(el.style.top);
+
+    first.remove();
+    el.remove();
+    selectedId = null;
+
+    const now = Date.now();
+    if (now - lastMergeTime <= comboWindow && combo > 0) {
+      combo++;
+    } else {
+      combo = 1;
+    }
+    lastMergeTime = now;
+
+    updateComboVisuals();
+    playSound('pop', combo);
+
+    if (combo >= 3) {
+      triggerShake();
+    }
+
+    const basePoints = (level + 1) * 10;
+    const earnedPoints = basePoints * combo;
+    updateScore(earnedPoints);
+
+    let floatStr = `+${earnedPoints}`;
+    if (combo > 1) floatStr += ` (x${combo})`;
+    showFloatingText(posX, posY, floatStr);
+
+    const nextLevel = Math.min(level + 1, fruits.length - 1);
+    addRandomFruit(nextLevel);
+    addRandomFruit(Math.floor(Math.random() * 4));
+
+    let msg = say("merged") + earnedPoints + say("points");
+    if (combo > 1) {
+      msg += say("comboText") + combo + "!";
+    }
+    message.textContent = msg;
+
+    ensurePlayable();
+  }
+
+  function startComboBarLoop() {
+    if (comboBarInterval) clearInterval(comboBarInterval);
+    comboBarInterval = setInterval(() => {
+      if (!running || combo === 0) {
+        comboBar.style.width = "0%";
+        return;
+      }
+      const elapsed = Date.now() - lastMergeTime;
+      const leftRatio = Math.max(0, (comboWindow - elapsed) / comboWindow);
+      comboBar.style.width = (leftRatio * 100) + "%";
+
+      if (elapsed > comboWindow && combo > 0) {
+        combo = 0;
+        updateComboVisuals();
+      }
+    }, 50);
+  }
+
+  function endGame() {
+    running = false;
+    stopBGM();
+    clearInterval(timerInterval);
+    clearInterval(comboBarInterval);
+    game.replaceChildren();
+    
+    playSound('gameover');
+    saveScoreToLeaderboard(score);
+
+    message.textContent = say("gameOver") + score;
+    document.getElementById("start").textContent = say("start");
+  }
+
+  function startGame() {
+    clearInterval(timerInterval);
+    game.replaceChildren();
+    score = 0;
+    selectedId = null;
+    nextId = 1;
+    running = true;
+    combo = 0;
+    scoreEl.textContent = "0";
+
+    resetComboVisuals();
+    startBGM();
+    startComboBarLoop();
+
+    if (currentMode === "zen") {
+      timeLeft = 0;
+      timerEl.textContent = "--";
+    } else if (currentMode === "normal") {
+      timeLeft = 60;
+      timerEl.textContent = timeLeft;
+    } else if (currentMode === "blitz") {
+      timeLeft = 30;
+      timerEl.textContent = timeLeft;
+    }
+
+    for (let i = 0; i < 8; i++) {
+      addRandomFruit(Math.floor(Math.random() * 4));
+    }
+
+    message.textContent = say("playing");
+
+    if (currentMode !== "zen") {
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        timerEl.textContent = timeLeft;
+
+        if (timeLeft <= 5 && timeLeft > 0) {
+          playSound('tick');
+        }
+
+        if (timeLeft <= 0) {
+          endGame();
+        }
+      }, 1000);
+    }
+  }
+
+  modeButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      modeButtons.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentMode = btn.dataset.mode;
+      
+      if (currentMode === "zen") {
+        timerEl.textContent = "--";
+      } else if (currentMode === "normal") {
+        timerEl.textContent = "60";
+      } else if (currentMode === "blitz") {
+        timerEl.textContent = "30";
+      }
+      
+      updateLeaderboardUI();
+
+      if (running) {
+        endGame();
+      }
+    });
+  });
+
+  document.getElementById("start").addEventListener("click", startGame);
+  document.getElementById("restart").addEventListener("click", startGame);
+
+  document.getElementById("language").addEventListener("click", () => {
+    lang = lang === "zh" ? "en" : "zh";
+    updateLanguage();
+  });
+
+  updateLanguage();
+})();
+</script>
+</body>
+</html>
