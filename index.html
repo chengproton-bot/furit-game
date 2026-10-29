@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Fruit Merge Challenge - Master Edition</title>
+<title>Fruit Merge Challenge - Arcade Edition</title>
 <style>
 * { box-sizing: border-box; }
 
@@ -231,22 +231,56 @@ input { font-family: inherit; }
   z-index: 15;
 }
 
-#pauseOverlay {
+/* 中央开始/游戏结束遮罩图层 */
+.overlay-panel {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(255, 250, 243, 0.85);
-  backdrop-filter: blur(2px);
-  display: none;
+  background: rgba(255, 250, 243, 0.92);
+  backdrop-filter: blur(4px);
+  display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  z-index: 20;
-  font-size: 20px;
-  font-weight: bold;
+  z-index: 25;
+  padding: 20px;
+}
+
+.overlay-panel h2 {
+  font-size: 28px;
   color: #ed6193;
+  margin: 0 0 10px 0;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.overlay-panel p {
+  font-size: 16px;
+  color: #493344;
+  margin: 0 0 20px 0;
+  font-weight: bold;
+}
+
+.center-btn {
+  border: 0;
+  border-radius: 20px;
+  padding: 14px 28px;
+  background: linear-gradient(135deg, #ff69b4, #ed6193);
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+  box-shadow: 0 4px 15px rgba(237, 97, 147, 0.4);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.center-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(237, 97, 147, 0.6);
+}
+
+.center-btn:active {
+  transform: scale(0.95);
 }
 
 .combo-banner {
@@ -410,7 +444,6 @@ input { font-family: inherit; }
 
 <div class="toolbar">
   <button class="control" id="language">中文 / English</button>
-  <button class="control" id="restart">重新开始 / Restart</button>
   <button class="control" id="pauseBtn" style="display:none;">⏸️ 暂停 / Pause</button>
   <button class="control" id="muteBtn">🔊 音效: 开 / Sound: ON</button>
 </div>
@@ -464,10 +497,28 @@ input { font-family: inherit; }
     <div id="game">
       <canvas id="particleCanvas"></canvas>
       <div id="comboBanner" class="combo-banner">GOOD!</div>
-      <div id="pauseOverlay">⏸️ 游戏已暂停<br><span style="font-size: 14px; font-weight: normal; margin-top: 5px;">Game Paused</span></div>
+
+      <!-- 游戏初始开始面板 -->
+      <div id="startOverlay" class="overlay-panel">
+        <h2 id="welcomeTitle">🍓 水果大合并</h2>
+        <p id="welcomeDesc">放松心情，滑动合并！</p>
+        <button class="center-btn" id="startBtn">▶️ 开始游戏 / Start</button>
+      </div>
+
+      <!-- 游戏结束结算面板 -->
+      <div id="gameOverOverlay" class="overlay-panel" style="display:none;">
+        <h2>💥 GAME OVER</h2>
+        <p id="finalScoreDesc">最终得分: <span id="finalScoreVal">0</span></p>
+        <button class="center-btn" id="playAgainBtn">🔄 再来一局 / Play Again</button>
+      </div>
+
+      <!-- 休闲模式暂停遮罩 -->
+      <div id="pauseOverlay" class="overlay-panel" style="display:none;">
+        <h2>⏸️ 游戏已暂停</h2>
+        <p style="font-size: 14px; font-weight: normal; margin: 0;">Game Paused</p>
+      </div>
     </div>
-    <div id="message">点击开始游戏！ / Press Start to play!</div>
-    <button class="control" id="start">开始游戏 / Start Game</button>
+    <div id="message">准备好了吗？点击开始！ / Ready? Press Start!</div>
   </div>
 
   <div class="sidebar leaderboard" id="rightSidebar">
@@ -482,13 +533,20 @@ input { font-family: inherit; }
 <script>
 (() => {
   const game = document.getElementById("game");
+  const startOverlay = document.getElementById("startOverlay");
+  const gameOverOverlay = document.getElementById("gameOverOverlay");
   const pauseOverlay = document.getElementById("pauseOverlay");
   const comboBanner = document.getElementById("comboBanner");
+
+  const startBtn = document.getElementById("startBtn");
+  const playAgainBtn = document.getElementById("playAgainBtn");
   const pauseBtn = document.getElementById("pauseBtn");
   const muteBtn = document.getElementById("muteBtn");
+
   const scoreEl = document.getElementById("score");
   const timerEl = document.getElementById("timer");
   const bestEl = document.getElementById("best");
+  const finalScoreVal = document.getElementById("finalScoreVal");
   const message = document.getElementById("message");
   const nameInput = document.getElementById("playerName");
   const leaderboardList = document.getElementById("leaderboardList");
@@ -510,7 +568,6 @@ input { font-family: inherit; }
   let isMuted = false;
   let activeTool = null;
 
-  // 道具数量限制配置 (仅在 60秒模式 使用)
   const POWERUP_LIMITS = { bomb: 2, shuffle: 2, magic: 1 };
   let powerupCounts = { bomb: 2, shuffle: 2, magic: 1 };
 
@@ -859,8 +916,6 @@ input { font-family: inherit; }
       score: "分数",
       time: "时间",
       best: "最高分",
-      start: "开始游戏 / Start Game",
-      restart: "重新开始 / Restart",
       pause: "⏸️ 暂停 / Pause",
       resume: "▶️ 继续 / Resume",
       soundOn: "🔊 音效: 开 / Sound: ON",
@@ -872,7 +927,7 @@ input { font-family: inherit; }
         "触发连续消除可解锁 <b>AWESOME! GODLIKE!</b> 炫酷喊话！",
         "<b>60秒限时模式专属道具：</b>💣 炸弹 (限2次)、🔄 重排 (限2次)、🪄 魔棒升一级 (限1次)！"
       ],
-      ready: "点击开始游戏！",
+      readyMsg: "准备好了吗？点击开始！",
       playing: "请选择两个相同的水果。",
       pausedMsg: "游戏已暂停",
       selected: "已选择",
@@ -885,19 +940,21 @@ input { font-family: inherit; }
       bombUsed: "💣 炸弹引爆！水果已消除并补充新水果！",
       magicUsed: "🪄 变身魔法！水果等级提升！",
       shuffled: "🔄 棋盘水果已重新打乱！",
-      gameOver: "时间到！游戏结束！最终得分: ",
+      gameOverMsg: "游戏结束！再接再厉！",
       boardTitle: "🏆 排行榜 (Top 5)",
       defaultName: "匿名玩家",
       zenModeName: "🧘 休闲 / Zen",
       normalModeName: "⏱️ 60秒限时 / 60s",
-      blitzModeName: "⚡ 30秒闪电 / 30s"
+      blitzModeName: "⚡ 30秒闪电 / 30s",
+      welcomeTitle: "🍓 水果大合并",
+      welcomeDesc: "轻松解压，爽快连击！",
+      startBtn: "▶️ 开始游戏 / Start",
+      playAgainBtn: "🔄 再来一局 / Play Again"
     },
     en: {
       score: "Score",
       time: "Time",
       best: "Best",
-      start: "Start Game",
-      restart: "Restart",
       pause: "⏸️ Pause",
       resume: "▶️ Resume",
       soundOn: "🔊 Sound: ON",
@@ -909,7 +966,7 @@ input { font-family: inherit; }
         "Chain matches to trigger <b>AWESOME! GODLIKE!</b> sound effects!",
         "<b>60s Mode Exclusive Tools:</b> 💣 Bomb (2x), 🔄 Shuffle (2x), 🪄 Magic Wand (1x)!"
       ],
-      ready: "Press Start Game to begin!",
+      readyMsg: "Ready? Press Start to play!",
       playing: "Choose two matching fruits.",
       pausedMsg: "Game Paused",
       selected: "Selected",
@@ -922,12 +979,16 @@ input { font-family: inherit; }
       bombUsed: "💣 Boom! Fruit destroyed and new fruit added!",
       magicUsed: "🪄 Magic! Fruit level upgraded!",
       shuffled: "🔄 Fruits reshuffled!",
-      gameOver: "Time's up! Game Over! Final Score: ",
+      gameOverMsg: "Game Over! Better luck next time!",
       boardTitle: "🏆 Leaderboard (Top 5)",
       defaultName: "Anonymous",
       zenModeName: "🧘 Zen",
       normalModeName: "⏱️ 60s Timed",
-      blitzModeName: "⚡ 30s Blitz"
+      blitzModeName: "⚡ 30s Blitz",
+      welcomeTitle: "🍓 Fruit Merge Challenge",
+      welcomeDesc: "Relax & Merge Up to the Golden Crown!",
+      startBtn: "▶️ Start Game",
+      playAgainBtn: "🔄 Play Again"
     }
   };
 
@@ -958,7 +1019,6 @@ input { font-family: inherit; }
   }
 
   function updatePowerupUI() {
-    // 道具只允许在 60s 模式 (normal) 下使用
     const isNormalMode = currentMode === "normal";
 
     btnBomb.textContent = `💣 炸弹 (${powerupCounts.bomb})`;
@@ -1021,13 +1081,16 @@ input { font-family: inherit; }
     document.getElementById("scoreLabel").textContent = say("score");
     document.getElementById("timeLabel").textContent = say("time");
     document.getElementById("bestLabel").textContent = say("best");
-    document.getElementById("start").textContent = say("start");
-    document.getElementById("restart").textContent = say("restart");
     document.getElementById("boardTitle").textContent = say("boardTitle");
     document.getElementById("rulesTitle").textContent = say("rulesTitle");
     document.getElementById("modeZen").textContent = say("zenModeName");
     document.getElementById("modeNormal").textContent = say("normalModeName");
     document.getElementById("modeBlitz").textContent = say("blitzModeName");
+
+    document.getElementById("welcomeTitle").textContent = say("welcomeTitle");
+    document.getElementById("welcomeDesc").textContent = say("welcomeDesc");
+    startBtn.textContent = say("startBtn");
+    playAgainBtn.textContent = say("playAgainBtn");
 
     muteBtn.textContent = isMuted ? say("soundOff") : say("soundOn");
 
@@ -1189,7 +1252,6 @@ input { font-family: inherit; }
     const posY = parseFloat(el.style.top);
     const level = Number(el.dataset.level);
 
-    // 使用炸弹 (仅限 60s 模式)
     if (activeTool === 'bomb' && currentMode === "normal" && powerupCounts.bomb > 0) {
       powerupCounts.bomb--;
       spawnParticles(posX, posY, "#ff3366", 25);
@@ -1203,7 +1265,6 @@ input { font-family: inherit; }
       return;
     }
 
-    // 使用魔棒 (仅限 60s 模式)
     if (activeTool === 'magic' && currentMode === "normal" && powerupCounts.magic > 0) {
       powerupCounts.magic--;
       const nextLevel = Math.min(level + 1, fruits.length - 1);
@@ -1299,7 +1360,6 @@ input { font-family: inherit; }
     ensurePlayable();
   }
 
-  // 重排 (仅限 60s 模式)
   btnShuffle.addEventListener("click", () => {
     if (!running || isPaused || currentMode !== "normal" || powerupCounts.shuffle <= 0) return;
     powerupCounts.shuffle--;
@@ -1414,8 +1474,10 @@ input { font-family: inherit; }
     playSound('gameover');
     saveScoreToLeaderboard(score);
 
-    message.textContent = say("gameOver") + score;
-    document.getElementById("start").textContent = say("start");
+    // 弹出 GAME OVER 结算面板
+    finalScoreVal.textContent = score;
+    gameOverOverlay.style.display = "flex";
+    message.textContent = say("gameOverMsg");
   }
 
   function startGame() {
@@ -1426,11 +1488,15 @@ input { font-family: inherit; }
     nextId = 1;
     running = true;
     isPaused = false;
+
+    // 隐藏遮罩弹窗
+    startOverlay.style.display = "none";
+    gameOverOverlay.style.display = "none";
     pauseOverlay.style.display = "none";
+
     combo = 0;
     scoreEl.textContent = "0";
 
-    // 重置道具次数
     powerupCounts = { ...POWERUP_LIMITS };
     clearActiveTool();
     updatePowerupUI();
@@ -1502,8 +1568,8 @@ input { font-family: inherit; }
     });
   });
 
-  document.getElementById("start").addEventListener("click", startGame);
-  document.getElementById("restart").addEventListener("click", startGame);
+  startBtn.addEventListener("click", startGame);
+  playAgainBtn.addEventListener("click", startGame);
 
   document.getElementById("language").addEventListener("click", () => {
     lang = lang === "zh" ? "en" : "zh";
