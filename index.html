@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Fruit Merge Challenge - Ergonomic Edition v1.8</title>
+<title>Fruit Merge Challenge - Ergonomic Edition v1.9</title>
 <style>
 * { 
   box-sizing: border-box; 
@@ -375,7 +375,7 @@ input {
   border: 1px dashed #ffc107;
   padding: 4px 10px;
   border-radius: 10px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   display: none;
   animation: pulseNotice 1s infinite alternate;
 }
@@ -1794,15 +1794,15 @@ input {
     }
   });
 
+  // 邀请好友分享（已移除重复 URL，并带上丰富的水果视觉表情矩阵）
   shareBtn.addEventListener("click", () => {
     const playerName = nameInput.value.trim() || "Player";
     const gameUrl = window.location.href.split('?')[0];
-    
-    const recordTag = isNewRecordInCurrentGame ? "👑【刷新纪录】" : "🏆";
+    const recordTag = isNewRecordInCurrentGame ? "👑【刷新最高纪录】" : "🏆";
 
     const shareText = lang === "zh"
-      ? `🍓🍉✨【水果大合并】战报来袭！✨🍉🍓\n\n玩家【${playerName}】在「${currentMode.toUpperCase()}」模式中打出了 ${recordTag} ${score} 分！\n\n你能超越我吗？快来合成大皇冠👑，霸占排行榜吧：\n👇 戳链接立即加入游戏：\n${gameUrl}`
-      : `🍓🍉✨ Fruit Merge Challenge! ✨🍉🍓\n\nPlayer [${playerName}] scored ${recordTag} ${score} pts in [${currentMode.toUpperCase()}] mode!\n\nCan you beat this score? Merge up to the Golden Crown 👑!\n👇 Play now:\n${gameUrl}`;
+      ? `🍓🍉🍍🍇🍒👑✨\n【水果大合并】战报新鲜出炉！\n\n玩家【${playerName}】在「${currentMode.toUpperCase()}」模式中打出了 ${recordTag} ${score} 分！\n\n你能合成出终极金皇冠👑并超越我吗？\n👇 戳链接立即加入游戏挑战：\n${gameUrl}`
+      : `🍓🍉🍍🍇🍒👑✨\nFruit Merge Challenge Result!\n\nPlayer [${playerName}] scored ${recordTag} ${score} pts in [${currentMode.toUpperCase()}] mode!\n\nCan you merge to the Golden Crown 👑 and beat this score?\n👇 Play now:\n${gameUrl}`;
 
     if (navigator.share) {
       navigator.share({
@@ -1812,7 +1812,7 @@ input {
       }).catch(() => {});
     } else {
       navigator.clipboard.writeText(shareText).then(() => {
-        alert(lang === "zh" ? "📋 战绩与邀请链接已复制！快发给好友吧！" : "📋 Score and invite link copied!");
+        alert(lang === "zh" ? "📋 战报已复制！快发给好友让他们来挑战吧！" : "📋 Score and invite link copied!");
       }).catch(() => {
         alert(shareText);
       });
