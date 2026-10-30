@@ -3,24 +3,29 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Fruit Merge Challenge - Ergonomic Edition v1.5</title>
+<title>Fruit Merge Challenge - Ergonomic Edition v1.7</title>
 <style>
 * { 
   box-sizing: border-box; 
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 body {
   margin: 0;
-  padding: 15px 10px;
+  padding: 10px 10px;
   font-family: Arial, sans-serif;
   text-align: center;
   color: #493344;
   background: linear-gradient(135deg, #fff1d6, #ffd6e7);
   transition: background 0.5s ease;
-  overflow-x: hidden;
-  -webkit-user-select: none;
-  user-select: none;
-  -webkit-touch-callout: none;
+  overflow: hidden; 
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
 }
 
 body.combo-tier-1 {
@@ -54,7 +59,7 @@ body.combo-tier-5 {
   100% { filter: hue-rotate(360deg); }
 }
 
-h1 { font-size: 26px; margin-bottom: 10px; }
+h1 { font-size: 22px; margin: 4px 0 8px 0; }
 
 button {
   font-family: inherit;
@@ -72,20 +77,20 @@ input {
 .toolbar {
   display: flex;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .control {
   border: 0;
-  border-radius: 12px;
-  padding: 8px 14px;
+  border-radius: 10px;
+  padding: 6px 12px;
   margin: 2px;
   background: #ed6193;
   color: white;
   font-weight: bold;
-  font-size: 13px;
+  font-size: 12px;
   transition: transform 0.1s, background 0.2s;
 }
 
@@ -94,19 +99,19 @@ input {
 .mode-selector {
   display: flex;
   justify-content: center;
-  gap: 6px;
-  margin: 8px 0;
+  gap: 5px;
+  margin: 4px 0 6px 0;
   flex-wrap: wrap;
 }
 
 .mode-btn {
   border: 2px solid #ed6193;
-  border-radius: 10px;
-  padding: 5px 10px;
+  border-radius: 8px;
+  padding: 4px 8px;
   background: white;
   color: #ed6193;
   font-weight: bold;
-  font-size: 12px;
+  font-size: 11px;
   cursor: pointer;
 }
 
@@ -118,24 +123,23 @@ input {
 .powerups-bar {
   display: flex;
   justify-content: center;
-  gap: 8px;
-  margin: 10px auto 4px auto;
+  gap: 6px;
+  margin: 6px auto;
   flex-wrap: wrap;
 }
 
 .powerup-btn {
   border: 2px solid #ff8da1;
-  border-radius: 12px;
-  padding: 8px 12px;
+  border-radius: 10px;
+  padding: 6px 10px;
   background: white;
   color: #493344;
   font-weight: bold;
-  font-size: 12px;
+  font-size: 11px;
   display: flex;
   align-items: center;
   gap: 4px;
-  transition: all 0.2s;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
 .powerup-btn:hover:not(:disabled) { background: #fff0f5; }
@@ -152,18 +156,17 @@ input {
   color: #888;
 }
 
-.name-input-group { margin: 8px 0; }
+.name-input-group { margin: 6px 0; }
 .name-input-group input {
-  padding: 9px 14px;
-  border-radius: 12px;
+  padding: 8px 12px;
+  border-radius: 10px;
   border: 2px solid #ed6193;
-  font-size: 14px;
+  font-size: 13px;
   outline: none;
-  width: 210px;
+  width: 190px;
   text-align: center;
   background: white;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-  transition: border-color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 
 .name-input-group input.error-shake {
@@ -175,25 +178,25 @@ input {
 .stats {
   display: flex;
   justify-content: center;
-  gap: 8px;
-  margin: 10px auto;
+  gap: 6px;
+  margin: 6px auto;
 }
 
 .stat {
   background: white;
-  border-radius: 10px;
-  padding: 8px 10px;
-  min-width: 80px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-  font-size: 13px;
+  border-radius: 8px;
+  padding: 6px 8px;
+  min-width: 75px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  font-size: 12px;
 }
-.stat strong { font-size: 15px; }
+.stat strong { font-size: 14px; }
 
 .main-layout {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  gap: 15px;
+  gap: 10px;
   max-width: 960px;
   margin: 0 auto;
   flex-wrap: wrap;
@@ -201,43 +204,45 @@ input {
 
 .sidebar {
   flex: 1;
-  min-width: 250px;
-  max-width: 280px;
+  min-width: 240px;
+  max-width: 260px;
   background: white;
-  border-radius: 16px;
-  padding: 15px;
+  border-radius: 14px;
+  padding: 10px 12px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.06);
   text-align: left;
+  max-height: 380px;
+  overflow-y: auto;
 }
 
 .sidebar h3 {
-  margin: 0 0 10px 0;
-  font-size: 15px;
+  margin: 0 0 6px 0;
+  font-size: 14px;
   text-align: center;
   color: #ed6193;
 }
 
 .instructions-content {
-  font-size: 13px;
-  line-height: 1.6;
+  font-size: 12px;
+  line-height: 1.5;
   color: #555;
   margin: 0;
-  padding-left: 18px;
+  padding-left: 16px;
 }
-.instructions-content li { margin-bottom: 6px; }
+.instructions-content li { margin-bottom: 4px; }
 
 .center-container { flex: 0 0 360px; }
 
 #game {
   position: relative;
   width: 360px;
-  height: 410px;
+  height: 380px;
   margin: auto;
   background: #fffaf3;
   border: 4px solid white;
-  border-radius: 20px;
+  border-radius: 18px;
   overflow: hidden;
-  touch-action: manipulation;
+  touch-action: none; 
   box-shadow: 0 4px 15px rgba(0,0,0,0.08);
   transition: box-shadow 0.3s ease, border-color 0.3s ease;
 }
@@ -258,46 +263,46 @@ input {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(255, 250, 243, 0.95);
+  background: rgba(255, 250, 243, 0.96);
   backdrop-filter: blur(4px);
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
   z-index: 25;
-  padding: 20px;
+  padding: 15px;
 }
 
 .overlay-panel h2 {
-  font-size: 24px;
+  font-size: 22px;
   color: #ed6193;
-  margin: 0 0 6px 0;
+  margin: 0 0 4px 0;
   text-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .overlay-panel p {
-  font-size: 13px;
+  font-size: 12px;
   color: #493344;
-  margin: 0 0 10px 0;
+  margin: 0 0 8px 0;
   font-weight: bold;
 }
 
 .name-prompt-tip {
-  font-size: 12px;
+  font-size: 11px;
   color: #ed6193;
-  margin-bottom: 4px;
+  margin-bottom: 3px;
   font-weight: bold;
 }
 
 .center-btn {
   border: 0;
-  border-radius: 18px;
-  padding: 10px 22px;
+  border-radius: 16px;
+  padding: 10px 20px;
   background: linear-gradient(135deg, #ff69b4, #ed6193);
   color: white;
   font-weight: bold;
-  font-size: 15px;
-  box-shadow: 0 4px 12px rgba(237, 97, 147, 0.4);
+  font-size: 14px;
+  box-shadow: 0 4px 10px rgba(237, 97, 147, 0.4);
   transition: transform 0.15s, box-shadow 0.15s;
   cursor: pointer;
   margin-top: 4px;
@@ -305,7 +310,7 @@ input {
 
 .center-btn:hover {
   transform: scale(1.05);
-  box-shadow: 0 6px 18px rgba(237, 97, 147, 0.6);
+  box-shadow: 0 6px 16px rgba(237, 97, 147, 0.6);
 }
 
 .center-btn:active { transform: scale(0.95); }
@@ -314,7 +319,7 @@ input {
   background: white;
   color: #ed6193;
   border: 2px solid #ed6193;
-  margin-top: 6px;
+  margin-top: 5px;
 }
 .secondary-btn:hover {
   background: #fff0f5;
@@ -325,7 +330,7 @@ input {
   top: 40%;
   left: 50%;
   transform: translate(-50%, -50%) scale(0.2) rotate(-10deg);
-  font-size: 32px;
+  font-size: 30px;
   font-weight: 900;
   font-style: italic;
   color: #ff2a6d;
@@ -342,25 +347,44 @@ input {
   transform: translate(-50%, -50%) scale(1.1) rotate(0deg);
 }
 
-/* 破纪录专属庆祝横幅动画 */
+/* 局中 0.5 秒极速快闪提醒 */
 .new-best-banner {
   position: absolute;
   top: 25%;
   left: 50%;
   transform: translate(-50%, -50%) scale(0);
-  font-size: 28px;
+  font-size: 24px;
   font-weight: 900;
   color: #ffb703;
-  text-shadow: 0 0 15px rgba(255, 183, 3, 0.8), 2px 2px 0px #000;
+  text-shadow: 0 0 12px rgba(255, 183, 3, 0.8), 2px 2px 0px #000;
   pointer-events: none;
   z-index: 35;
   white-space: nowrap;
   opacity: 0;
-  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+  transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.15s ease;
 }
 .new-best-banner.show {
   opacity: 1;
-  transform: translate(-50%, -50%) scale(1.1) rotate(-3deg);
+  transform: translate(-50%, -50%) scale(1.05) rotate(-2deg);
+}
+
+/* 局末破纪录专属横幅 */
+.game-over-record {
+  font-size: 13px;
+  font-weight: bold;
+  color: #ff8c00;
+  background: #fff3cd;
+  border: 1px dashed #ffc107;
+  padding: 4px 10px;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  display: none;
+  animation: pulseNotice 1s infinite alternate;
+}
+
+@keyframes pulseNotice {
+  0% { transform: scale(0.98); }
+  100% { transform: scale(1.03); }
 }
 
 #game.glow-tier-1 {
@@ -404,9 +428,9 @@ input {
 
 #comboBarContainer {
   width: 360px;
-  height: 6px;
+  height: 5px;
   background: #eee;
-  margin: 6px auto;
+  margin: 4px auto;
   border-radius: 3px;
   overflow: hidden;
   display: none;
@@ -421,7 +445,7 @@ input {
 .floating-text {
   position: absolute;
   font-weight: bold;
-  font-size: 18px;
+  font-size: 16px;
   color: #ff3366;
   text-shadow: 0 2px 4px rgba(0,0,0,0.2);
   pointer-events: none;
@@ -431,22 +455,22 @@ input {
 
 @keyframes floatUp {
   0% { opacity: 1; transform: translateY(0) scale(0.8); }
-  50% { transform: translateY(-25px) scale(1.2); }
-  100% { opacity: 0; transform: translateY(-50px) scale(1); }
+  50% { transform: translateY(-22px) scale(1.2); }
+  100% { opacity: 0; transform: translateY(-45px) scale(1); }
 }
 
 .fruit {
   position: absolute;
-  width: 58px;
-  height: 58px;
+  width: 54px;
+  height: 54px;
   border: 3px solid white;
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 0;
-  font-size: 32px;
-  box-shadow: 0 3px 7px #0002;
+  font-size: 28px;
+  box-shadow: 0 3px 6px #0002;
   user-select: none;
   transition: transform 0.15s ease;
 }
@@ -457,28 +481,33 @@ input {
 }
 
 #message {
-  min-height: 40px;
-  padding: 8px 4px;
+  min-height: 32px;
+  padding: 4px;
   font-weight: bold;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .leaderboard ol {
   margin: 0;
-  padding-left: 20px;
-  font-size: 13px;
+  padding-left: 18px;
+  font-size: 12px;
 }
-.leaderboard li { margin-bottom: 5px; }
+.leaderboard li { margin-bottom: 4px; }
 
 .zen-notice {
-  font-size: 13px;
+  font-size: 12px;
   color: #888;
   text-align: center;
-  margin-top: 20px;
-  line-height: 1.5;
+  margin-top: 15px;
+  line-height: 1.4;
 }
 
 @media screen and (max-width: 900px) {
+  body {
+    overflow: auto;
+    position: static;
+    height: auto;
+  }
   .main-layout {
     flex-direction: column;
     align-items: center;
@@ -486,7 +515,8 @@ input {
   .sidebar {
     width: 100%;
     max-width: 360px;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
+    max-height: 180px;
   }
   .center-container {
     order: -1;
@@ -545,37 +575,38 @@ input {
     <div id="game">
       <canvas id="particleCanvas"></canvas>
       <div id="comboBanner" class="combo-banner">GOOD!</div>
-      <div id="newBestBanner" class="new-best-banner">🎉 NEW BEST! 🎉</div>
+      <div id="newBestBanner" class="new-best-banner">🔥 NEW BEST!</div>
 
       <!-- 开始面板 -->
       <div id="startOverlay" class="overlay-panel">
         <h2 id="welcomeTitle">🍓 水果大合并</h2>
         <p id="welcomeDesc">轻松解压，爽快连击！</p>
         <div class="name-prompt-tip" id="nameTip">请输入你的玩家大名：</div>
-        <div class="name-input-group" style="margin-bottom: 12px;">
+        <div class="name-input-group" style="margin-bottom: 10px;">
           <input type="text" id="playerName" placeholder="输入你的名字 / Your Name" maxlength="12">
         </div>
         <button class="center-btn" id="startBtn">▶️ 开始游戏 / Start</button>
       </div>
 
-      <!-- 结束面板（新增分享战绩按钮） -->
+      <!-- 结束面板 -->
       <div id="gameOverOverlay" class="overlay-panel" style="display:none;">
         <h2>💥 GAME OVER</h2>
+        <div id="gameOverRecord" class="game-over-record">🎉 刷新最高纪录！ / NEW RECORD!</div>
         <p id="finalScoreDesc">最终得分: <span id="finalScoreVal">0</span></p>
         <button class="center-btn" id="playAgainBtn">🔄 再来一局 / Play Again</button>
-        <button class="center-btn secondary-btn" id="shareBtn">📤 分享战绩 / Share</button>
+        <button class="center-btn secondary-btn" id="shareBtn">📤 邀请好友来挑战 / Invite</button>
       </div>
 
       <div id="pauseOverlay" class="overlay-panel" style="display:none;">
         <h2>⏸️ 游戏已暂停</h2>
-        <p style="font-size: 14px; font-weight: normal; margin: 0;">Game Paused</p>
+        <p style="font-size: 13px; font-weight: normal; margin: 0;">Game Paused</p>
       </div>
     </div>
 
     <div class="powerups-bar">
-      <button class="powerup-btn" id="btnBomb">💣 炸弹 / Bomb (2)</button>
-      <button class="powerup-btn" id="btnShuffle">🔄 重排 / Shuffle (2)</button>
-      <button class="powerup-btn" id="btnMagic">🪄 升一级 / Magic (1)</button>
+      <button class="powerup-btn" id="btnBomb">💣 炸弹 (2)</button>
+      <button class="powerup-btn" id="btnShuffle">🔄 重排 (2)</button>
+      <button class="powerup-btn" id="btnMagic">🪄 升一级 (1)</button>
     </div>
 
     <div id="message">准备好了吗？点击开始！ / Ready? Press Start!</div>
@@ -585,7 +616,7 @@ input {
     <h3 id="boardTitle">🏆 排行榜 (Top 5)</h3>
     <ol id="leaderboardList"></ol>
     <div id="zenNotice" class="zen-notice" style="display:none;">
-      休闲模式无排行榜，轻松享受合并解压吧！<br>Zen Mode has no leaderboard. Relax & enjoy!
+      休闲模式无排行榜，轻松享受合并解压吧！<br>Zen Mode has no leaderboard.
     </div>
   </div>
 </div>
@@ -598,6 +629,7 @@ input {
   const pauseOverlay = document.getElementById("pauseOverlay");
   const comboBanner = document.getElementById("comboBanner");
   const newBestBanner = document.getElementById("newBestBanner");
+  const gameOverRecord = document.getElementById("gameOverRecord");
 
   const startBtn = document.getElementById("startBtn");
   const playAgainBtn = document.getElementById("playAgainBtn");
@@ -635,6 +667,7 @@ input {
   let isPaused = false;
   let isMuted = false;
   let activeTool = null;
+  let isNewRecordInCurrentGame = false; // 标记本局是否打破纪录
 
   const POWERUP_LIMITS = { bomb: 2, shuffle: 2, magic: 1 };
   let powerupCounts = { bomb: 2, shuffle: 2, magic: 1 };
@@ -657,8 +690,8 @@ input {
       const angle = Math.random() * Math.PI * 2;
       const speed = Math.random() * 5 + 2;
       particles.push({
-        x: x + 29,
-        y: y + 29,
+        x: x + 27,
+        y: y + 27,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
         radius: Math.random() * 4 + 2,
@@ -1026,10 +1059,10 @@ input {
       welcomeDesc: "轻松解压，爽快连击！",
       startBtn: "▶️ 开始游戏 / Start",
       playAgainBtn: "🔄 再来一局 / Play Again",
-      shareBtn: "📤 分享战绩 / Share",
-      bombLabel: "💣 炸弹 / Bomb",
-      shuffleLabel: "🔄 重排 / Shuffle",
-      magicLabel: "🪄 升一级 / Magic",
+      shareBtn: "📤 邀请好友来挑战 / Invite",
+      bombLabel: "💣 炸弹",
+      shuffleLabel: "🔄 重排",
+      magicLabel: "🪄 升一级",
       namePromptTip: "请输入你的玩家大名："
     },
     en: {
@@ -1071,7 +1104,7 @@ input {
       welcomeDesc: "Relax & Merge Up to the Golden Crown!",
       startBtn: "▶️ Start Game",
       playAgainBtn: "🔄 Play Again",
-      shareBtn: "📤 Share Score",
+      shareBtn: "📤 Invite Friends",
       bombLabel: "💣 Bomb",
       shuffleLabel: "🔄 Shuffle",
       magicLabel: "🪄 Magic",
@@ -1266,15 +1299,16 @@ input {
     updatePowerupUI();
   }
 
-  // 建议一：触发破纪录庆祝特效
-  function triggerNewBestCelebration() {
+  // 局中 0.5 秒极速快闪提示
+  function triggerQuickNewBestNotice() {
     newBestBanner.classList.remove("show");
     void newBestBanner.offsetWidth;
     newBestBanner.classList.add("show");
-    spawnParticles(game.clientWidth / 2, game.clientHeight / 3, "#ffd700", 30);
+    spawnParticles(game.clientWidth / 2, game.clientHeight / 3, "#ffd700", 20);
+    
     setTimeout(() => {
       newBestBanner.classList.remove("show");
-    }, 1200);
+    }, 500); // 0.5秒快闪，不挡视野
   }
 
   function updateScore(points) {
@@ -1286,8 +1320,9 @@ input {
       bestScores[currentMode] = score;
       bestEl.textContent = bestScores[currentMode];
 
-      if (isFirstBreak) {
-        triggerNewBestCelebration();
+      if (isFirstBreak && !isNewRecordInCurrentGame) {
+        isNewRecordInCurrentGame = true;
+        triggerQuickNewBestNotice(); // 首次超越时触发 0.5 秒局中快闪
       }
 
       try {
@@ -1329,7 +1364,7 @@ input {
   function addRandomFruit(level) {
     if (!running || isPaused) return;
 
-    const size = 58;
+    const size = 54;
     const maxX = Math.max(0, game.clientWidth - size);
     const maxY = Math.max(0, game.clientHeight - size);
     const existing = getFruits();
@@ -1538,7 +1573,7 @@ input {
     const existing = getFruits();
     if (existing.length === 0) return;
 
-    const size = 58;
+    const size = 54;
     const maxX = Math.max(0, game.clientWidth - size);
     const maxY = Math.max(0, game.clientHeight - size);
 
@@ -1669,6 +1704,15 @@ input {
     saveScoreToLeaderboard(score);
 
     finalScoreVal.textContent = score;
+
+    // 局末隆重结算逻辑：如果本局创造了新纪录，显示金色高亮横幅
+    if (isNewRecordInCurrentGame) {
+      gameOverRecord.style.display = "block";
+      spawnParticles(game.clientWidth / 2, game.clientHeight / 4, "#ffd700", 35);
+    } else {
+      gameOverRecord.style.display = "none";
+    }
+
     gameOverOverlay.style.display = "flex";
     message.textContent = say("gameOverMsg");
   }
@@ -1689,10 +1733,12 @@ input {
     nextId = 1;
     running = true;
     isPaused = false;
+    isNewRecordInCurrentGame = false; // 重置新纪录标记
 
     startOverlay.style.display = "none";
     gameOverOverlay.style.display = "none";
     pauseOverlay.style.display = "none";
+    gameOverRecord.style.display = "none";
 
     combo = 0;
     scoreEl.textContent = "0";
@@ -1755,22 +1801,27 @@ input {
     }
   });
 
-  // 建议二：一键生成战绩文本/图片分享
+  // 炫耀/邀请好友分享
   shareBtn.addEventListener("click", () => {
     const playerName = nameInput.value.trim() || "Player";
+    const gameUrl = window.location.href.split('?')[0];
+    
+    // 如果打破了纪录，分享文案会带上 👑 破纪录勋章！
+    const recordTag = isNewRecordInCurrentGame ? "👑【刷新纪录】" : "🏆";
+
     const shareText = lang === "zh"
-      ? `🍓 【水果大合并】战绩分享 🍓\n玩家：${playerName}\n模式：${currentMode.toUpperCase()}\n最终得分：${score} 分！快来挑战我吧！`
-      : `🍓 [Fruit Merge Challenge] Score Share 🍓\nPlayer: ${playerName}\nMode: ${currentMode.toUpperCase()}\nScore: ${score} pts! Can you beat me?`;
+      ? `🍓🍉✨【水果大合并】战报来袭！✨🍉🍓\n\n玩家【${playerName}】在「${currentMode.toUpperCase()}」模式中打出了 ${recordTag} ${score} 分！\n\n你能超越我吗？快来合成大皇冠👑，霸占排行榜吧：\n👇 戳链接立即加入游戏：\n${gameUrl}`
+      : `🍓🍉✨ Fruit Merge Challenge! ✨🍉🍓\n\nPlayer [${playerName}] scored ${recordTag} ${score} pts in [${currentMode.toUpperCase()}] mode!\n\nCan you beat this score? Merge up to the Golden Crown 👑!\n👇 Play now:\n${gameUrl}`;
 
     if (navigator.share) {
       navigator.share({
         title: 'Fruit Merge Challenge',
         text: shareText,
-        url: window.location.href
+        url: gameUrl
       }).catch(() => {});
     } else {
       navigator.clipboard.writeText(shareText).then(() => {
-        alert(lang === "zh" ? "📋 战绩已复制到剪贴板，快去发给好友吧！" : "📋 Score copied to clipboard!");
+        alert(lang === "zh" ? "📋 战绩与邀请链接已复制！快发给好友吧！" : "📋 Score and invite link copied!");
       }).catch(() => {
         alert(shareText);
       });
