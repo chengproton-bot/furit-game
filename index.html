@@ -570,11 +570,10 @@ input {
   const canvas = document.getElementById("particleCanvas");
   const ctx = canvas.getContext("2d");
 
-  // ================= SUPABASE 配置 =================
+  // ================= SUPABASE 配置 (已填入你的 Key) =================
   const SUPABASE_URL = "https://xeqzhgewxiwazoadlghj.supabase.co";
-  // ⚠️ 记得去 Supabase 后台 -> Project Settings -> API -> 复制 anon/public key 填在下面：
-  const SUPABASE_KEY = "在这里填入你的anon_key"; 
-  // =================================================
+  const SUPABASE_KEY = "sb_publishable_JUPfEfcqDpk94v3MqxdQ2g_2JYst1Us"; 
+  // ==================================================================
 
   let currentMode = "normal";
   let isPaused = false;
@@ -1068,7 +1067,7 @@ input {
     btnMagic.disabled = !isNormalMode || powerupCounts.magic <= 0 || !running;
   }
 
-  // ================= 云端排行榜核心函数（已修复优化版） =================
+  // ================= 云端排行榜核心函数（已连接 Supabase） =================
   async function updateLeaderboardUI() {
     if (currentMode === "zen") {
       boardTitle.style.display = "none";
@@ -1081,8 +1080,8 @@ input {
       zenNotice.style.display = "none";
     }
 
-    if (!SUPABASE_KEY || SUPABASE_KEY === "在这里填入你的anon_key") {
-      leaderboardList.innerHTML = `<li style="color:#e83e82;">⚠️ 请先设置 SUPABASE_KEY</li>`;
+    if (!SUPABASE_KEY) {
+      leaderboardList.innerHTML = `<li style="color:#e83e82;">⚠️ 未找到 SUPABASE_KEY</li>`;
       return;
     }
 
@@ -1127,7 +1126,7 @@ input {
 
   async function saveScoreToLeaderboard(finalScore) {
     if (currentMode === "zen") return;
-    if (!SUPABASE_KEY || SUPABASE_KEY === "在这里填入你的anon_key") return;
+    if (!SUPABASE_KEY) return;
 
     const name = nameInput.value.trim() || say("defaultName");
 
