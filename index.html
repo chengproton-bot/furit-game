@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Fruit Merge Challenge - Ergonomic Edition v1.9</title>
+<title>Fruit Merge Challenge - Ergonomic Edition v2.0</title>
 <style>
 * { 
   box-sizing: border-box; 
@@ -26,6 +26,16 @@ body {
   height: 100%;
   left: 0;
   top: 0;
+}
+
+body.rush-mode {
+  background: linear-gradient(135deg, #ff4e50, #f9d423) !important;
+  animation: rushPulse 0.4s infinite alternate;
+}
+
+@keyframes rushPulse {
+  0% { filter: brightness(1); }
+  100% { filter: brightness(1.15); }
 }
 
 body.combo-tier-1 {
@@ -347,9 +357,29 @@ input {
   transform: translate(-50%, -50%) scale(1.1) rotate(0deg);
 }
 
+.rush-banner {
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  font-size: 26px;
+  font-weight: 900;
+  color: #ffcc00;
+  text-shadow: 0 0 12px rgba(255, 204, 0, 0.9), 2px 2px 0px #000;
+  pointer-events: none;
+  z-index: 35;
+  white-space: nowrap;
+  opacity: 0;
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s ease;
+}
+.rush-banner.show {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1.1) rotate(-3deg);
+}
+
 .new-best-banner {
   position: absolute;
-  top: 25%;
+  top: 32%;
   left: 50%;
   transform: translate(-50%, -50%) scale(0);
   font-size: 24px;
@@ -568,12 +598,13 @@ input {
     <div id="game">
       <canvas id="particleCanvas"></canvas>
       <div id="comboBanner" class="combo-banner">GOOD!</div>
+      <div id="rushBanner" class="rush-banner">🔥 LAST 10S x2!</div>
       <div id="newBestBanner" class="new-best-banner">🔥 NEW BEST!</div>
 
       <!-- 开始面板 -->
       <div id="startOverlay" class="overlay-panel">
         <h2 id="welcomeTitle">🍓 水果大合并</h2>
-        <p id="welcomeDesc">轻松解压，爽快连击！</p>
+        <p id="welcomeDesc">10种丰富水果，最后10秒双倍冲刺！</p>
         <div class="name-prompt-tip" id="nameTip">请输入你的玩家大名：</div>
         <div class="name-input-group" style="margin-bottom: 10px;">
           <input type="text" id="playerName" placeholder="输入你的名字 / Your Name" maxlength="12">
@@ -621,6 +652,7 @@ input {
   const gameOverOverlay = document.getElementById("gameOverOverlay");
   const pauseOverlay = document.getElementById("pauseOverlay");
   const comboBanner = document.getElementById("comboBanner");
+  const rushBanner = document.getElementById("rushBanner");
   const newBestBanner = document.getElementById("newBestBanner");
   const gameOverRecord = document.getElementById("gameOverRecord");
 
@@ -661,6 +693,8 @@ input {
   let isMuted = false;
   let activeTool = null;
   let isNewRecordInCurrentGame = false;
+  let isRushActive = false;
+  let rushBannerTriggered = false;
 
   const POWERUP_LIMITS = { bomb: 2, shuffle: 2, magic: 1 };
   let powerupCounts = { bomb: 2, shuffle: 2, magic: 1 };
@@ -741,12 +775,14 @@ input {
     function playNextNote() {
       if (!audioCtx || isPaused || isMuted || !running) return;
 
-      let speed = 250;
-      let freqMultiplier = 1;
-      if (combo >= 3 && combo < 10) { speed = 200; freqMultiplier = 1.2; }
-      else if (combo >= 10 && combo < 20) { speed = 160; freqMultiplier = 1.35; }
-      else if (combo >= 20 && combo < 30) { speed = 130; freqMultiplier = 1.5; }
-      else if (combo >= 30) { speed = 100; freqMultiplier = 1.75; }
+      let speed = isRushActive ? 120 : 250;
+      let freqMultiplier = isRushActive ? 1.6 : 1;
+      if (!isRushActive) {
+        if (combo >= 3 && combo < 10) { speed = 200; freqMultiplier = 1.2; }
+        else if (combo >= 10 && combo < 20) { speed = 160; freqMultiplier = 1.35; }
+        else if (combo >= 20 && combo < 30) { speed = 130; freqMultiplier = 1.5; }
+        else if (combo >= 30) { speed = 100; freqMultiplier = 1.75; }
+      }
 
       try {
         const osc = audioCtx.createOscillator();
@@ -757,10 +793,10 @@ input {
         const now = audioCtx.currentTime;
         let freq = bgmNotes[bgmNoteIndex % bgmNotes.length] * freqMultiplier;
 
-        osc.type = 'triangle';
+        osc.type = isRushActive ? 'sawtooth' : 'triangle';
         osc.frequency.setValueAtTime(freq, now);
 
-        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.setValueAtTime(isRushActive ? 0.18 : 0.12, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
 
         osc.start(now);
@@ -789,6 +825,7 @@ input {
   }
 
   function updateComboVisuals() {
+    if (isRushActive) return;
     resetComboVisuals();
     if (combo > 0 && !isPaused) {
       comboBarContainer.style.display = "block";
@@ -813,6 +850,7 @@ input {
   }
 
   function triggerComboAnnouncer(comboCount) {
+    if (isRushActive) return;
     let title = "";
     let soundType = "";
 
@@ -858,20 +896,12 @@ input {
     if (isPaused || isMuted) return;
     try {
       initAudio();
-
-      if (type === "good") {
-        playTone([300, 450], [0.08, 0.15], 'sine');
-      } else if (type === "great") {
-        playTone([400, 600, 800], [0.08, 0.08, 0.2], 'triangle');
-      } else if (type === "excellent") {
-        playTone([523, 659, 783, 1046], [0.06, 0.06, 0.06, 0.25], 'sine');
-      } else if (type === "awesome") {
-        playArpeggio([300, 450, 600, 900], 0.05, 'sawtooth');
-      } else if (type === "unstoppable") {
-        playGlitchSound();
-      } else if (type === "godlike") {
-        playGodlikeBass();
-      }
+      if (type === "good") playTone([300, 450], [0.08, 0.15], 'sine');
+      else if (type === "great") playTone([400, 600, 800], [0.08, 0.08, 0.2], 'triangle');
+      else if (type === "excellent") playTone([523, 659, 783, 1046], [0.06, 0.06, 0.06, 0.25], 'sine');
+      else if (type === "awesome") playArpeggio([300, 450, 600, 900], 0.05, 'sawtooth');
+      else if (type === "unstoppable") playGlitchSound();
+      else if (type === "godlike") playGodlikeBass();
     } catch (e) {}
   }
 
@@ -937,7 +967,6 @@ input {
     gain.connect(audioCtx.destination);
     osc.start(now);
     osc.stop(now + 0.5);
-
     setTimeout(() => playArpeggio([400, 600, 800, 1200, 1600], 0.04, 'sine'), 100);
   }
 
@@ -997,6 +1026,7 @@ input {
     } catch (e) {}
   }
 
+  // 扩展到 10 个水果，第 10 个为终极皇冠 (原为12个，这里截取前10种：从🍒到🥥)
   const fruits = [
     { emoji: "🍒", color: "#ffd9df" },
     { emoji: "🍓", color: "#ffc7ce" },
@@ -1007,9 +1037,7 @@ input {
     { emoji: "🍍", color: "#ffe4a6" },
     { emoji: "🍇", color: "#dfd0ff" },
     { emoji: "🍑", color: "#ffccbb" },
-    { emoji: "🍈", color: "#d1ffd6" },
-    { emoji: "🥥", color: "#ebd2bc" },
-    { emoji: "👑", color: "#fff4b8" }
+    { emoji: "👑", color: "#fff4b8" } // 第10个水果：终极皇冠！
   ];
 
   const text = {
@@ -1024,9 +1052,9 @@ input {
       rulesTitle: "📖 游戏玩法说明",
       rulesContent: [
         "点击两个相同的水果进行合并得分。",
-        "共 12 种水果，从小到大不断合成升级！",
-        "<b>⏱️ 60秒限时</b>：包含 💣 炸弹、🔄 重排、🪄 魔法棒 3种道具助力高分！",
-        "<b>⚡ 30秒闪电</b>：极速极限挑战，纯靠手速拼高分！",
+        "共 10 种水果，从小到大合成终极皇冠👑！",
+        "<b>⏱️ 60秒限时</b>：最后 10 秒开启🔥双倍分数冲刺！配有炸弹、重排、魔法道具。",
+        "<b>⚡ 30秒闪电</b>：极速极限挑战，最后 10 秒同样享受双倍冲刺！",
         "<b>🧘 休闲模式</b>：无时间限制与倒计时，轻松解压自由合并！"
       ],
       readyMsg: "准备好了吗？点击开始！",
@@ -1037,6 +1065,7 @@ input {
       switched: "等级不同，连击中断已重置！",
       merged: "合并成功！",
       comboText: " 连击 x",
+      rushText: " 🔥最后冲刺 双倍积分！",
       points: "分！",
       replenished: "自动补充了新的水果！",
       bombUsed: "💣 炸弹引爆！水果已消除并补充新水果！",
@@ -1050,7 +1079,7 @@ input {
       normalModeName: "⏱️ 60秒限时 / 60s",
       blitzModeName: "⚡ 30秒闪电 / 30s",
       welcomeTitle: "🍓 水果大合并",
-      welcomeDesc: "轻松解压，爽快连击！",
+      welcomeDesc: "10种丰富水果，最后10秒双倍冲刺！",
       startBtn: "▶️ 开始游戏 / Start",
       playAgainBtn: "🔄 再来一局 / Play Again",
       shareBtn: "📤 邀请好友来挑战 / Invite",
@@ -1070,9 +1099,9 @@ input {
       rulesTitle: "📖 How to Play",
       rulesContent: [
         "Tap two matching fruits to merge and score.",
-        "12 fruit tiers in total — merge up to the Golden Crown!",
-        "<b>⏱️ 60s Timed</b>: Use 💣 Bomb, 🔄 Shuffle & 🪄 Magic Wand to boost your score!",
-        "<b>⚡ 30s Blitz</b>: Fast-paced speed challenge to test your reflexes!",
+        "10 fruit tiers in total — merge up to the Golden Crown 👑!",
+        "<b>⏱️ 60s Timed</b>: Last 10s triggers 🔥 Double Score Rush! Use Bomb, Shuffle & Magic Wand.",
+        "<b>⚡ 30s Blitz</b>: Fast speed challenge with final 10s Double Score Rush!",
         "<b>🧘 Zen Mode</b>: No time limits or timer — relax and merge at your own pace!"
       ],
       readyMsg: "Ready? Start the game!",
@@ -1083,6 +1112,7 @@ input {
       switched: "Different fruits! Combo reset.",
       merged: "Merged! ",
       comboText: " Combo x",
+      rushText: " 🔥RUSH x2 POINTS!",
       points: " pts!",
       replenished: "New fruits added automatically!",
       bombUsed: "💣 Boom! Fruit destroyed and new fruit added!",
@@ -1096,7 +1126,7 @@ input {
       normalModeName: "⏱️ 60s Timed",
       blitzModeName: "⚡ 30s Blitz",
       welcomeTitle: "🍓 Fruit Merge Challenge",
-      welcomeDesc: "Relax & Merge Up to the Golden Crown!",
+      welcomeDesc: "10 Fruits & Final 10s Double Score Rush!",
       startBtn: "▶️ Start Game",
       playAgainBtn: "🔄 Play Again",
       shareBtn: "📤 Invite Friends",
@@ -1110,12 +1140,7 @@ input {
   let lang = "en";
   let score = 0;
 
-  let bestScores = {
-    normal: 0,
-    blitz: 0,
-    zen: 0
-  };
-
+  let bestScores = { normal: 0, blitz: 0, zen: 0 };
   let timeLeft = 0;
   let timerInterval = null;
   let selectedId = null;
@@ -1145,7 +1170,6 @@ input {
 
   function updatePowerupUI() {
     const isNormalMode = currentMode === "normal";
-
     btnBomb.textContent = `${say("bombLabel")} (${powerupCounts.bomb})`;
     btnShuffle.textContent = `${say("shuffleLabel")} (${powerupCounts.shuffle})`;
     btnMagic.textContent = `${say("magicLabel")} (${powerupCounts.magic})`;
@@ -1155,7 +1179,6 @@ input {
     btnMagic.disabled = !isNormalMode || powerupCounts.magic <= 0 || !running;
   }
 
-  // ================= 云端排行榜核心函数 =================
   async function updateLeaderboardUI() {
     if (currentMode === "zen") {
       boardTitle.style.display = "none";
@@ -1187,10 +1210,7 @@ input {
         }
       );
 
-      if (!response.ok) {
-        throw new Error(`HTTP Error: ${response.status}`);
-      }
-
+      if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
       const currentList = await response.json();
       leaderboardList.innerHTML = "";
 
@@ -1207,7 +1227,6 @@ input {
         leaderboardList.appendChild(li);
       });
     } catch (e) {
-      console.error("Fetch Leaderboard Error:", e);
       leaderboardList.innerHTML = `<li style="color:#e83e82;">加载失败 / Error</li>`;
     }
   }
@@ -1215,11 +1234,10 @@ input {
   async function saveScoreToLeaderboard(finalScore) {
     if (currentMode === "zen") return;
     if (!SUPABASE_KEY) return;
-
     const playerName = nameInput.value.trim() || (lang === "zh" ? "匿名玩家" : "Anonymous");
 
     try {
-      const response = await fetch(`${SUPABASE_URL}/rest/v1/leaderboards`, {
+      await fetch(`${SUPABASE_URL}/rest/v1/leaderboards`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1227,24 +1245,11 @@ input {
           'Authorization': `Bearer ${SUPABASE_KEY}`,
           'Prefer': 'return=minimal'
         },
-        body: JSON.stringify({
-          mode: currentMode,
-          name: playerName,
-          score: finalScore
-        })
+        body: JSON.stringify({ mode: currentMode, name: playerName, score: finalScore })
       });
-
-      if (!response.ok) {
-        const errText = await response.text();
-        console.error("Save score failed details:", errText);
-      } else {
-        updateLeaderboardUI();
-      }
-    } catch (e) {
-      console.error("Failed to save score to cloud:", e);
-    }
+      updateLeaderboardUI();
+    } catch (e) {}
   }
-  // ======================================================
 
   function updateLanguage() {
     document.getElementById("scoreLabel").textContent = say("score");
@@ -1262,7 +1267,6 @@ input {
     startBtn.textContent = say("startBtn");
     playAgainBtn.textContent = say("playAgainBtn");
     shareBtn.textContent = say("shareBtn");
-
     muteBtn.textContent = isMuted ? say("soundOff") : say("soundOn");
 
     if (currentMode === "zen" && running) {
@@ -1278,17 +1282,12 @@ input {
     });
 
     nameInput.placeholder = lang === "zh" ? "输入你的名字 / Your Name" : "Your Name / 输入名字";
-    document.getElementById("language").textContent =
-      lang === "zh" ? "Switch to English" : "切换中文";
+    document.getElementById("language").textContent = lang === "zh" ? "Switch to English" : "切换中文";
 
     if (!running) {
-      if (currentMode === "zen") {
-        timerEl.textContent = "--";
-      } else if (currentMode === "normal") {
-        timerEl.textContent = timeLeft > 0 ? timeLeft : "60";
-      } else if (currentMode === "blitz") {
-        timerEl.textContent = timeLeft > 0 ? timeLeft : "30";
-      }
+      if (currentMode === "zen") timerEl.textContent = "--";
+      else if (currentMode === "normal") timerEl.textContent = timeLeft > 0 ? timeLeft : "60";
+      else if (currentMode === "blitz") timerEl.textContent = timeLeft > 0 ? timeLeft : "30";
     }
     updateLeaderboardUI();
     updatePowerupUI();
@@ -1299,10 +1298,7 @@ input {
     void newBestBanner.offsetWidth;
     newBestBanner.classList.add("show");
     spawnParticles(game.clientWidth / 2, game.clientHeight / 3, "#ffd700", 20);
-    
-    setTimeout(() => {
-      newBestBanner.classList.remove("show");
-    }, 500);
+    setTimeout(() => { newBestBanner.classList.remove("show"); }, 500);
   }
 
   function updateScore(points) {
@@ -1318,7 +1314,6 @@ input {
         isNewRecordInCurrentGame = true;
         triggerQuickNewBestNotice();
       }
-
       try {
         localStorage.setItem(`fruitBest_${currentMode}`, String(bestScores[currentMode]));
       } catch (e) {}
@@ -1357,7 +1352,6 @@ input {
 
   function addRandomFruit(level) {
     if (!running || isPaused) return;
-
     const size = 54;
     const maxX = Math.max(0, game.clientWidth - size);
     const maxY = Math.max(0, game.clientHeight - size);
@@ -1371,41 +1365,32 @@ input {
       const x = Math.random() * maxX;
       const y = Math.random() * maxY;
       let nearest = Infinity;
-
       for (const other of existing) {
         const ox = parseFloat(other.style.left);
         const oy = parseFloat(other.style.top);
-        const distance = Math.hypot(x - ox, y - oy);
-        nearest = Math.min(nearest, distance);
+        nearest = Math.min(nearest, Math.hypot(x - ox, y - oy));
       }
-
       if (nearest > bestDistance) {
         bestDistance = nearest;
         bestX = x;
         bestY = y;
       }
-
       if (nearest >= size * 1.05) break;
     }
-
     makeFruit(level, bestX, bestY);
   }
 
   function ensurePlayable() {
     if (!running || isPaused) return;
-
     let attempts = 0;
     while (getFruits().length < 8 && attempts < 15) {
       addRandomFruit(Math.floor(Math.random() * 4));
       attempts++;
     }
-
     if (!hasPair()) {
       const existing = getFruits();
       if (existing.length > 0) {
-        const targetLevel = Number(
-          existing[Math.floor(Math.random() * existing.length)].dataset.level
-        );
+        const targetLevel = Number(existing[Math.floor(Math.random() * existing.length)].dataset.level);
         addRandomFruit(targetLevel);
         message.textContent = say("replenished");
       }
@@ -1462,7 +1447,6 @@ input {
         message.textContent = say("maxLevelMsg");
         return;
       }
-
       powerupCounts.magic--;
       const nextLevel = Math.min(level + 1, fruits.length - 1);
       el.textContent = fruits[nextLevel].emoji;
@@ -1478,12 +1462,10 @@ input {
     }
 
     const id = el.dataset.id;
-
     if (selectedId === null) {
       selectedId = id;
       el.classList.add("selected");
-      message.textContent =
-        say("selected") + " " + el.textContent + say("chooseSame");
+      message.textContent = say("selected") + " " + el.textContent + say("chooseSame");
       return;
     }
 
@@ -1495,7 +1477,6 @@ input {
     }
 
     const first = getFruits().find(item => item.dataset.id === selectedId);
-
     if (!first) {
       selectedId = null;
       message.textContent = say("playing");
@@ -1503,12 +1484,10 @@ input {
     }
 
     const firstLevel = Number(first.dataset.level);
-
     if (firstLevel !== level) {
       first.classList.remove("selected");
       selectedId = id;
       el.classList.add("selected");
-
       combo = 0;
       updateComboVisuals();
       message.textContent = say("switched");
@@ -1529,19 +1508,24 @@ input {
     }
     lastMergeTime = now;
 
-    updateComboVisuals();
+    if (!isRushActive) updateComboVisuals();
     playSound('pop', combo);
 
-    triggerComboAnnouncer(combo);
+    if (!isRushActive) triggerComboAnnouncer(combo);
+    if (combo >= 3 && !isRushActive) triggerShake();
 
-    if (combo >= 3) triggerShake();
+    let basePoints = (level + 1) * 10;
+    // 最后10秒冲刺阶段：双倍得分！
+    if (isRushActive) {
+      basePoints *= 2;
+    }
 
-    const basePoints = (level + 1) * 10;
-    const earnedPoints = basePoints * combo;
+    const earnedPoints = basePoints * (isRushActive ? 1 : combo);
     updateScore(earnedPoints);
 
     let floatStr = `+${earnedPoints}`;
-    if (combo > 1) floatStr += ` (x${combo})`;
+    if (isRushActive) floatStr += ` (RUSH x2!)`;
+    else if (combo > 1) floatStr += ` (x${combo})`;
     showFloatingText(posX, posY, floatStr);
 
     const nextLevel = Math.min(level + 1, fruits.length - 1);
@@ -1549,7 +1533,9 @@ input {
     addRandomFruit(Math.floor(Math.random() * 4));
 
     let msg = say("merged") + earnedPoints + say("points");
-    if (combo > 1) {
+    if (isRushActive) {
+      msg += say("rushText");
+    } else if (combo > 1) {
       msg += say("comboText") + combo + "!";
     }
     message.textContent = msg;
@@ -1560,7 +1546,6 @@ input {
   btnShuffle.addEventListener("click", () => {
     if (!running || isPaused || currentMode !== "normal" || powerupCounts.shuffle <= 0) return;
     powerupCounts.shuffle--;
-
     selectedId = null;
     game.querySelectorAll(".fruit.selected").forEach(f => f.classList.remove("selected"));
 
@@ -1575,28 +1560,17 @@ input {
       let bestX = Math.random() * maxX;
       let bestY = Math.random() * maxY;
       let bestDistance = -1;
-
       for (let i = 0; i < 40; i++) {
         const x = Math.random() * maxX;
         const y = Math.random() * maxY;
         let nearest = Infinity;
-
         existing.forEach(other => {
           if (other === el) return;
-          const ox = parseFloat(other.style.left) || 0;
-          const oy = parseFloat(other.style.top) || 0;
-          const dist = Math.hypot(x - ox, y - oy);
-          nearest = Math.min(nearest, dist);
+          nearest = Math.min(nearest, Math.hypot(x - parseFloat(other.style.left), y - parseFloat(other.style.top)));
         });
-
-        if (nearest > bestDistance) {
-          bestDistance = nearest;
-          bestX = x;
-          bestY = y;
-        }
+        if (nearest > bestDistance) { bestDistance = nearest; bestX = x; bestY = y; }
         if (nearest >= size * 1.05) break;
       }
-
       el.style.left = bestX + "px";
       el.style.top = bestY + "px";
     });
@@ -1610,35 +1584,21 @@ input {
 
   btnBomb.addEventListener("click", () => {
     if (!running || isPaused || currentMode !== "normal" || powerupCounts.bomb <= 0) return;
-    if (activeTool === 'bomb') {
-      clearActiveTool();
-      message.textContent = say("playing");
-    } else {
-      clearActiveTool();
-      activeTool = 'bomb';
-      btnBomb.classList.add("selected");
-      message.textContent = "💣 点击场上任意水果即可引爆清除！ / Tap any fruit to detonate!";
-    }
+    if (activeTool === 'bomb') { clearActiveTool(); message.textContent = say("playing"); }
+    else { clearActiveTool(); activeTool = 'bomb'; btnBomb.classList.add("selected"); message.textContent = "💣 点击场上任意水果即可引爆清除！"; }
   });
 
   btnMagic.addEventListener("click", () => {
     if (!running || isPaused || currentMode !== "normal" || powerupCounts.magic <= 0) return;
-    if (activeTool === 'magic') {
-      clearActiveTool();
-      message.textContent = say("playing");
-    } else {
-      clearActiveTool();
-      activeTool = 'magic';
-      btnMagic.classList.add("selected");
-      message.textContent = "🪄 点击任意水果直接升级一层！ / Tap any fruit to upgrade!";
-    }
+    if (activeTool === 'magic') { clearActiveTool(); message.textContent = say("playing"); }
+    else { clearActiveTool(); activeTool = 'magic'; btnMagic.classList.add("selected"); message.textContent = "🪄 点击任意水果直接升级一层！"; }
   });
 
   function startComboBarLoop() {
     if (comboBarInterval) clearInterval(comboBarInterval);
     comboBarInterval = setInterval(() => {
-      if (!running || isPaused || combo === 0) {
-        if (!isPaused) comboBar.style.width = "0%";
+      if (!running || isPaused || combo === 0 || isRushActive) {
+        if (!isPaused && !isRushActive) comboBar.style.width = "0%";
         return;
       }
       const elapsed = Date.now() - lastMergeTime;
@@ -1655,7 +1615,6 @@ input {
   let pauseStartTime = 0;
   function togglePause() {
     if (!running || currentMode !== "zen") return;
-
     isPaused = !isPaused;
     if (isPaused) {
       pauseOverlay.style.display = "flex";
@@ -1684,6 +1643,8 @@ input {
   function endGame() {
     running = false;
     isPaused = false;
+    isRushActive = false;
+    document.body.classList.remove("rush-mode");
     pauseOverlay.style.display = "none";
     pauseBtn.style.display = "none";
     stopBGM();
@@ -1693,10 +1654,8 @@ input {
     updatePowerupUI();
 
     game.querySelectorAll(".fruit").forEach(f => f.remove());
-
     playSound('gameover');
     saveScoreToLeaderboard(score);
-
     finalScoreVal.textContent = score;
 
     if (isNewRecordInCurrentGame) {
@@ -1727,6 +1686,9 @@ input {
     running = true;
     isPaused = false;
     isNewRecordInCurrentGame = false;
+    isRushActive = false;
+    rushBannerTriggered = false;
+    document.body.classList.remove("rush-mode");
 
     startOverlay.style.display = "none";
     gameOverOverlay.style.display = "none";
@@ -1773,6 +1735,21 @@ input {
         timeLeft--;
         timerEl.textContent = timeLeft;
 
+        // 最后10秒双倍冲刺逻辑
+        if (timeLeft <= 10 && timeLeft > 0) {
+          isRushActive = true;
+          document.body.classList.add("rush-mode");
+          comboBarContainer.style.display = "block";
+          comboBar.style.width = "100%";
+          comboBar.style.background = "linear-gradient(90deg, #ffcc00, #ff3366)";
+
+          if (!rushBannerTriggered) {
+            rushBannerTriggered = true;
+            rushBanner.classList.add("show");
+            setTimeout(() => rushBanner.classList.remove("show"), 1200);
+          }
+        }
+
         if (timeLeft <= 5 && timeLeft > 0) {
           playSound('tick');
         }
@@ -1794,7 +1771,6 @@ input {
     }
   });
 
-  // 邀请好友分享（已移除重复 URL，并带上丰富的水果视觉表情矩阵）
   shareBtn.addEventListener("click", () => {
     const playerName = nameInput.value.trim() || "Player";
     const gameUrl = window.location.href.split('?')[0];
@@ -1805,17 +1781,11 @@ input {
       : `🍓🍉🍍🍇🍒👑✨\nFruit Merge Challenge Result!\n\nPlayer [${playerName}] scored ${recordTag} ${score} pts in [${currentMode.toUpperCase()}] mode!\n\nCan you merge to the Golden Crown 👑 and beat this score?\n👇 Play now:\n${gameUrl}`;
 
     if (navigator.share) {
-      navigator.share({
-        title: 'Fruit Merge Challenge',
-        text: shareText,
-        url: gameUrl
-      }).catch(() => {});
+      navigator.share({ title: 'Fruit Merge Challenge', text: shareText, url: gameUrl }).catch(() => {});
     } else {
       navigator.clipboard.writeText(shareText).then(() => {
         alert(lang === "zh" ? "📋 战报已复制！快发给好友让他们来挑战吧！" : "📋 Score and invite link copied!");
-      }).catch(() => {
-        alert(shareText);
-      });
+      }).catch(() => { alert(shareText); });
     }
   });
 
@@ -1825,21 +1795,14 @@ input {
       btn.classList.add("active");
       currentMode = btn.dataset.mode;
 
-      if (currentMode === "zen") {
-        timerEl.textContent = "--";
-      } else if (currentMode === "normal") {
-        timerEl.textContent = "60";
-      } else if (currentMode === "blitz") {
-        timerEl.textContent = "30";
-      }
+      if (currentMode === "zen") timerEl.textContent = "--";
+      else if (currentMode === "normal") timerEl.textContent = "60";
+      else if (currentMode === "blitz") timerEl.textContent = "30";
 
       updateBestDisplay();
       updateLeaderboardUI();
       updatePowerupUI();
-
-      if (running) {
-        endGame();
-      }
+      if (running) endGame();
     });
   });
 
