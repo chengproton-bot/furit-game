@@ -572,7 +572,8 @@ input {
 
   // ================= SUPABASE 配置 =================
   const SUPABASE_URL = "https://xeqzhgewxiwazoadlghj.supabase.co";
-  const SUPABASE_KEY = "在这里填入你的anon_key"; // 请把这行替换成你在 Supabase 后台复制的 anon public 密钥
+  // ⚠️ 记得去 Supabase 后台 -> Project Settings -> API -> 复制 anon/public key 填在下面：
+  const SUPABASE_KEY = "在这里填入你的anon_key"; 
   // =================================================
 
   let currentMode = "normal";
@@ -1067,7 +1068,7 @@ input {
     btnMagic.disabled = !isNormalMode || powerupCounts.magic <= 0 || !running;
   }
 
-  // ================= 云端排行榜核心函数（已连接 Supabase） =================
+  // ================= 云端排行榜核心函数（已修复优化版） =================
   async function updateLeaderboardUI() {
     if (currentMode === "zen") {
       boardTitle.style.display = "none";
@@ -1080,19 +1081,29 @@ input {
       zenNotice.style.display = "none";
     }
 
+    if (!SUPABASE_KEY || SUPABASE_KEY === "在这里填入你的anon_key") {
+      leaderboardList.innerHTML = `<li style="color:#e83e82;">⚠️ 请先设置 SUPABASE_KEY</li>`;
+      return;
+    }
+
     leaderboardList.innerHTML = `<li style="color:#888;">加载中... / Loading...</li>`;
 
     try {
       const response = await fetch(
         `${SUPABASE_URL}/rest/v1/leaderboards?mode=eq.${currentMode}&order=score.desc&limit=5`,
         {
+          method: 'GET',
           headers: {
             'apikey': SUPABASE_KEY,
             'Authorization': `Bearer ${SUPABASE_KEY}`
           }
         }
       );
-      
+
+      if (!response.ok) {
+        throw new Error(`HTTP Error: ${response.status}`);
+      }
+
       const currentList = await response.json();
       leaderboardList.innerHTML = "";
 
@@ -1109,12 +1120,14 @@ input {
         leaderboardList.appendChild(li);
       });
     } catch (e) {
-      leaderboardList.innerHTML = `<li>获取排行榜失败 / Error</li>`;
+      console.error("Fetch Leaderboard Error:", e);
+      leaderboardList.innerHTML = `<li style="color:#e83e82;">加载失败 / Error</li>`;
     }
   }
 
   async function saveScoreToLeaderboard(finalScore) {
     if (currentMode === "zen") return;
+    if (!SUPABASE_KEY || SUPABASE_KEY === "在这里填入你的anon_key") return;
 
     const name = nameInput.value.trim() || say("defaultName");
 
@@ -1133,7 +1146,7 @@ input {
           score: finalScore
         })
       });
-      
+
       updateLeaderboardUI();
     } catch (e) {
       console.error("Failed to save score to cloud:", e);
