@@ -3,9 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Fruit Merge Challenge - Ergonomic Edition v1.1</title>
+<title>Fruit Merge Challenge - Ergonomic Edition v1.2</title>
 <style>
-* { box-sizing: border-box; }
+* { 
+  box-sizing: border-box; 
+}
 
 body {
   margin: 0;
@@ -16,6 +18,10 @@ body {
   background: linear-gradient(135deg, #fff1d6, #ffd6e7);
   transition: background 0.5s ease;
   overflow-x: hidden;
+  /* 优化移动端选中文本与触摸响应 */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 
 body.combo-tier-1 {
@@ -55,9 +61,14 @@ button {
   font-family: inherit;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
-input { font-family: inherit; }
+input { 
+  font-family: inherit;
+  -webkit-user-select: text;
+  user-select: text;
+}
 
 .toolbar {
   display: flex;
@@ -1233,8 +1244,10 @@ input { font-family: inherit; }
   function ensurePlayable() {
     if (!running || isPaused) return;
 
-    while (getFruits().length < 8) {
+    let attempts = 0;
+    while (getFruits().length < 8 && attempts < 15) {
       addRandomFruit(Math.floor(Math.random() * 4));
+      attempts++;
     }
 
     if (!hasPair()) {
@@ -1294,7 +1307,6 @@ input { font-family: inherit; }
     }
 
     if (activeTool === 'magic' && currentMode === "normal" && powerupCounts.magic > 0) {
-      // 检查是否已经是最高级皇冠
       if (level >= fruits.length - 1) {
         playSound('tick');
         message.textContent = say("maxLevelMsg");
@@ -1399,6 +1411,10 @@ input { font-family: inherit; }
     if (!running || isPaused || currentMode !== "normal" || powerupCounts.shuffle <= 0) return;
     powerupCounts.shuffle--;
 
+    // 修复点：打乱棋盘前清空当前选中状态，防止错位
+    selectedId = null;
+    game.querySelectorAll(".fruit.selected").forEach(f => f.classList.remove("selected"));
+
     const existing = getFruits();
     if (existing.length === 0) return;
 
@@ -1406,7 +1422,6 @@ input { font-family: inherit; }
     const maxX = Math.max(0, game.clientWidth - size);
     const maxY = Math.max(0, game.clientHeight - size);
 
-    // 优化的防重排重叠算法
     existing.forEach(el => {
       let bestX = Math.random() * maxX;
       let bestY = Math.random() * maxY;
