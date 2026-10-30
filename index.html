@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Fruit Merge Challenge - Ergonomic Edition v1.2</title>
+<title>Fruit Merge Challenge - Ergonomic Edition v1.3</title>
 <style>
 * { 
   box-sizing: border-box; 
@@ -154,13 +154,15 @@ input {
 
 .name-input-group { margin: 8px 0; }
 .name-input-group input {
-  padding: 7px 12px;
-  border-radius: 8px;
+  padding: 8px 14px;
+  border-radius: 10px;
   border: 2px solid #ed6193;
-  font-size: 13px;
+  font-size: 14px;
   outline: none;
-  width: 170px;
+  width: 200px;
   text-align: center;
+  background: white;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 
 .stats {
@@ -249,7 +251,7 @@ input {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(255, 250, 243, 0.92);
+  background: rgba(255, 250, 243, 0.95);
   backdrop-filter: blur(4px);
   display: flex;
   justify-content: center;
@@ -260,29 +262,30 @@ input {
 }
 
 .overlay-panel h2 {
-  font-size: 28px;
+  font-size: 26px;
   color: #ed6193;
-  margin: 0 0 10px 0;
+  margin: 0 0 8px 0;
   text-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .overlay-panel p {
-  font-size: 16px;
+  font-size: 14px;
   color: #493344;
-  margin: 0 0 20px 0;
+  margin: 0 0 15px 0;
   font-weight: bold;
 }
 
 .center-btn {
   border: 0;
   border-radius: 20px;
-  padding: 14px 28px;
+  padding: 12px 26px;
   background: linear-gradient(135deg, #ff69b4, #ed6193);
   color: white;
   font-weight: bold;
-  font-size: 18px;
+  font-size: 16px;
   box-shadow: 0 4px 15px rgba(237, 97, 147, 0.4);
   transition: transform 0.15s, box-shadow 0.15s;
+  cursor: pointer;
 }
 
 .center-btn:hover {
@@ -463,10 +466,6 @@ input {
   <button class="mode-btn" data-mode="zen" id="modeZen">🧘 休闲 / Zen</button>
 </div>
 
-<div class="name-input-group">
-  <input type="text" id="playerName" placeholder="输入你的名字 / Your Name" maxlength="12">
-</div>
-
 <div class="stats">
   <div class="stat">
     <span id="scoreLabel">分数</span><br>
@@ -501,9 +500,13 @@ input {
       <canvas id="particleCanvas"></canvas>
       <div id="comboBanner" class="combo-banner">GOOD!</div>
 
+      <!-- 开始面板（名字输入已集成在内） -->
       <div id="startOverlay" class="overlay-panel">
         <h2 id="welcomeTitle">🍓 水果大合并</h2>
         <p id="welcomeDesc">轻松解压，爽快连击！</p>
+        <div class="name-input-group" style="margin-bottom: 15px;">
+          <input type="text" id="playerName" placeholder="输入你的名字 / Your Name" maxlength="12">
+        </div>
         <button class="center-btn" id="startBtn">▶️ 开始游戏 / Start</button>
       </div>
 
@@ -570,10 +573,10 @@ input {
   const canvas = document.getElementById("particleCanvas");
   const ctx = canvas.getContext("2d");
 
-  // ================= SUPABASE 配置 (已填入你的 Key) =================
+  // ================= SUPABASE 配置 =================
   const SUPABASE_URL = "https://xeqzhgewxiwazoadlghj.supabase.co";
   const SUPABASE_KEY = "sb_publishable_JUPfEfcqDpk94v3MqxdQ2g_2JYst1Us"; 
-  // ==================================================================
+  // =================================================
 
   let currentMode = "normal";
   let isPaused = false;
@@ -989,7 +992,7 @@ input {
         "Chain matches to trigger <b>AWESOME! GODLIKE!</b> sound effects!",
         "<b>60s Mode Exclusive Tools:</b> 💣 Bomb (2x), 🔄 Shuffle (2x), 🪄 Magic Wand (1x)!"
       ],
-      readyMsg: "Ready? Press Start to play!",
+      readyMsg: "Ready? Start the game!",
       playing: "Choose two matching fruits.",
       pausedMsg: "Game Paused",
       selected: "Selected",
@@ -1067,7 +1070,7 @@ input {
     btnMagic.disabled = !isNormalMode || powerupCounts.magic <= 0 || !running;
   }
 
-  // ================= 云端排行榜核心函数（已连接 Supabase） =================
+  // ================= 云端排行榜核心函数（已修复记录与同步） =================
   async function updateLeaderboardUI() {
     if (currentMode === "zen") {
       boardTitle.style.display = "none";
@@ -1128,10 +1131,11 @@ input {
     if (currentMode === "zen") return;
     if (!SUPABASE_KEY) return;
 
-    const name = nameInput.value.trim() || say("defaultName");
+    // 获取玩家输入的名字，如果为空则使用默认名称
+    const playerName = nameInput.value.trim() || (lang === "zh" ? "匿名玩家" : "Anonymous");
 
     try {
-      await fetch(`${SUPABASE_URL}/rest/v1/leaderboards`, {
+      const response = await fetch(`${SUPABASE_URL}/rest/v1/leaderboards`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1141,12 +1145,18 @@ input {
         },
         body: JSON.stringify({
           mode: currentMode,
-          name: name,
+          name: playerName,
           score: finalScore
         })
       });
 
-      updateLeaderboardUI();
+      if (!response.ok) {
+        const errText = await response.text();
+        console.error("Save score failed details:", errText);
+      } else {
+        // 保存成功后立即刷新排行榜
+        updateLeaderboardUI();
+      }
     } catch (e) {
       console.error("Failed to save score to cloud:", e);
     }
@@ -1583,6 +1593,8 @@ input {
     game.querySelectorAll(".fruit").forEach(f => f.remove());
 
     playSound('gameover');
+    
+    // 确保游戏结束时正确保存分数与名字到云端
     saveScoreToLeaderboard(score);
 
     finalScoreVal.textContent = score;
