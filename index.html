@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Fruit Merge Challenge - Ergonomic Edition v2.0</title>
+<title>Fruit Merge Challenge - Ergonomic Edition v2.1</title>
 <style>
 * { 
   box-sizing: border-box; 
@@ -29,13 +29,13 @@ body {
 }
 
 body.rush-mode {
-  background: linear-gradient(135deg, #ff4e50, #f9d423) !important;
-  animation: rushPulse 0.4s infinite alternate;
+  background: linear-gradient(135deg, #ff3366, #ff9900, #ffcc00) !important;
+  animation: rushPulse 0.25s infinite alternate;
 }
 
 @keyframes rushPulse {
-  0% { filter: brightness(1); }
-  100% { filter: brightness(1.15); }
+  0% { filter: brightness(1) saturate(1.2); }
+  100% { filter: brightness(1.2) saturate(1.6); }
 }
 
 body.combo-tier-1 {
@@ -454,6 +454,17 @@ input {
 }
 .shake-anim { animation: shake 0.25s ease-in-out; }
 
+#game.rush-shake {
+  animation: rushShakeAnim 0.15s infinite alternate;
+  border-color: #ffcc00 !important;
+  box-shadow: 0 0 30px #ff3366, inset 0 0 20px rgba(255, 204, 0, 0.6) !important;
+}
+
+@keyframes rushShakeAnim {
+  0% { transform: translate(-2px, 1px) rotate(-0.5deg); }
+  100% { transform: translate(2px, -1px) rotate(0.5deg); }
+}
+
 #comboBarContainer {
   width: 360px;
   height: 5px;
@@ -775,8 +786,8 @@ input {
     function playNextNote() {
       if (!audioCtx || isPaused || isMuted || !running) return;
 
-      let speed = isRushActive ? 120 : 250;
-      let freqMultiplier = isRushActive ? 1.6 : 1;
+      let speed = isRushActive ? 110 : 250;
+      let freqMultiplier = isRushActive ? 1.7 : 1;
       if (!isRushActive) {
         if (combo >= 3 && combo < 10) { speed = 200; freqMultiplier = 1.2; }
         else if (combo >= 10 && combo < 20) { speed = 160; freqMultiplier = 1.35; }
@@ -796,7 +807,7 @@ input {
         osc.type = isRushActive ? 'sawtooth' : 'triangle';
         osc.frequency.setValueAtTime(freq, now);
 
-        gain.gain.setValueAtTime(isRushActive ? 0.18 : 0.12, now);
+        gain.gain.setValueAtTime(isRushActive ? 0.2 : 0.12, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
 
         osc.start(now);
@@ -854,25 +865,12 @@ input {
     let title = "";
     let soundType = "";
 
-    if (comboCount >= 20) {
-      title = "GODLIKE! 👑";
-      soundType = "godlike";
-    } else if (comboCount >= 16) {
-      title = "UNSTOPPABLE! ⚡";
-      soundType = "unstoppable";
-    } else if (comboCount >= 12) {
-      title = "AWESOME! 🔥";
-      soundType = "awesome";
-    } else if (comboCount >= 8) {
-      title = "EXCELLENT! 🎉";
-      soundType = "excellent";
-    } else if (comboCount >= 5) {
-      title = "GREAT! 🌟";
-      soundType = "great";
-    } else if (comboCount >= 3) {
-      title = "GOOD! 👍";
-      soundType = "good";
-    }
+    if (comboCount >= 20) { title = "GODLIKE! 👑"; soundType = "godlike"; }
+    else if (comboCount >= 16) { title = "UNSTOPPABLE! ⚡"; soundType = "unstoppable"; }
+    else if (comboCount >= 12) { title = "AWESOME! 🔥"; soundType = "awesome"; }
+    else if (comboCount >= 8) { title = "EXCELLENT! 🎉"; soundType = "excellent"; }
+    else if (comboCount >= 5) { title = "GREAT! 🌟"; soundType = "great"; }
+    else if (comboCount >= 3) { title = "GOOD! 👍"; soundType = "good"; }
 
     if (title !== "") {
       comboBanner.textContent = title;
@@ -880,15 +878,9 @@ input {
       void comboBanner.offsetWidth;
       comboBanner.classList.add("show");
 
-      setTimeout(() => {
-        comboBanner.classList.remove("show");
-      }, 700);
-
+      setTimeout(() => { comboBanner.classList.remove("show"); }, 700);
       playComboVoiceSound(soundType);
-
-      if (navigator.vibrate) {
-        navigator.vibrate(comboCount >= 12 ? [50, 50, 50] : 40);
-      }
+      if (navigator.vibrate) { navigator.vibrate(comboCount >= 12 ? [50, 50, 50] : 40); }
     }
   }
 
@@ -1026,7 +1018,7 @@ input {
     } catch (e) {}
   }
 
-  // 扩展到 10 个水果，第 10 个为终极皇冠 (原为12个，这里截取前10种：从🍒到🥥)
+  // 10 种水果定义（从 🍒 到 👑 皇冠）[span_0](start_span)[span_0](end_span)
   const fruits = [
     { emoji: "🍒", color: "#ffd9df" },
     { emoji: "🍓", color: "#ffc7ce" },
@@ -1037,7 +1029,7 @@ input {
     { emoji: "🍍", color: "#ffe4a6" },
     { emoji: "🍇", color: "#dfd0ff" },
     { emoji: "🍑", color: "#ffccbb" },
-    { emoji: "👑", color: "#fff4b8" } // 第10个水果：终极皇冠！
+    { emoji: "👑", color: "#fff4b8" }
   ];
 
   const text = {
@@ -1164,9 +1156,7 @@ input {
   }
   updateBestDisplay();
 
-  function say(key) {
-    return text[lang][key];
-  }
+  function say(key) { return text[lang][key]; }
 
   function updatePowerupUI() {
     const isNormalMode = currentMode === "normal";
@@ -1203,10 +1193,7 @@ input {
         `${SUPABASE_URL}/rest/v1/leaderboards?mode=eq.${currentMode}&order=score.desc&limit=5`,
         {
           method: 'GET',
-          headers: {
-            'apikey': SUPABASE_KEY,
-            'Authorization': `Bearer ${SUPABASE_KEY}`
-          }
+          headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
         }
       );
 
@@ -1383,7 +1370,7 @@ input {
   function ensurePlayable() {
     if (!running || isPaused) return;
     let attempts = 0;
-    while (getFruits().length < 8 && attempts < 15) {
+    while (getFruits().length < 10 && attempts < 15) {
       addRandomFruit(Math.floor(Math.random() * 4));
       attempts++;
     }
@@ -1515,9 +1502,8 @@ input {
     if (combo >= 3 && !isRushActive) triggerShake();
 
     let basePoints = (level + 1) * 10;
-    // 最后10秒冲刺阶段：双倍得分！
     if (isRushActive) {
-      basePoints *= 2;
+      basePoints *= 2; // 最后10秒双倍冲刺
     }
 
     const earnedPoints = basePoints * (isRushActive ? 1 : combo);
@@ -1645,6 +1631,7 @@ input {
     isPaused = false;
     isRushActive = false;
     document.body.classList.remove("rush-mode");
+    game.classList.remove("rush-shake");
     pauseOverlay.style.display = "none";
     pauseBtn.style.display = "none";
     stopBGM();
@@ -1689,6 +1676,7 @@ input {
     isRushActive = false;
     rushBannerTriggered = false;
     document.body.classList.remove("rush-mode");
+    game.classList.remove("rush-shake");
 
     startOverlay.style.display = "none";
     gameOverOverlay.style.display = "none";
@@ -1724,7 +1712,8 @@ input {
       timerEl.textContent = timeLeft;
     }
 
-    for (let i = 0; i < 8; i++) {
+    // 初始化在棋盘上生成 10 个水果[span_1](start_span)[span_1](end_span)
+    for (let i = 0; i < 10; i++) {
       addRandomFruit(Math.floor(Math.random() * 4));
     }
 
@@ -1735,10 +1724,11 @@ input {
         timeLeft--;
         timerEl.textContent = timeLeft;
 
-        // 最后10秒双倍冲刺逻辑
+        // 最后10秒双倍冲刺与强烈震动特效
         if (timeLeft <= 10 && timeLeft > 0) {
           isRushActive = true;
           document.body.classList.add("rush-mode");
+          game.classList.add("rush-shake"); // 启动棋盘狂热震动
           comboBarContainer.style.display = "block";
           comboBar.style.width = "100%";
           comboBar.style.background = "linear-gradient(90deg, #ffcc00, #ff3366)";
