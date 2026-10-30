@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Fruit Merge Challenge - Ergonomic Edition</title>
+<title>Fruit Merge Challenge - Ergonomic Edition v1.1</title>
 <style>
 * { box-sizing: border-box; }
 
@@ -105,7 +105,6 @@ input { font-family: inherit; }
   color: white;
 }
 
-/* 移动至棋盘下方的道具栏样式 */
 .powerups-bar {
   display: flex;
   justify-content: center;
@@ -510,7 +509,6 @@ input { font-family: inherit; }
       </div>
     </div>
 
-    <!-- 移至棋盘下方的道具栏 (带有中英双语提示) -->
     <div class="powerups-bar">
       <button class="powerup-btn" id="btnBomb">💣 炸弹 / Bomb (2)</button>
       <button class="powerup-btn" id="btnShuffle">🔄 重排 / Shuffle (2)</button>
@@ -578,6 +576,12 @@ input { font-family: inherit; }
   }
   resizeCanvas();
 
+  // 监听窗口大小改变和手机旋转
+  window.addEventListener("resize", resizeCanvas);
+  window.addEventListener("orientationchange", () => {
+    setTimeout(resizeCanvas, 200);
+  });
+
   function spawnParticles(x, y, color, count = 20) {
     for (let i = 0; i < count; i++) {
       const angle = Math.random() * Math.PI * 2;
@@ -618,7 +622,7 @@ input { font-family: inherit; }
   requestAnimationFrame(updateParticles);
 
   let audioCtx = null;
-  let bgmInterval = null;
+  let bgmTimeout = null;
   let bgmNoteIndex = 0;
 
   function initAudio() {
@@ -638,11 +642,10 @@ input { font-family: inherit; }
     initAudio();
     bgmNoteIndex = 0;
 
-    let speed = 250;
+    function playNextNote() {
+      if (!audioCtx || isPaused || isMuted || !running) return;
 
-    bgmInterval = setInterval(() => {
-      if (!audioCtx || isPaused || isMuted) return;
-
+      let speed = 250;
       let freqMultiplier = 1;
       if (combo >= 3 && combo < 10) { speed = 200; freqMultiplier = 1.2; }
       else if (combo >= 10 && combo < 20) { speed = 160; freqMultiplier = 1.35; }
@@ -669,13 +672,16 @@ input { font-family: inherit; }
 
         bgmNoteIndex++;
       } catch (e) {}
-    }, speed);
+
+      bgmTimeout = setTimeout(playNextNote, speed);
+    }
+    playNextNote();
   }
 
   function stopBGM() {
-    if (bgmInterval) {
-      clearInterval(bgmInterval);
-      bgmInterval = null;
+    if (bgmTimeout) {
+      clearTimeout(bgmTimeout);
+      bgmTimeout = null;
     }
     resetComboVisuals();
   }
@@ -938,6 +944,7 @@ input { font-family: inherit; }
       replenished: "自动补充了新的水果！",
       bombUsed: "💣 炸弹引爆！水果已消除并补充新水果！",
       magicUsed: "🪄 变身魔法！水果等级提升！",
+      maxLevelMsg: "👑 已经是最高级皇冠，无法再升级！",
       shuffled: "🔄 棋盘水果已重新打乱！",
       gameOverMsg: "游戏结束！再接再厉！",
       boardTitle: "🏆 排行榜 (Top 5)",
@@ -980,6 +987,7 @@ input { font-family: inherit; }
       replenished: "New fruits added automatically!",
       bombUsed: "💣 Boom! Fruit destroyed and new fruit added!",
       magicUsed: "🪄 Magic! Fruit level upgraded!",
+      maxLevelMsg: "👑 Already at max level Crown, cannot upgrade!",
       shuffled: "🔄 Fruits reshuffled!",
       gameOverMsg: "Game Over! Better luck next time!",
       boardTitle: "🏆 Leaderboard (Top 5)",
@@ -999,7 +1007,14 @@ input { font-family: inherit; }
 
   let lang = "en";
   let score = 0;
-  let best = 0;
+
+  // 独立存储三个模式的最高分
+  let bestScores = {
+    normal: 0,
+    blitz: 0,
+    zen: 0
+  };
+
   let allLeaderboards = {};
   let timeLeft = 0;
   let timerInterval = null;
@@ -1013,11 +1028,18 @@ input { font-family: inherit; }
   let comboBarInterval = null;
 
   try {
-    best = Number(localStorage.getItem("fruitBest")) || 0;
+    const legacyBest = Number(localStorage.getItem("fruitBest")) || 0;
+    bestScores.normal = Number(localStorage.getItem("fruitBest_normal")) || (legacyBest > 0 ? legacyBest : 0);
+    bestScores.blitz = Number(localStorage.getItem("fruitBest_blitz")) || 0;
+    bestScores.zen = Number(localStorage.getItem("fruitBest_zen")) || 0;
+
     allLeaderboards = JSON.parse(localStorage.getItem("fruitAllLeaderboards")) || { normal: [], blitz: [] };
   } catch (e) {}
 
-  bestEl.textContent = best;
+  function updateBestDisplay() {
+    bestEl.textContent = bestScores[currentMode];
+  }
+  updateBestDisplay();
 
   function say(key) {
     return text[lang][key];
@@ -1132,12 +1154,12 @@ input { font-family: inherit; }
     score += points;
     scoreEl.textContent = score;
 
-    if (score > best) {
-      best = score;
-      bestEl.textContent = best;
+    if (score > bestScores[currentMode]) {
+      bestScores[currentMode] = score;
+      bestEl.textContent = bestScores[currentMode];
 
       try {
-        localStorage.setItem("fruitBest", String(best));
+        localStorage.setItem(`fruitBest_${currentMode}`, String(bestScores[currentMode]));
       } catch (e) {}
     }
   }
@@ -1272,6 +1294,13 @@ input { font-family: inherit; }
     }
 
     if (activeTool === 'magic' && currentMode === "normal" && powerupCounts.magic > 0) {
+      // 检查是否已经是最高级皇冠
+      if (level >= fruits.length - 1) {
+        playSound('tick');
+        message.textContent = say("maxLevelMsg");
+        return;
+      }
+
       powerupCounts.magic--;
       const nextLevel = Math.min(level + 1, fruits.length - 1);
       el.textContent = fruits[nextLevel].emoji;
@@ -1377,11 +1406,35 @@ input { font-family: inherit; }
     const maxX = Math.max(0, game.clientWidth - size);
     const maxY = Math.max(0, game.clientHeight - size);
 
+    // 优化的防重排重叠算法
     existing.forEach(el => {
-      const rx = Math.random() * maxX;
-      const ry = Math.random() * maxY;
-      el.style.left = rx + "px";
-      el.style.top = ry + "px";
+      let bestX = Math.random() * maxX;
+      let bestY = Math.random() * maxY;
+      let bestDistance = -1;
+
+      for (let i = 0; i < 40; i++) {
+        const x = Math.random() * maxX;
+        const y = Math.random() * maxY;
+        let nearest = Infinity;
+
+        existing.forEach(other => {
+          if (other === el) return;
+          const ox = parseFloat(other.style.left) || 0;
+          const oy = parseFloat(other.style.top) || 0;
+          const dist = Math.hypot(x - ox, y - oy);
+          nearest = Math.min(nearest, dist);
+        });
+
+        if (nearest > bestDistance) {
+          bestDistance = nearest;
+          bestX = x;
+          bestY = y;
+        }
+        if (nearest >= size * 1.05) break;
+      }
+
+      el.style.left = bestX + "px";
+      el.style.top = bestY + "px";
     });
 
     playSound('pop', 2);
@@ -1563,6 +1616,7 @@ input { font-family: inherit; }
         timerEl.textContent = "30";
       }
 
+      updateBestDisplay();
       updateLeaderboardUI();
       updatePowerupUI();
 
