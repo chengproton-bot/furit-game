@@ -18,7 +18,6 @@ body {
   background: linear-gradient(135deg, #fff1d6, #ffd6e7);
   transition: background 0.5s ease;
   overflow-x: hidden;
-  /* 优化移动端选中文本与触摸响应 */
   -webkit-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
@@ -571,6 +570,11 @@ input {
   const canvas = document.getElementById("particleCanvas");
   const ctx = canvas.getContext("2d");
 
+  // ================= SUPABASE 配置 =================
+  const SUPABASE_URL = "https://xeqzhgewxiwazoadlghj.supabase.co";
+  const SUPABASE_KEY = "在这里填入你的anon_key"; // 请把这行替换成你在 Supabase 后台复制的 anon public 密钥
+  // =================================================
+
   let currentMode = "normal";
   let isPaused = false;
   let isMuted = false;
@@ -587,7 +591,6 @@ input {
   }
   resizeCanvas();
 
-  // 监听窗口大小改变和手机旋转
   window.addEventListener("resize", resizeCanvas);
   window.addEventListener("orientationchange", () => {
     setTimeout(resizeCanvas, 200);
@@ -1019,14 +1022,12 @@ input {
   let lang = "en";
   let score = 0;
 
-  // 独立存储三个模式的最高分
   let bestScores = {
     normal: 0,
     blitz: 0,
     zen: 0
   };
 
-  let allLeaderboards = {};
   let timeLeft = 0;
   let timerInterval = null;
   let selectedId = null;
@@ -1043,8 +1044,6 @@ input {
     bestScores.normal = Number(localStorage.getItem("fruitBest_normal")) || (legacyBest > 0 ? legacyBest : 0);
     bestScores.blitz = Number(localStorage.getItem("fruitBest_blitz")) || 0;
     bestScores.zen = Number(localStorage.getItem("fruitBest_zen")) || 0;
-
-    allLeaderboards = JSON.parse(localStorage.getItem("fruitAllLeaderboards")) || { normal: [], blitz: [] };
   } catch (e) {}
 
   function updateBestDisplay() {
@@ -1068,7 +1067,8 @@ input {
     btnMagic.disabled = !isNormalMode || powerupCounts.magic <= 0 || !running;
   }
 
-  function updateLeaderboardUI() {
+  // ================= 云端排行榜核心函数（已连接 Supabase） =================
+  async function updateLeaderboardUI() {
     if (currentMode === "zen") {
       boardTitle.style.display = "none";
       leaderboardList.style.display = "none";
@@ -1080,40 +1080,66 @@ input {
       zenNotice.style.display = "none";
     }
 
-    leaderboardList.innerHTML = "";
-    const currentList = allLeaderboards[currentMode] || [];
+    leaderboardList.innerHTML = `<li style="color:#888;">加载中... / Loading...</li>`;
 
-    if (currentList.length === 0) {
-      const li = document.createElement("li");
-      li.textContent = lang === "zh" ? "暂无记录" : "No records yet";
-      leaderboardList.appendChild(li);
-      return;
+    try {
+      const response = await fetch(
+        `${SUPABASE_URL}/rest/v1/leaderboards?mode=eq.${currentMode}&order=score.desc&limit=5`,
+        {
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${SUPABASE_KEY}`
+          }
+        }
+      );
+      
+      const currentList = await response.json();
+      leaderboardList.innerHTML = "";
+
+      if (!currentList || !Array.isArray(currentList) || currentList.length === 0) {
+        const li = document.createElement("li");
+        li.textContent = lang === "zh" ? "暂无记录" : "No records yet";
+        leaderboardList.appendChild(li);
+        return;
+      }
+
+      currentList.forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = `${item.name}: ${item.score} pts`;
+        leaderboardList.appendChild(li);
+      });
+    } catch (e) {
+      leaderboardList.innerHTML = `<li>获取排行榜失败 / Error</li>`;
     }
-    currentList.forEach(item => {
-      const li = document.createElement("li");
-      li.textContent = `${item.name}: ${item.score} pts`;
-      leaderboardList.appendChild(li);
-    });
   }
 
-  function saveScoreToLeaderboard(finalScore) {
+  async function saveScoreToLeaderboard(finalScore) {
     if (currentMode === "zen") return;
 
     const name = nameInput.value.trim() || say("defaultName");
-    if (!allLeaderboards[currentMode]) {
-      allLeaderboards[currentMode] = [];
-    }
-
-    allLeaderboards[currentMode].push({ name: name, score: finalScore });
-    allLeaderboards[currentMode].sort((a, b) => b.score - a.score);
-    allLeaderboards[currentMode] = allLeaderboards[currentMode].slice(0, 5);
 
     try {
-      localStorage.setItem("fruitAllLeaderboards", JSON.stringify(allLeaderboards));
-    } catch (e) {}
-
-    updateLeaderboardUI();
+      await fetch(`${SUPABASE_URL}/rest/v1/leaderboards`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({
+          mode: currentMode,
+          name: name,
+          score: finalScore
+        })
+      });
+      
+      updateLeaderboardUI();
+    } catch (e) {
+      console.error("Failed to save score to cloud:", e);
+    }
   }
+  // ======================================================================
 
   function updateLanguage() {
     document.getElementById("scoreLabel").textContent = say("score");
@@ -1411,7 +1437,6 @@ input {
     if (!running || isPaused || currentMode !== "normal" || powerupCounts.shuffle <= 0) return;
     powerupCounts.shuffle--;
 
-    // 修复点：打乱棋盘前清空当前选中状态，防止错位
     selectedId = null;
     game.querySelectorAll(".fruit.selected").forEach(f => f.classList.remove("selected"));
 
