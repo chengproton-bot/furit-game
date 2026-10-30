@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Fruit Merge Challenge - Ergonomic Edition v1.3</title>
+<title>Fruit Merge Challenge - Ergonomic Edition v1.5</title>
 <style>
 * { 
   box-sizing: border-box; 
@@ -154,15 +154,22 @@ input {
 
 .name-input-group { margin: 8px 0; }
 .name-input-group input {
-  padding: 8px 14px;
-  border-radius: 10px;
+  padding: 9px 14px;
+  border-radius: 12px;
   border: 2px solid #ed6193;
   font-size: 14px;
   outline: none;
-  width: 200px;
+  width: 210px;
   text-align: center;
   background: white;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.name-input-group input.error-shake {
+  border-color: #ff3366 !important;
+  box-shadow: 0 0 10px rgba(255, 51, 102, 0.5) !important;
+  animation: shake 0.3s ease-in-out;
 }
 
 .stats {
@@ -262,38 +269,56 @@ input {
 }
 
 .overlay-panel h2 {
-  font-size: 26px;
+  font-size: 24px;
   color: #ed6193;
-  margin: 0 0 8px 0;
+  margin: 0 0 6px 0;
   text-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .overlay-panel p {
-  font-size: 14px;
+  font-size: 13px;
   color: #493344;
-  margin: 0 0 15px 0;
+  margin: 0 0 10px 0;
+  font-weight: bold;
+}
+
+.name-prompt-tip {
+  font-size: 12px;
+  color: #ed6193;
+  margin-bottom: 4px;
   font-weight: bold;
 }
 
 .center-btn {
   border: 0;
-  border-radius: 20px;
-  padding: 12px 26px;
+  border-radius: 18px;
+  padding: 10px 22px;
   background: linear-gradient(135deg, #ff69b4, #ed6193);
   color: white;
   font-weight: bold;
-  font-size: 16px;
-  box-shadow: 0 4px 15px rgba(237, 97, 147, 0.4);
+  font-size: 15px;
+  box-shadow: 0 4px 12px rgba(237, 97, 147, 0.4);
   transition: transform 0.15s, box-shadow 0.15s;
   cursor: pointer;
+  margin-top: 4px;
 }
 
 .center-btn:hover {
   transform: scale(1.05);
-  box-shadow: 0 6px 20px rgba(237, 97, 147, 0.6);
+  box-shadow: 0 6px 18px rgba(237, 97, 147, 0.6);
 }
 
 .center-btn:active { transform: scale(0.95); }
+
+.secondary-btn {
+  background: white;
+  color: #ed6193;
+  border: 2px solid #ed6193;
+  margin-top: 6px;
+}
+.secondary-btn:hover {
+  background: #fff0f5;
+}
 
 .combo-banner {
   position: absolute;
@@ -315,6 +340,27 @@ input {
 .combo-banner.show {
   opacity: 1;
   transform: translate(-50%, -50%) scale(1.1) rotate(0deg);
+}
+
+/* 破纪录专属庆祝横幅动画 */
+.new-best-banner {
+  position: absolute;
+  top: 25%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  font-size: 28px;
+  font-weight: 900;
+  color: #ffb703;
+  text-shadow: 0 0 15px rgba(255, 183, 3, 0.8), 2px 2px 0px #000;
+  pointer-events: none;
+  z-index: 35;
+  white-space: nowrap;
+  opacity: 0;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+}
+.new-best-banner.show {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1.1) rotate(-3deg);
 }
 
 #game.glow-tier-1 {
@@ -499,21 +545,25 @@ input {
     <div id="game">
       <canvas id="particleCanvas"></canvas>
       <div id="comboBanner" class="combo-banner">GOOD!</div>
+      <div id="newBestBanner" class="new-best-banner">🎉 NEW BEST! 🎉</div>
 
-      <!-- 开始面板（名字输入已集成在内） -->
+      <!-- 开始面板 -->
       <div id="startOverlay" class="overlay-panel">
         <h2 id="welcomeTitle">🍓 水果大合并</h2>
         <p id="welcomeDesc">轻松解压，爽快连击！</p>
-        <div class="name-input-group" style="margin-bottom: 15px;">
+        <div class="name-prompt-tip" id="nameTip">请输入你的玩家大名：</div>
+        <div class="name-input-group" style="margin-bottom: 12px;">
           <input type="text" id="playerName" placeholder="输入你的名字 / Your Name" maxlength="12">
         </div>
         <button class="center-btn" id="startBtn">▶️ 开始游戏 / Start</button>
       </div>
 
+      <!-- 结束面板（新增分享战绩按钮） -->
       <div id="gameOverOverlay" class="overlay-panel" style="display:none;">
         <h2>💥 GAME OVER</h2>
         <p id="finalScoreDesc">最终得分: <span id="finalScoreVal">0</span></p>
         <button class="center-btn" id="playAgainBtn">🔄 再来一局 / Play Again</button>
+        <button class="center-btn secondary-btn" id="shareBtn">📤 分享战绩 / Share</button>
       </div>
 
       <div id="pauseOverlay" class="overlay-panel" style="display:none;">
@@ -547,9 +597,11 @@ input {
   const gameOverOverlay = document.getElementById("gameOverOverlay");
   const pauseOverlay = document.getElementById("pauseOverlay");
   const comboBanner = document.getElementById("comboBanner");
+  const newBestBanner = document.getElementById("newBestBanner");
 
   const startBtn = document.getElementById("startBtn");
   const playAgainBtn = document.getElementById("playAgainBtn");
+  const shareBtn = document.getElementById("shareBtn");
   const pauseBtn = document.getElementById("pauseBtn");
   const muteBtn = document.getElementById("muteBtn");
 
@@ -559,6 +611,7 @@ input {
   const finalScoreVal = document.getElementById("finalScoreVal");
   const message = document.getElementById("message");
   const nameInput = document.getElementById("playerName");
+  const nameTip = document.getElementById("nameTip");
   const leaderboardList = document.getElementById("leaderboardList");
   const zenNotice = document.getElementById("zenNotice");
   const boardTitle = document.getElementById("boardTitle");
@@ -973,9 +1026,11 @@ input {
       welcomeDesc: "轻松解压，爽快连击！",
       startBtn: "▶️ 开始游戏 / Start",
       playAgainBtn: "🔄 再来一局 / Play Again",
+      shareBtn: "📤 分享战绩 / Share",
       bombLabel: "💣 炸弹 / Bomb",
       shuffleLabel: "🔄 重排 / Shuffle",
-      magicLabel: "🪄 升一级 / Magic"
+      magicLabel: "🪄 升一级 / Magic",
+      namePromptTip: "请输入你的玩家大名："
     },
     en: {
       score: "Score",
@@ -1016,9 +1071,11 @@ input {
       welcomeDesc: "Relax & Merge Up to the Golden Crown!",
       startBtn: "▶️ Start Game",
       playAgainBtn: "🔄 Play Again",
+      shareBtn: "📤 Share Score",
       bombLabel: "💣 Bomb",
       shuffleLabel: "🔄 Shuffle",
-      magicLabel: "🪄 Magic"
+      magicLabel: "🪄 Magic",
+      namePromptTip: "Enter Your Player Name:"
     }
   };
 
@@ -1070,7 +1127,7 @@ input {
     btnMagic.disabled = !isNormalMode || powerupCounts.magic <= 0 || !running;
   }
 
-  // ================= 云端排行榜核心函数（已修复记录与同步） =================
+  // ================= 云端排行榜核心函数 =================
   async function updateLeaderboardUI() {
     if (currentMode === "zen") {
       boardTitle.style.display = "none";
@@ -1131,7 +1188,6 @@ input {
     if (currentMode === "zen") return;
     if (!SUPABASE_KEY) return;
 
-    // 获取玩家输入的名字，如果为空则使用默认名称
     const playerName = nameInput.value.trim() || (lang === "zh" ? "匿名玩家" : "Anonymous");
 
     try {
@@ -1154,14 +1210,13 @@ input {
         const errText = await response.text();
         console.error("Save score failed details:", errText);
       } else {
-        // 保存成功后立即刷新排行榜
         updateLeaderboardUI();
       }
     } catch (e) {
       console.error("Failed to save score to cloud:", e);
     }
   }
-  // ======================================================================
+  // ======================================================
 
   function updateLanguage() {
     document.getElementById("scoreLabel").textContent = say("score");
@@ -1175,8 +1230,10 @@ input {
 
     document.getElementById("welcomeTitle").textContent = say("welcomeTitle");
     document.getElementById("welcomeDesc").textContent = say("welcomeDesc");
+    nameTip.textContent = say("namePromptTip");
     startBtn.textContent = say("startBtn");
     playAgainBtn.textContent = say("playAgainBtn");
+    shareBtn.textContent = say("shareBtn");
 
     muteBtn.textContent = isMuted ? say("soundOff") : say("soundOn");
 
@@ -1209,13 +1266,29 @@ input {
     updatePowerupUI();
   }
 
+  // 建议一：触发破纪录庆祝特效
+  function triggerNewBestCelebration() {
+    newBestBanner.classList.remove("show");
+    void newBestBanner.offsetWidth;
+    newBestBanner.classList.add("show");
+    spawnParticles(game.clientWidth / 2, game.clientHeight / 3, "#ffd700", 30);
+    setTimeout(() => {
+      newBestBanner.classList.remove("show");
+    }, 1200);
+  }
+
   function updateScore(points) {
     score += points;
     scoreEl.textContent = score;
 
     if (score > bestScores[currentMode]) {
+      const isFirstBreak = bestScores[currentMode] > 0;
       bestScores[currentMode] = score;
       bestEl.textContent = bestScores[currentMode];
+
+      if (isFirstBreak) {
+        triggerNewBestCelebration();
+      }
 
       try {
         localStorage.setItem(`fruitBest_${currentMode}`, String(bestScores[currentMode]));
@@ -1593,8 +1666,6 @@ input {
     game.querySelectorAll(".fruit").forEach(f => f.remove());
 
     playSound('gameover');
-    
-    // 确保游戏结束时正确保存分数与名字到云端
     saveScoreToLeaderboard(score);
 
     finalScoreVal.textContent = score;
@@ -1603,6 +1674,14 @@ input {
   }
 
   function startGame() {
+    const enteredName = nameInput.value.trim();
+    if (!enteredName) {
+      nameInput.classList.add("error-shake");
+      nameInput.focus();
+      setTimeout(() => nameInput.classList.remove("error-shake"), 400);
+      return;
+    }
+
     clearInterval(timerInterval);
     game.querySelectorAll(".fruit").forEach(f => f.remove());
     score = 0;
@@ -1666,6 +1745,38 @@ input {
     }
   }
 
+  playAgainBtn.addEventListener("click", () => {
+    if (!nameInput.value.trim()) {
+      gameOverOverlay.style.display = "none";
+      startOverlay.style.display = "flex";
+      nameInput.focus();
+    } else {
+      startGame();
+    }
+  });
+
+  // 建议二：一键生成战绩文本/图片分享
+  shareBtn.addEventListener("click", () => {
+    const playerName = nameInput.value.trim() || "Player";
+    const shareText = lang === "zh"
+      ? `🍓 【水果大合并】战绩分享 🍓\n玩家：${playerName}\n模式：${currentMode.toUpperCase()}\n最终得分：${score} 分！快来挑战我吧！`
+      : `🍓 [Fruit Merge Challenge] Score Share 🍓\nPlayer: ${playerName}\nMode: ${currentMode.toUpperCase()}\nScore: ${score} pts! Can you beat me?`;
+
+    if (navigator.share) {
+      navigator.share({
+        title: 'Fruit Merge Challenge',
+        text: shareText,
+        url: window.location.href
+      }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(shareText).then(() => {
+        alert(lang === "zh" ? "📋 战绩已复制到剪贴板，快去发给好友吧！" : "📋 Score copied to clipboard!");
+      }).catch(() => {
+        alert(shareText);
+      });
+    }
+  });
+
   modeButtons.forEach(btn => {
     btn.addEventListener("click", () => {
       modeButtons.forEach(b => b.classList.remove("active"));
@@ -1691,7 +1802,6 @@ input {
   });
 
   startBtn.addEventListener("click", startGame);
-  playAgainBtn.addEventListener("click", startGame);
 
   document.getElementById("language").addEventListener("click", () => {
     lang = lang === "zh" ? "en" : "zh";
