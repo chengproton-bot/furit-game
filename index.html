@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Fruit Merge Challenge - Ergonomic Edition v1.7</title>
+<title>Fruit Merge Challenge - Ergonomic Edition v1.8</title>
 <style>
 * { 
   box-sizing: border-box; 
@@ -347,7 +347,6 @@ input {
   transform: translate(-50%, -50%) scale(1.1) rotate(0deg);
 }
 
-/* 局中 0.5 秒极速快闪提醒 */
 .new-best-banner {
   position: absolute;
   top: 25%;
@@ -368,7 +367,6 @@ input {
   transform: translate(-50%, -50%) scale(1.05) rotate(-2deg);
 }
 
-/* 局末破纪录专属横幅 */
 .game-over-record {
   font-size: 13px;
   font-weight: bold;
@@ -560,12 +558,7 @@ input {
 <div class="main-layout">
   <div class="sidebar" id="instructionsPanel">
     <h3 id="rulesTitle">📖 游戏玩法说明</h3>
-    <ul class="instructions-content" id="rulesList">
-      <li>点击两个相同的水果进行合并得分。</li>
-      <li>共 12 种水果，从小到大不断合成升级！</li>
-      <li>触发连续消除可解锁 <b>AWESOME! GODLIKE!</b> 炫酷喊话！</li>
-      <li><b>60秒限时模式专属道具：</b>💣 炸弹 (限2次)、🔄 重排 (限2次)、🪄 魔棒升一级 (限1次)！</li>
-    </ul>
+    <ul class="instructions-content" id="rulesList"></ul>
   </div>
 
   <div class="center-container">
@@ -667,7 +660,7 @@ input {
   let isPaused = false;
   let isMuted = false;
   let activeTool = null;
-  let isNewRecordInCurrentGame = false; // 标记本局是否打破纪录
+  let isNewRecordInCurrentGame = false;
 
   const POWERUP_LIMITS = { bomb: 2, shuffle: 2, magic: 1 };
   let powerupCounts = { bomb: 2, shuffle: 2, magic: 1 };
@@ -1032,8 +1025,9 @@ input {
       rulesContent: [
         "点击两个相同的水果进行合并得分。",
         "共 12 种水果，从小到大不断合成升级！",
-        "触发连续消除可解锁 <b>AWESOME! GODLIKE!</b> 炫酷喊话！",
-        "<b>60秒限时模式专属道具：</b>💣 炸弹 (限2次)、🔄 重排 (限2次)、🪄 魔棒升一级 (限1次)！"
+        "<b>⏱️ 60秒限时</b>：包含 💣 炸弹、🔄 重排、🪄 魔法棒 3种道具助力高分！",
+        "<b>⚡ 30秒闪电</b>：极速极限挑战，纯靠手速拼高分！",
+        "<b>🧘 休闲模式</b>：无时间限制与倒计时，轻松解压自由合并！"
       ],
       readyMsg: "准备好了吗？点击开始！",
       playing: "请选择两个相同的水果。",
@@ -1076,9 +1070,10 @@ input {
       rulesTitle: "📖 How to Play",
       rulesContent: [
         "Tap two matching fruits to merge and score.",
-        "12 fruit tiers in total — merge up to the Golden King!",
-        "Chain matches to trigger <b>AWESOME! GODLIKE!</b> sound effects!",
-        "<b>60s Mode Exclusive Tools:</b> 💣 Bomb (2x), 🔄 Shuffle (2x), 🪄 Magic Wand (1x)!"
+        "12 fruit tiers in total — merge up to the Golden Crown!",
+        "<b>⏱️ 60s Timed</b>: Use 💣 Bomb, 🔄 Shuffle & 🪄 Magic Wand to boost your score!",
+        "<b>⚡ 30s Blitz</b>: Fast-paced speed challenge to test your reflexes!",
+        "<b>🧘 Zen Mode</b>: No time limits or timer — relax and merge at your own pace!"
       ],
       readyMsg: "Ready? Start the game!",
       playing: "Choose two matching fruits.",
@@ -1299,7 +1294,6 @@ input {
     updatePowerupUI();
   }
 
-  // 局中 0.5 秒极速快闪提示
   function triggerQuickNewBestNotice() {
     newBestBanner.classList.remove("show");
     void newBestBanner.offsetWidth;
@@ -1308,7 +1302,7 @@ input {
     
     setTimeout(() => {
       newBestBanner.classList.remove("show");
-    }, 500); // 0.5秒快闪，不挡视野
+    }, 500);
   }
 
   function updateScore(points) {
@@ -1322,7 +1316,7 @@ input {
 
       if (isFirstBreak && !isNewRecordInCurrentGame) {
         isNewRecordInCurrentGame = true;
-        triggerQuickNewBestNotice(); // 首次超越时触发 0.5 秒局中快闪
+        triggerQuickNewBestNotice();
       }
 
       try {
@@ -1705,7 +1699,6 @@ input {
 
     finalScoreVal.textContent = score;
 
-    // 局末隆重结算逻辑：如果本局创造了新纪录，显示金色高亮横幅
     if (isNewRecordInCurrentGame) {
       gameOverRecord.style.display = "block";
       spawnParticles(game.clientWidth / 2, game.clientHeight / 4, "#ffd700", 35);
@@ -1733,7 +1726,7 @@ input {
     nextId = 1;
     running = true;
     isPaused = false;
-    isNewRecordInCurrentGame = false; // 重置新纪录标记
+    isNewRecordInCurrentGame = false;
 
     startOverlay.style.display = "none";
     gameOverOverlay.style.display = "none";
@@ -1801,12 +1794,10 @@ input {
     }
   });
 
-  // 炫耀/邀请好友分享
   shareBtn.addEventListener("click", () => {
     const playerName = nameInput.value.trim() || "Player";
     const gameUrl = window.location.href.split('?')[0];
     
-    // 如果打破了纪录，分享文案会带上 👑 破纪录勋章！
     const recordTag = isNewRecordInCurrentGame ? "👑【刷新纪录】" : "🏆";
 
     const shareText = lang === "zh"
