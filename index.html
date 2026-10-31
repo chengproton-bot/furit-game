@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Fruit Merge Challenge - Ergonomic Edition v2.3</title>
+<title>Fruit Merge Challenge - Ergonomic Edition v2.4</title>
 <style>
 * { 
   box-sizing: border-box; 
@@ -109,35 +109,16 @@ body.rush-mode {
   100% { filter: brightness(1.3) saturate(1.8); }
 }
 
-body.combo-tier-1 {
-  background: linear-gradient(135deg, #ffe1ff, #ffb6c1, #ff8da1);
-  animation: bgPulse 0.8s infinite alternate;
-}
-body.combo-tier-2 {
-  background: linear-gradient(135deg, #fffacd, #ffdfba, #ffb347);
-  animation: bgPulse 0.6s infinite alternate;
-}
-body.combo-tier-3 {
-  background: linear-gradient(135deg, #e0ffff, #b0e0e6, #87ceeb);
-  animation: bgPulse 0.4s infinite alternate;
-}
-body.combo-tier-4 {
-  background: linear-gradient(135deg, #e6e6fa, #dda0dd, #ba55d3);
-  animation: bgPulse 0.3s infinite alternate;
-}
-body.combo-tier-5 {
-  background: linear-gradient(135deg, #ff9a9e, #fecfef, #a1c4fd);
-  animation: rainbowBg 2s infinite linear;
-}
+/* 连击背景微调 (已移除 50 Combo 的全屏彩虹背景) */
+body.combo-tier-1 { animation: bgPulse 0.8s infinite alternate; }
+body.combo-tier-2 { animation: bgPulse 0.6s infinite alternate; }
+body.combo-tier-3 { animation: bgPulse 0.4s infinite alternate; }
+body.combo-tier-4 { animation: bgPulse 0.3s infinite alternate; }
+body.combo-tier-5 { animation: bgPulse 0.2s infinite alternate; }
 
 @keyframes bgPulse {
   0% { filter: brightness(1); }
   100% { filter: brightness(1.08); }
-}
-
-@keyframes rainbowBg {
-  0% { filter: hue-rotate(0deg); }
-  100% { filter: hue-rotate(360deg); }
 }
 
 h1 { font-size: 22px; margin: 4px 0 8px 0; }
@@ -486,6 +467,7 @@ input {
   100% { transform: scale(1.03); }
 }
 
+/* 棋盘发光层级 */
 #game.glow-tier-1 {
   border-color: #ff3366;
   box-shadow: 0 0 20px #ff69b4, inset 0 0 15px rgba(255, 105, 180, 0.3);
@@ -502,19 +484,20 @@ input {
   border-color: #9370db;
   box-shadow: 0 0 35px #da70d6, inset 0 0 30px rgba(186, 85, 211, 0.6);
 }
+
+/* 50 Combo 最高级棋盘发光：精美金黄发光，不改变网页背景 */
 #game.glow-tier-5 {
-  border-color: #ff1493;
-  box-shadow: 0 0 40px #ff00ff, 0 0 60px #00ffff, inset 0 0 35px rgba(255, 20, 147, 0.7);
-  animation: borderRainbow 1.5s infinite linear;
+  border-color: #ffd700 !important;
+  box-shadow: 0 0 40px #ffd700, 0 0 70px rgba(255, 215, 0, 0.6), inset 0 0 30px rgba(255, 215, 0, 0.4) !important;
+  animation: goldAura 1.2s infinite alternate;
 }
 
-@keyframes borderRainbow {
-  0% { border-color: #ff3366; }
-  33% { border-color: #00ffff; }
-  66% { border-color: #adff2f; }
-  100% { border-color: #ff3366; }
+@keyframes goldAura {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.015); }
 }
 
+/* 连击合并震动动画 */
 @keyframes shake {
   0% { transform: translate(0, 0) rotate(0deg); }
   20% { transform: translate(-3px, 3px) rotate(-2deg); }
@@ -525,6 +508,7 @@ input {
 }
 .shake-anim { animation: shake 0.25s ease-in-out; }
 
+/* Rush 模式高频震撼震动 */
 #game.rush-shake {
   animation: rushShakeAnim 0.15s infinite alternate;
   border-color: #00ffff !important;
@@ -640,7 +624,6 @@ input {
 
 <h1>🍓 Fruit Merge Challenge 🍉</h1>
 
-<!-- 顶层工具栏：语言、暂停、音效、DarkMode 按钮并排 -->
 <div class="toolbar">
   <button class="control" id="language">中文 / English</button>
   <button class="control" id="pauseBtn" style="display:none;">⏸️ 暂停 / Pause</button>
@@ -1577,7 +1560,7 @@ input {
     playSound('pop', combo);
 
     triggerComboAnnouncer(combo);
-    if (combo >= 3) triggerShake();
+    if (combo >= 3) triggerShake(); // 连击数 >= 3 保持震动反馈！
 
     let basePoints = (level + 1) * 10;
     let earnedPoints = basePoints * combo;
@@ -1707,7 +1690,6 @@ input {
     muteBtn.textContent = isMuted ? say("soundOff") : say("soundOn");
   });
 
-  // 暗黑模式切换按钮事件
   darkModeBtn.addEventListener("click", () => {
     isDarkMode = !isDarkMode;
     if (isDarkMode) {
@@ -1858,7 +1840,7 @@ input {
 
     const shareText = lang === "zh"
       ? `🍓🍉🍍🍇🍒👑✨\n【水果大合并】战报新鲜出炉！\n\n玩家【${playerName}】在「${currentMode.toUpperCase()}」模式中打出了 ${recordTag} ${score} 分！\n\n你能合成出终极金皇冠👑并超越我吗？\n👇 戳链接立即加入游戏挑战：\n${gameUrl}`
-      : `🍓🍉🍍🍇🍒👑✨\nFruit Merge Challenge Result!\n\nPlayer [${playerName}] scored ${recordTag} ${score} pts in [${currentMode.toUpperCase()}'] mode!\n\nCan you merge to the Golden Crown 👑 and beat this score?\n👇 Play now:\n${gameUrl}`;
+      : `🍓🍉🍍🍇🍒👑✨\nFruit Merge Challenge Result!\n\nPlayer [${playerName}] scored ${recordTag} ${score} pts in [${currentMode.toUpperCase()}] mode!\n\nCan you merge to the Golden Crown 👑 and beat this score?\n👇 Play now:\n${gameUrl}`;
 
     if (navigator.share) {
       navigator.share({ title: 'Fruit Merge Challenge', text: shareText, url: gameUrl }).catch(() => {});
