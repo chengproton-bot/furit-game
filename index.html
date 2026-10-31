@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Fruit Merge Challenge - Ergonomic Edition v2.1</title>
+<title>Fruit Merge Challenge - Ergonomic Edition v2.2</title>
 <style>
 * { 
   box-sizing: border-box; 
@@ -609,13 +609,13 @@ input {
     <div id="game">
       <canvas id="particleCanvas"></canvas>
       <div id="comboBanner" class="combo-banner">GOOD!</div>
-      <div id="rushBanner" class="rush-banner">🔥 LAST 10S x2!</div>
+      <div id="rushBanner" class="rush-banner">🔥 LAST 10S RUSH x2!</div>
       <div id="newBestBanner" class="new-best-banner">🔥 NEW BEST!</div>
 
       <!-- 开始面板 -->
       <div id="startOverlay" class="overlay-panel">
         <h2 id="welcomeTitle">🍓 水果大合并</h2>
-        <p id="welcomeDesc">10种丰富水果，最后10秒双倍冲刺！</p>
+        <p id="welcomeDesc">10种丰富水果，最后10秒连击与双倍冲刺叠加！</p>
         <div class="name-prompt-tip" id="nameTip">请输入你的玩家大名：</div>
         <div class="name-input-group" style="margin-bottom: 10px;">
           <input type="text" id="playerName" placeholder="输入你的名字 / Your Name" maxlength="12">
@@ -788,12 +788,10 @@ input {
 
       let speed = isRushActive ? 110 : 250;
       let freqMultiplier = isRushActive ? 1.7 : 1;
-      if (!isRushActive) {
-        if (combo >= 3 && combo < 10) { speed = 200; freqMultiplier = 1.2; }
-        else if (combo >= 10 && combo < 20) { speed = 160; freqMultiplier = 1.35; }
-        else if (combo >= 20 && combo < 30) { speed = 130; freqMultiplier = 1.5; }
-        else if (combo >= 30) { speed = 100; freqMultiplier = 1.75; }
-      }
+      if (combo >= 3 && combo < 10) { speed = isRushActive ? 90 : 200; freqMultiplier = 1.2; }
+      else if (combo >= 10 && combo < 20) { speed = isRushActive ? 80 : 160; freqMultiplier = 1.35; }
+      else if (combo >= 20 && combo < 30) { speed = isRushActive ? 70 : 130; freqMultiplier = 1.5; }
+      else if (combo >= 30) { speed = isRushActive ? 50 : 100; freqMultiplier = 1.75; }
 
       try {
         const osc = audioCtx.createOscillator();
@@ -832,11 +830,10 @@ input {
   function resetComboVisuals() {
     document.body.classList.remove("combo-tier-1", "combo-tier-2", "combo-tier-3", "combo-tier-4", "combo-tier-5");
     game.classList.remove("glow-tier-1", "glow-tier-2", "glow-tier-3", "glow-tier-4", "glow-tier-5");
-    comboBarContainer.style.display = "none";
+    if (!isRushActive) comboBarContainer.style.display = "none";
   }
 
   function updateComboVisuals() {
-    if (isRushActive) return;
     resetComboVisuals();
     if (combo > 0 && !isPaused) {
       comboBarContainer.style.display = "block";
@@ -861,7 +858,6 @@ input {
   }
 
   function triggerComboAnnouncer(comboCount) {
-    if (isRushActive) return;
     let title = "";
     let soundType = "";
 
@@ -1045,8 +1041,8 @@ input {
       rulesContent: [
         "点击两个相同的水果进行合并得分。",
         "共 10 种水果，从小到大合成终极皇冠👑！",
-        "<b>⏱️ 60秒限时</b>：最后 10 秒开启🔥双倍分数冲刺！配有炸弹、重排、魔法道具。",
-        "<b>⚡ 30秒闪电</b>：极速极限挑战，最后 10 秒同样享受双倍冲刺！",
+        "<b>⏱️ 60秒限时</b>：最后 10 秒开启🔥双倍冲刺，连击（Combo）会继续叠加并与双倍积分联动爆发！",
+        "<b>⚡ 30秒闪电</b>：极速极限挑战，最后 10 秒同样享受连击与双倍冲刺！",
         "<b>🧘 休闲模式</b>：无时间限制与倒计时，轻松解压自由合并！"
       ],
       readyMsg: "准备好了吗？点击开始！",
@@ -1057,7 +1053,7 @@ input {
       switched: "等级不同，连击中断已重置！",
       merged: "合并成功！",
       comboText: " 连击 x",
-      rushText: " 🔥最后冲刺 双倍积分！",
+      rushText: " 🔥RUSH 连击双倍爆发！",
       points: "分！",
       replenished: "自动补充了新的水果！",
       bombUsed: "💣 炸弹引爆！水果已消除并补充新水果！",
@@ -1071,7 +1067,7 @@ input {
       normalModeName: "⏱️ 60秒限时 / 60s",
       blitzModeName: "⚡ 30秒闪电 / 30s",
       welcomeTitle: "🍓 水果大合并",
-      welcomeDesc: "10种丰富水果，最后10秒双倍冲刺！",
+      welcomeDesc: "最后10秒：连击与双倍冲刺完美叠加！",
       startBtn: "▶️ 开始游戏 / Start",
       playAgainBtn: "🔄 再来一局 / Play Again",
       shareBtn: "📤 邀请好友来挑战 / Invite",
@@ -1092,8 +1088,8 @@ input {
       rulesContent: [
         "Tap two matching fruits to merge and score.",
         "10 fruit tiers in total — merge up to the Golden Crown 👑!",
-        "<b>⏱️ 60s Timed</b>: Last 10s triggers 🔥 Double Score Rush! Use Bomb, Shuffle & Magic Wand.",
-        "<b>⚡ 30s Blitz</b>: Fast speed challenge with final 10s Double Score Rush!",
+        "<b>⏱️ 60s Timed</b>: Last 10s triggers 🔥 Rush & Combos stack together for massive points!",
+        "<b>⚡ 30s Blitz</b>: Fast speed challenge with stackable Combos & Rush!",
         "<b>🧘 Zen Mode</b>: No time limits or timer — relax and merge at your own pace!"
       ],
       readyMsg: "Ready? Start the game!",
@@ -1104,7 +1100,7 @@ input {
       switched: "Different fruits! Combo reset.",
       merged: "Merged! ",
       comboText: " Combo x",
-      rushText: " 🔥RUSH x2 POINTS!",
+      rushText: " 🔥RUSH COMBO x2!",
       points: " pts!",
       replenished: "New fruits added automatically!",
       bombUsed: "💣 Boom! Fruit destroyed and new fruit added!",
@@ -1118,7 +1114,7 @@ input {
       normalModeName: "⏱️ 60s Timed",
       blitzModeName: "⚡ 30s Blitz",
       welcomeTitle: "🍓 Fruit Merge Challenge",
-      welcomeDesc: "10 Fruits & Final 10s Double Score Rush!",
+      welcomeDesc: "Final 10s: Combos & Double Rush Stack Together!",
       startBtn: "▶️ Start Game",
       playAgainBtn: "🔄 Play Again",
       shareBtn: "📤 Invite Friends",
@@ -1495,23 +1491,29 @@ input {
     }
     lastMergeTime = now;
 
-    if (!isRushActive) updateComboVisuals();
+    // 无论是否在 Rush 阶段，连击视觉效果都正常运行并联动！
+    updateComboVisuals();
     playSound('pop', combo);
 
-    if (!isRushActive) triggerComboAnnouncer(combo);
-    if (combo >= 3 && !isRushActive) triggerShake();
+    triggerComboAnnouncer(combo);
+    if (combo >= 3) triggerShake();
 
     let basePoints = (level + 1) * 10;
+    
+    // 【核心改动】：Rush 模式下，连击 (combo) 继续有效，并且最终得分再享受 x2 双倍加成！
+    let earnedPoints = basePoints * combo;
     if (isRushActive) {
-      basePoints *= 2; // 最后10秒双倍冲刺
+      earnedPoints *= 2; 
     }
 
-    const earnedPoints = basePoints * (isRushActive ? 1 : combo);
     updateScore(earnedPoints);
 
     let floatStr = `+${earnedPoints}`;
-    if (isRushActive) floatStr += ` (RUSH x2!)`;
-    else if (combo > 1) floatStr += ` (x${combo})`;
+    if (isRushActive) {
+      floatStr += ` (RUSH x2, x${combo})`;
+    } else if (combo > 1) {
+      floatStr += ` (x${combo})`;
+    }
     showFloatingText(posX, posY, floatStr);
 
     const nextLevel = Math.min(level + 1, fruits.length - 1);
@@ -1520,7 +1522,7 @@ input {
 
     let msg = say("merged") + earnedPoints + say("points");
     if (isRushActive) {
-      msg += say("rushText");
+      msg += say("rushText") + ` (Combo x${combo})`;
     } else if (combo > 1) {
       msg += say("comboText") + combo + "!";
     }
@@ -1583,8 +1585,8 @@ input {
   function startComboBarLoop() {
     if (comboBarInterval) clearInterval(comboBarInterval);
     comboBarInterval = setInterval(() => {
-      if (!running || isPaused || combo === 0 || isRushActive) {
-        if (!isPaused && !isRushActive) comboBar.style.width = "0%";
+      if (!running || isPaused || combo === 0) {
+        if (!isPaused) comboBar.style.width = "0%";
         return;
       }
       const elapsed = Date.now() - lastMergeTime;
@@ -1712,7 +1714,6 @@ input {
       timerEl.textContent = timeLeft;
     }
 
-    // 初始化在棋盘上生成 10 个水果[span_1](start_span)[span_1](end_span)
     for (let i = 0; i < 10; i++) {
       addRandomFruit(Math.floor(Math.random() * 4));
     }
@@ -1724,14 +1725,11 @@ input {
         timeLeft--;
         timerEl.textContent = timeLeft;
 
-        // 最后10秒双倍冲刺与强烈震动特效
+        // 最后10秒：保留连击，同时开启 Rush 震动和双倍积分叠加
         if (timeLeft <= 10 && timeLeft > 0) {
           isRushActive = true;
           document.body.classList.add("rush-mode");
-          game.classList.add("rush-shake"); // 启动棋盘狂热震动
-          comboBarContainer.style.display = "block";
-          comboBar.style.width = "100%";
-          comboBar.style.background = "linear-gradient(90deg, #ffcc00, #ff3366)";
+          game.classList.add("rush-shake");
 
           if (!rushBannerTriggered) {
             rushBannerTriggered = true;
