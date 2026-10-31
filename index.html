@@ -12,46 +12,13 @@
   user-select: none;
 }
 
-:root {
-  --bg-gradient: linear-gradient(135deg, #fff1d6, #ffd6e7);
-  --text-color: #493344;
-  --panel-bg: white;
-  --game-bg: #fffaf3;
-  --game-border: white;
-  --stat-bg: white;
-  --sidebar-bg: white;
-  --sidebar-text: #555;
-  --btn-default-bg: #ed6193;
-  --btn-default-color: white;
-  --input-bg: white;
-  --input-color: #493344;
-}
-
-/* 自动跟随系统 / 电脑 / 手机的 Dark Mode */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg-gradient: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
-    --text-color: #e2e8f0;
-    --panel-bg: rgba(26, 31, 56, 0.95);
-    --game-bg: #111827;
-    --game-border: #374151;
-    --stat-bg: #1f2937;
-    --sidebar-bg: #1f2937;
-    --sidebar-text: #9ca3af;
-    --btn-default-bg: #db2777;
-    --btn-default-color: white;
-    --input-bg: #111827;
-    --input-color: #e2e8f0;
-  }
-}
-
 body {
   margin: 0;
   padding: 10px 10px;
   font-family: Arial, sans-serif;
   text-align: center;
-  color: var(--text-color);
-  background: var(--bg-gradient);
+  color: #493344;
+  background: linear-gradient(135deg, #fff1d6, #ffd6e7);
   transition: background 0.5s ease, color 0.5s ease;
   overflow: hidden; 
   position: fixed;
@@ -60,6 +27,77 @@ body {
   left: 0;
   top: 0;
 }
+
+/* ================= DARK MODE 样式 ================= */
+body.dark-mode {
+  background: linear-gradient(135deg, #121212, #1f1b24) !important;
+  color: #f1f1f1;
+}
+
+body.dark-mode .sidebar {
+  background: #1e1e1e;
+  color: #e0e0e6;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+}
+
+body.dark-mode .sidebar h3 {
+  color: #ff758c;
+}
+
+body.dark-mode .instructions-content {
+  color: #bbb;
+}
+
+body.dark-mode .stat {
+  background: #252525;
+  color: #f1f1f1;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+body.dark-mode #game {
+  background: #1a1a1a;
+  border-color: #333;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+}
+
+body.dark-mode .overlay-panel {
+  background: rgba(26, 26, 26, 0.96);
+  color: #f1f1f1;
+}
+
+body.dark-mode .overlay-panel p {
+  color: #ccc;
+}
+
+body.dark-mode .name-input-group input {
+  background: #252525;
+  color: white;
+  border-color: #ff758c;
+}
+
+body.dark-mode .powerup-btn {
+  background: #252525;
+  color: #f1f1f1;
+  border-color: #ff758c;
+}
+body.dark-mode .powerup-btn:hover:not(:disabled) {
+  background: #333;
+}
+
+body.dark-mode .mode-btn {
+  background: #252525;
+  color: #ff758c;
+  border-color: #ff758c;
+}
+body.dark-mode .mode-btn.active {
+  background: #ff758c;
+  color: white;
+}
+
+body.dark-mode #message {
+  color: #ddd;
+}
+/* ================================================= */
 
 body.rush-mode {
   background: linear-gradient(135deg, #00c6ff, #0072ff, #7f00ff) !important;
@@ -130,8 +168,8 @@ input {
   border-radius: 10px;
   padding: 6px 12px;
   margin: 2px;
-  background: var(--btn-default-bg);
-  color: var(--btn-default-color);
+  background: #ed6193;
+  color: white;
   font-weight: bold;
   font-size: 12px;
   transition: transform 0.1s, background 0.2s;
@@ -148,18 +186,18 @@ input {
 }
 
 .mode-btn {
-  border: 2px solid var(--btn-default-bg);
+  border: 2px solid #ed6193;
   border-radius: 8px;
   padding: 4px 8px;
-  background: var(--stat-bg);
-  color: var(--text-color);
+  background: white;
+  color: #ed6193;
   font-weight: bold;
   font-size: 11px;
   cursor: pointer;
 }
 
 .mode-btn.active {
-  background: var(--btn-default-bg);
+  background: #ed6193;
   color: white;
 }
 
@@ -175,8 +213,8 @@ input {
   border: 2px solid #ff8da1;
   border-radius: 10px;
   padding: 6px 10px;
-  background: var(--stat-bg);
-  color: var(--text-color);
+  background: white;
+  color: #493344;
   font-weight: bold;
   font-size: 11px;
   display: flex;
@@ -185,31 +223,30 @@ input {
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-.powerup-btn:hover:not(:disabled) { opacity: 0.85; }
+.powerup-btn:hover:not(:disabled) { background: #fff0f5; }
 .powerup-btn.selected {
-  background: var(--btn-default-bg);
+  background: #ed6193;
   color: white;
-  border-color: var(--btn-default-bg);
+  border-color: #ed6193;
 }
 .powerup-btn:disabled {
-  opacity: 0.4;
+  opacity: 0.5;
   cursor: not-allowed;
-  border-color: #888;
-  background: #555;
-  color: #aaa;
+  border-color: #ccc;
+  background: #eee;
+  color: #888;
 }
 
 .name-input-group { margin: 6px 0; }
 .name-input-group input {
   padding: 8px 12px;
   border-radius: 10px;
-  border: 2px solid var(--btn-default-bg);
+  border: 2px solid #ed6193;
   font-size: 13px;
   outline: none;
   width: 190px;
   text-align: center;
-  background: var(--input-bg);
-  color: var(--input-color);
+  background: white;
   box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 
@@ -227,7 +264,7 @@ input {
 }
 
 .stat {
-  background: var(--stat-bg);
+  background: white;
   border-radius: 8px;
   padding: 6px 8px;
   min-width: 75px;
@@ -250,7 +287,7 @@ input {
   flex: 1;
   min-width: 240px;
   max-width: 260px;
-  background: var(--sidebar-bg);
+  background: white;
   border-radius: 14px;
   padding: 10px 12px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.06);
@@ -263,13 +300,13 @@ input {
   margin: 0 0 6px 0;
   font-size: 14px;
   text-align: center;
-  color: var(--btn-default-bg);
+  color: #ed6193;
 }
 
 .instructions-content {
   font-size: 12px;
   line-height: 1.5;
-  color: var(--sidebar-text);
+  color: #555;
   margin: 0;
   padding-left: 16px;
 }
@@ -282,13 +319,13 @@ input {
   width: 360px;
   height: 380px;
   margin: auto;
-  background: var(--game-bg);
-  border: 4px solid var(--game-border);
+  background: #fffaf3;
+  border: 4px solid white;
   border-radius: 18px;
   overflow: hidden;
   touch-action: none; 
   box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-  transition: box-shadow 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
 #particleCanvas {
@@ -307,7 +344,7 @@ input {
   left: 0;
   width: 100%;
   height: 100%;
-  background: var(--panel-bg);
+  background: rgba(255, 250, 243, 0.96);
   backdrop-filter: blur(4px);
   display: flex;
   justify-content: center;
@@ -319,21 +356,21 @@ input {
 
 .overlay-panel h2 {
   font-size: 22px;
-  color: var(--btn-default-bg);
+  color: #ed6193;
   margin: 0 0 4px 0;
   text-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .overlay-panel p {
   font-size: 12px;
-  color: var(--text-color);
+  color: #493344;
   margin: 0 0 8px 0;
   font-weight: bold;
 }
 
 .name-prompt-tip {
   font-size: 11px;
-  color: var(--btn-default-bg);
+  color: #ed6193;
   margin-bottom: 3px;
   font-weight: bold;
 }
@@ -360,13 +397,13 @@ input {
 .center-btn:active { transform: scale(0.95); }
 
 .secondary-btn {
-  background: var(--stat-bg);
-  color: var(--btn-default-bg);
-  border: 2px solid var(--btn-default-bg);
+  background: white;
+  color: #ed6193;
+  border: 2px solid #ed6193;
   margin-top: 5px;
 }
 .secondary-btn:hover {
-  opacity: 0.85;
+  background: #fff0f5;
 }
 
 .combo-banner {
@@ -502,7 +539,7 @@ input {
 #comboBarContainer {
   width: 360px;
   height: 5px;
-  background: rgba(128,128,128,0.2);
+  background: #eee;
   margin: 4px auto;
   border-radius: 3px;
   overflow: hidden;
@@ -511,7 +548,7 @@ input {
 #comboBar {
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, #00c6ff, #0072ff);
+  background: linear-gradient(90deg, #ff69b4, #ff8c00);
   transition: width 0.05s linear;
 }
 
@@ -543,13 +580,13 @@ input {
   align-items: center;
   padding: 0;
   font-size: 28px;
-  box-shadow: 0 3px 6px #0003;
+  box-shadow: 0 3px 6px #0002;
   user-select: none;
   transition: transform 0.15s ease;
 }
 
 .fruit.selected {
-  border: 4px solid #00ffff;
+  border: 4px solid #e83e82;
   transform: scale(1.12);
 }
 
@@ -569,7 +606,7 @@ input {
 
 .zen-notice {
   font-size: 12px;
-  color: var(--sidebar-text);
+  color: #888;
   text-align: center;
   margin-top: 15px;
   line-height: 1.4;
@@ -603,10 +640,12 @@ input {
 
 <h1>🍓 Fruit Merge Challenge 🍉</h1>
 
+<!-- 顶层工具栏：语言、暂停、音效、DarkMode 按钮并排 -->
 <div class="toolbar">
   <button class="control" id="language">中文 / English</button>
   <button class="control" id="pauseBtn" style="display:none;">⏸️ 暂停 / Pause</button>
   <button class="control" id="muteBtn">🔊 音效: 开 / Sound: ON</button>
+  <button class="control" id="darkModeBtn">🌙 暗黑模式 / Dark</button>
 </div>
 
 <div class="mode-selector">
@@ -649,7 +688,7 @@ input {
       <!-- 开始面板 -->
       <div id="startOverlay" class="overlay-panel">
         <h2 id="welcomeTitle">🍓 水果大合并</h2>
-        <p id="welcomeDesc">自动适配深色模式，最后10秒电光冲刺！</p>
+        <p id="welcomeDesc">10种丰富水果，最后10秒连击与双倍冲刺叠加！</p>
         <div class="name-prompt-tip" id="nameTip">请输入你的玩家大名：</div>
         <div class="name-input-group" style="margin-bottom: 10px;">
           <input type="text" id="playerName" placeholder="输入你的名字 / Your Name" maxlength="12">
@@ -706,6 +745,7 @@ input {
   const shareBtn = document.getElementById("shareBtn");
   const pauseBtn = document.getElementById("pauseBtn");
   const muteBtn = document.getElementById("muteBtn");
+  const darkModeBtn = document.getElementById("darkModeBtn");
 
   const scoreEl = document.getElementById("score");
   const timerEl = document.getElementById("timer");
@@ -736,6 +776,7 @@ input {
   let currentMode = "normal";
   let isPaused = false;
   let isMuted = false;
+  let isDarkMode = false;
   let activeTool = null;
   let isNewRecordInCurrentGame = false;
   let isRushActive = false;
@@ -1048,7 +1089,7 @@ input {
     } catch (e) {}
   }
 
-  // 10 种水果定义[span_0](start_span)[span_0](end_span)
+  // 10 种水果定义（从 🍒 到 👑 皇冠）[span_0](start_span)[span_0](end_span)
   const fruits = [
     { emoji: "🍒", color: "#ffd9df" },
     { emoji: "🍓", color: "#ffc7ce" },
@@ -1071,12 +1112,14 @@ input {
       resume: "▶️ 继续 / Resume",
       soundOn: "🔊 音效: 开 / Sound: ON",
       soundOff: "🔇 音效: 关 / Sound: OFF",
+      darkOn: "🌙 暗黑模式: 开 / Dark",
+      darkOff: "☀️ 暗黑模式: 关 / Light",
       rulesTitle: "📖 游戏玩法说明",
       rulesContent: [
         "点击两个相同的水果进行合并得分。",
         "共 10 种水果，从小到大合成终极皇冠👑！",
-        "<b>⏱️ 60秒限时</b>：最后 10 秒开启电光蓝紫冲刺，连击与双倍积分完美叠加！",
-        "<b>⚡ 30秒闪电</b>：极速极限挑战，最后 10 秒同样享受双倍狂热冲刺！",
+        "<b>⏱️ 60秒限时</b>：最后 10 秒开启🔥双倍冲刺，连击（Combo）会继续叠加并与双倍积分联动爆发！",
+        "<b>⚡ 30秒闪电</b>：极速极限挑战，最后 10 秒同样享受连击与双倍冲刺！",
         "<b>🧘 休闲模式</b>：无时间限制与倒计时，轻松解压自由合并！"
       ],
       readyMsg: "准备好了吗？点击开始！",
@@ -1101,7 +1144,7 @@ input {
       normalModeName: "⏱️ 60秒限时 / 60s",
       blitzModeName: "⚡ 30秒闪电 / 30s",
       welcomeTitle: "🍓 水果大合并",
-      welcomeDesc: "支持系统深色模式，最后10秒电光冲刺！",
+      welcomeDesc: "最后10秒：连击与双倍冲刺完美叠加！",
       startBtn: "▶️ 开始游戏 / Start",
       playAgainBtn: "🔄 再来一局 / Play Again",
       shareBtn: "📤 邀请好友来挑战 / Invite",
@@ -1118,11 +1161,13 @@ input {
       resume: "▶️ Resume",
       soundOn: "🔊 Sound: ON",
       soundOff: "🔇 Sound: OFF",
+      darkOn: "🌙 Dark Mode: ON",
+      darkOff: "☀️ Dark Mode: OFF",
       rulesTitle: "📖 How to Play",
       rulesContent: [
         "Tap two matching fruits to merge and score.",
         "10 fruit tiers in total — merge up to the Golden Crown 👑!",
-        "<b>⏱️ 60s Timed</b>: Last 10s triggers blue/purple Rush & Combos stack together!",
+        "<b>⏱️ 60s Timed</b>: Last 10s triggers 🔥 Rush & Combos stack together for massive points!",
         "<b>⚡ 30s Blitz</b>: Fast speed challenge with stackable Combos & Rush!",
         "<b>🧘 Zen Mode</b>: No time limits or timer — relax and merge at your own pace!"
       ],
@@ -1148,7 +1193,7 @@ input {
       normalModeName: "⏱️ 60s Timed",
       blitzModeName: "⚡ 30s Blitz",
       welcomeTitle: "🍓 Fruit Merge Challenge",
-      welcomeDesc: "Auto Dark Mode & Final 10s Blue Rush!",
+      welcomeDesc: "Final 10s: Combos & Double Rush Stack Together!",
       startBtn: "▶️ Start Game",
       playAgainBtn: "🔄 Play Again",
       shareBtn: "📤 Invite Friends",
@@ -1179,6 +1224,8 @@ input {
     bestScores.normal = Number(localStorage.getItem("fruitBest_normal")) || (legacyBest > 0 ? legacyBest : 0);
     bestScores.blitz = Number(localStorage.getItem("fruitBest_blitz")) || 0;
     bestScores.zen = Number(localStorage.getItem("fruitBest_zen")) || 0;
+    isDarkMode = localStorage.getItem("fruitDarkMode") === "true";
+    if (isDarkMode) document.body.classList.add("dark-mode");
   } catch (e) {}
 
   function updateBestDisplay() {
@@ -1285,6 +1332,7 @@ input {
     playAgainBtn.textContent = say("playAgainBtn");
     shareBtn.textContent = say("shareBtn");
     muteBtn.textContent = isMuted ? say("soundOff") : say("soundOn");
+    darkModeBtn.textContent = isDarkMode ? say("darkOff") : say("darkOn");
 
     if (currentMode === "zen" && running) {
       pauseBtn.textContent = isPaused ? say("resume") : say("pause");
@@ -1659,6 +1707,20 @@ input {
     muteBtn.textContent = isMuted ? say("soundOff") : say("soundOn");
   });
 
+  // 暗黑模式切换按钮事件
+  darkModeBtn.addEventListener("click", () => {
+    isDarkMode = !isDarkMode;
+    if (isDarkMode) {
+      document.body.classList.add("dark-mode");
+    } else {
+      document.body.classList.remove("dark-mode");
+    }
+    try {
+      localStorage.setItem("fruitDarkMode", String(isDarkMode));
+    } catch (e) {}
+    darkModeBtn.textContent = isDarkMode ? say("darkOff") : say("darkOn");
+  });
+
   function endGame() {
     running = false;
     isPaused = false;
@@ -1756,7 +1818,6 @@ input {
         timeLeft--;
         timerEl.textContent = timeLeft;
 
-        // 最后10秒：蓝色电光 Rush 冲刺
         if (timeLeft <= 10 && timeLeft > 0) {
           isRushActive = true;
           document.body.classList.add("rush-mode");
@@ -1797,7 +1858,7 @@ input {
 
     const shareText = lang === "zh"
       ? `🍓🍉🍍🍇🍒👑✨\n【水果大合并】战报新鲜出炉！\n\n玩家【${playerName}】在「${currentMode.toUpperCase()}」模式中打出了 ${recordTag} ${score} 分！\n\n你能合成出终极金皇冠👑并超越我吗？\n👇 戳链接立即加入游戏挑战：\n${gameUrl}`
-      : `🍓🍉🍍🍇🍒👑✨\nFruit Merge Challenge Result!\n\nPlayer [${playerName}] scored ${recordTag} ${score} pts in [${currentMode.toUpperCase()}] mode!\n\nCan you merge to the Golden Crown 👑 and beat this score?\n👇 Play now:\n${gameUrl}`;
+      : `🍓🍉🍍🍇🍒👑✨\nFruit Merge Challenge Result!\n\nPlayer [${playerName}] scored ${recordTag} ${score} pts in [${currentMode.toUpperCase()}'] mode!\n\nCan you merge to the Golden Crown 👑 and beat this score?\n👇 Play now:\n${gameUrl}`;
 
     if (navigator.share) {
       navigator.share({ title: 'Fruit Merge Challenge', text: shareText, url: gameUrl }).catch(() => {});
