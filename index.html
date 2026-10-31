@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Fruit Merge Challenge - Ergonomic Edition v2.2</title>
+<title>Fruit Merge Challenge - Ergonomic Edition v2.3</title>
 <style>
 * { 
   box-sizing: border-box; 
@@ -12,14 +12,47 @@
   user-select: none;
 }
 
+:root {
+  --bg-gradient: linear-gradient(135deg, #fff1d6, #ffd6e7);
+  --text-color: #493344;
+  --panel-bg: white;
+  --game-bg: #fffaf3;
+  --game-border: white;
+  --stat-bg: white;
+  --sidebar-bg: white;
+  --sidebar-text: #555;
+  --btn-default-bg: #ed6193;
+  --btn-default-color: white;
+  --input-bg: white;
+  --input-color: #493344;
+}
+
+/* 自动跟随系统 / 电脑 / 手机的 Dark Mode */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-gradient: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+    --text-color: #e2e8f0;
+    --panel-bg: rgba(26, 31, 56, 0.95);
+    --game-bg: #111827;
+    --game-border: #374151;
+    --stat-bg: #1f2937;
+    --sidebar-bg: #1f2937;
+    --sidebar-text: #9ca3af;
+    --btn-default-bg: #db2777;
+    --btn-default-color: white;
+    --input-bg: #111827;
+    --input-color: #e2e8f0;
+  }
+}
+
 body {
   margin: 0;
   padding: 10px 10px;
   font-family: Arial, sans-serif;
   text-align: center;
-  color: #493344;
-  background: linear-gradient(135deg, #fff1d6, #ffd6e7);
-  transition: background 0.5s ease;
+  color: var(--text-color);
+  background: var(--bg-gradient);
+  transition: background 0.5s ease, color 0.5s ease;
   overflow: hidden; 
   position: fixed;
   width: 100%;
@@ -29,13 +62,13 @@ body {
 }
 
 body.rush-mode {
-  background: linear-gradient(135deg, #ff3366, #ff9900, #ffcc00) !important;
+  background: linear-gradient(135deg, #00c6ff, #0072ff, #7f00ff) !important;
   animation: rushPulse 0.25s infinite alternate;
 }
 
 @keyframes rushPulse {
   0% { filter: brightness(1) saturate(1.2); }
-  100% { filter: brightness(1.2) saturate(1.6); }
+  100% { filter: brightness(1.3) saturate(1.8); }
 }
 
 body.combo-tier-1 {
@@ -97,8 +130,8 @@ input {
   border-radius: 10px;
   padding: 6px 12px;
   margin: 2px;
-  background: #ed6193;
-  color: white;
+  background: var(--btn-default-bg);
+  color: var(--btn-default-color);
   font-weight: bold;
   font-size: 12px;
   transition: transform 0.1s, background 0.2s;
@@ -115,18 +148,18 @@ input {
 }
 
 .mode-btn {
-  border: 2px solid #ed6193;
+  border: 2px solid var(--btn-default-bg);
   border-radius: 8px;
   padding: 4px 8px;
-  background: white;
-  color: #ed6193;
+  background: var(--stat-bg);
+  color: var(--text-color);
   font-weight: bold;
   font-size: 11px;
   cursor: pointer;
 }
 
 .mode-btn.active {
-  background: #ed6193;
+  background: var(--btn-default-bg);
   color: white;
 }
 
@@ -142,8 +175,8 @@ input {
   border: 2px solid #ff8da1;
   border-radius: 10px;
   padding: 6px 10px;
-  background: white;
-  color: #493344;
+  background: var(--stat-bg);
+  color: var(--text-color);
   font-weight: bold;
   font-size: 11px;
   display: flex;
@@ -152,30 +185,31 @@ input {
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-.powerup-btn:hover:not(:disabled) { background: #fff0f5; }
+.powerup-btn:hover:not(:disabled) { opacity: 0.85; }
 .powerup-btn.selected {
-  background: #ed6193;
+  background: var(--btn-default-bg);
   color: white;
-  border-color: #ed6193;
+  border-color: var(--btn-default-bg);
 }
 .powerup-btn:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
-  border-color: #ccc;
-  background: #eee;
-  color: #888;
+  border-color: #888;
+  background: #555;
+  color: #aaa;
 }
 
 .name-input-group { margin: 6px 0; }
 .name-input-group input {
   padding: 8px 12px;
   border-radius: 10px;
-  border: 2px solid #ed6193;
+  border: 2px solid var(--btn-default-bg);
   font-size: 13px;
   outline: none;
   width: 190px;
   text-align: center;
-  background: white;
+  background: var(--input-bg);
+  color: var(--input-color);
   box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 
@@ -193,7 +227,7 @@ input {
 }
 
 .stat {
-  background: white;
+  background: var(--stat-bg);
   border-radius: 8px;
   padding: 6px 8px;
   min-width: 75px;
@@ -216,7 +250,7 @@ input {
   flex: 1;
   min-width: 240px;
   max-width: 260px;
-  background: white;
+  background: var(--sidebar-bg);
   border-radius: 14px;
   padding: 10px 12px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.06);
@@ -229,13 +263,13 @@ input {
   margin: 0 0 6px 0;
   font-size: 14px;
   text-align: center;
-  color: #ed6193;
+  color: var(--btn-default-bg);
 }
 
 .instructions-content {
   font-size: 12px;
   line-height: 1.5;
-  color: #555;
+  color: var(--sidebar-text);
   margin: 0;
   padding-left: 16px;
 }
@@ -248,13 +282,13 @@ input {
   width: 360px;
   height: 380px;
   margin: auto;
-  background: #fffaf3;
-  border: 4px solid white;
+  background: var(--game-bg);
+  border: 4px solid var(--game-border);
   border-radius: 18px;
   overflow: hidden;
   touch-action: none; 
   box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease, background 0.3s ease;
 }
 
 #particleCanvas {
@@ -273,7 +307,7 @@ input {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(255, 250, 243, 0.96);
+  background: var(--panel-bg);
   backdrop-filter: blur(4px);
   display: flex;
   justify-content: center;
@@ -285,21 +319,21 @@ input {
 
 .overlay-panel h2 {
   font-size: 22px;
-  color: #ed6193;
+  color: var(--btn-default-bg);
   margin: 0 0 4px 0;
   text-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .overlay-panel p {
   font-size: 12px;
-  color: #493344;
+  color: var(--text-color);
   margin: 0 0 8px 0;
   font-weight: bold;
 }
 
 .name-prompt-tip {
   font-size: 11px;
-  color: #ed6193;
+  color: var(--btn-default-bg);
   margin-bottom: 3px;
   font-weight: bold;
 }
@@ -326,13 +360,13 @@ input {
 .center-btn:active { transform: scale(0.95); }
 
 .secondary-btn {
-  background: white;
-  color: #ed6193;
-  border: 2px solid #ed6193;
+  background: var(--stat-bg);
+  color: var(--btn-default-bg);
+  border: 2px solid var(--btn-default-bg);
   margin-top: 5px;
 }
 .secondary-btn:hover {
-  background: #fff0f5;
+  opacity: 0.85;
 }
 
 .combo-banner {
@@ -364,8 +398,8 @@ input {
   transform: translate(-50%, -50%) scale(0);
   font-size: 26px;
   font-weight: 900;
-  color: #ffcc00;
-  text-shadow: 0 0 12px rgba(255, 204, 0, 0.9), 2px 2px 0px #000;
+  color: #00ffff;
+  text-shadow: 0 0 12px rgba(0, 255, 255, 0.9), 2px 2px 0px #000;
   pointer-events: none;
   z-index: 35;
   white-space: nowrap;
@@ -456,8 +490,8 @@ input {
 
 #game.rush-shake {
   animation: rushShakeAnim 0.15s infinite alternate;
-  border-color: #ffcc00 !important;
-  box-shadow: 0 0 30px #ff3366, inset 0 0 20px rgba(255, 204, 0, 0.6) !important;
+  border-color: #00ffff !important;
+  box-shadow: 0 0 35px #00ffff, inset 0 0 25px rgba(0, 246, 255, 0.7) !important;
 }
 
 @keyframes rushShakeAnim {
@@ -468,7 +502,7 @@ input {
 #comboBarContainer {
   width: 360px;
   height: 5px;
-  background: #eee;
+  background: rgba(128,128,128,0.2);
   margin: 4px auto;
   border-radius: 3px;
   overflow: hidden;
@@ -477,7 +511,7 @@ input {
 #comboBar {
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, #ff69b4, #ff8c00);
+  background: linear-gradient(90deg, #00c6ff, #0072ff);
   transition: width 0.05s linear;
 }
 
@@ -509,13 +543,13 @@ input {
   align-items: center;
   padding: 0;
   font-size: 28px;
-  box-shadow: 0 3px 6px #0002;
+  box-shadow: 0 3px 6px #0003;
   user-select: none;
   transition: transform 0.15s ease;
 }
 
 .fruit.selected {
-  border: 4px solid #e83e82;
+  border: 4px solid #00ffff;
   transform: scale(1.12);
 }
 
@@ -535,7 +569,7 @@ input {
 
 .zen-notice {
   font-size: 12px;
-  color: #888;
+  color: var(--sidebar-text);
   text-align: center;
   margin-top: 15px;
   line-height: 1.4;
@@ -615,7 +649,7 @@ input {
       <!-- 开始面板 -->
       <div id="startOverlay" class="overlay-panel">
         <h2 id="welcomeTitle">🍓 水果大合并</h2>
-        <p id="welcomeDesc">10种丰富水果，最后10秒连击与双倍冲刺叠加！</p>
+        <p id="welcomeDesc">自动适配深色模式，最后10秒电光冲刺！</p>
         <div class="name-prompt-tip" id="nameTip">请输入你的玩家大名：</div>
         <div class="name-input-group" style="margin-bottom: 10px;">
           <input type="text" id="playerName" placeholder="输入你的名字 / Your Name" maxlength="12">
@@ -1014,7 +1048,7 @@ input {
     } catch (e) {}
   }
 
-  // 10 种水果定义（从 🍒 到 👑 皇冠）[span_0](start_span)[span_0](end_span)
+  // 10 种水果定义[span_0](start_span)[span_0](end_span)
   const fruits = [
     { emoji: "🍒", color: "#ffd9df" },
     { emoji: "🍓", color: "#ffc7ce" },
@@ -1041,8 +1075,8 @@ input {
       rulesContent: [
         "点击两个相同的水果进行合并得分。",
         "共 10 种水果，从小到大合成终极皇冠👑！",
-        "<b>⏱️ 60秒限时</b>：最后 10 秒开启🔥双倍冲刺，连击（Combo）会继续叠加并与双倍积分联动爆发！",
-        "<b>⚡ 30秒闪电</b>：极速极限挑战，最后 10 秒同样享受连击与双倍冲刺！",
+        "<b>⏱️ 60秒限时</b>：最后 10 秒开启电光蓝紫冲刺，连击与双倍积分完美叠加！",
+        "<b>⚡ 30秒闪电</b>：极速极限挑战，最后 10 秒同样享受双倍狂热冲刺！",
         "<b>🧘 休闲模式</b>：无时间限制与倒计时，轻松解压自由合并！"
       ],
       readyMsg: "准备好了吗？点击开始！",
@@ -1067,7 +1101,7 @@ input {
       normalModeName: "⏱️ 60秒限时 / 60s",
       blitzModeName: "⚡ 30秒闪电 / 30s",
       welcomeTitle: "🍓 水果大合并",
-      welcomeDesc: "最后10秒：连击与双倍冲刺完美叠加！",
+      welcomeDesc: "支持系统深色模式，最后10秒电光冲刺！",
       startBtn: "▶️ 开始游戏 / Start",
       playAgainBtn: "🔄 再来一局 / Play Again",
       shareBtn: "📤 邀请好友来挑战 / Invite",
@@ -1088,7 +1122,7 @@ input {
       rulesContent: [
         "Tap two matching fruits to merge and score.",
         "10 fruit tiers in total — merge up to the Golden Crown 👑!",
-        "<b>⏱️ 60s Timed</b>: Last 10s triggers 🔥 Rush & Combos stack together for massive points!",
+        "<b>⏱️ 60s Timed</b>: Last 10s triggers blue/purple Rush & Combos stack together!",
         "<b>⚡ 30s Blitz</b>: Fast speed challenge with stackable Combos & Rush!",
         "<b>🧘 Zen Mode</b>: No time limits or timer — relax and merge at your own pace!"
       ],
@@ -1114,7 +1148,7 @@ input {
       normalModeName: "⏱️ 60s Timed",
       blitzModeName: "⚡ 30s Blitz",
       welcomeTitle: "🍓 Fruit Merge Challenge",
-      welcomeDesc: "Final 10s: Combos & Double Rush Stack Together!",
+      welcomeDesc: "Auto Dark Mode & Final 10s Blue Rush!",
       startBtn: "▶️ Start Game",
       playAgainBtn: "🔄 Play Again",
       shareBtn: "📤 Invite Friends",
@@ -1491,7 +1525,6 @@ input {
     }
     lastMergeTime = now;
 
-    // 无论是否在 Rush 阶段，连击视觉效果都正常运行并联动！
     updateComboVisuals();
     playSound('pop', combo);
 
@@ -1499,8 +1532,6 @@ input {
     if (combo >= 3) triggerShake();
 
     let basePoints = (level + 1) * 10;
-    
-    // 【核心改动】：Rush 模式下，连击 (combo) 继续有效，并且最终得分再享受 x2 双倍加成！
     let earnedPoints = basePoints * combo;
     if (isRushActive) {
       earnedPoints *= 2; 
@@ -1725,7 +1756,7 @@ input {
         timeLeft--;
         timerEl.textContent = timeLeft;
 
-        // 最后10秒：保留连击，同时开启 Rush 震动和双倍积分叠加
+        // 最后10秒：蓝色电光 Rush 冲刺
         if (timeLeft <= 10 && timeLeft > 0) {
           isRushActive = true;
           document.body.classList.add("rush-mode");
