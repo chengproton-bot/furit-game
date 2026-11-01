@@ -613,7 +613,7 @@ input {
       <!-- 开始面板 -->
       <div id="startOverlay" class="overlay-panel">
         <h2 id="welcomeTitle">🍓 水果大合并</h2>
-        <p id="welcomeDesc">10种丰富水果，达成10连击自动炸弹清场，最后10秒全员升阶双倍冲刺！</p>
+        <p id="welcomeDesc">10种丰富水果，被动连击觉醒与最后10秒狂热升级！</p>
         <div class="name-prompt-tip" id="nameTip">请输入你的玩家大名：</div>
         <div class="name-input-group" style="margin-bottom: 10px;">
           <input type="text" id="playerName" placeholder="输入你的名字 / Your Name" maxlength="12">
@@ -636,7 +636,7 @@ input {
       </div>
     </div>
 
-    <div id="message" style="margin-top: 10px;">准备好了吗？点击开始！ / Ready? Press Start!</div>
+    <div id="message">准备好了吗？点击开始！ / Ready? Press Start!</div>
   </div>
 
   <div class="sidebar leaderboard" id="rightSidebar">
@@ -1028,9 +1028,9 @@ input {
       rulesContent: [
         "点击两个相同的水果进行合并得分。",
         "共 10 种水果，从小到大合成终极皇冠👑！",
-        "<b>💥 自动连击炸弹</b>：达成 10 连击时自动触发全屏小爆炸，炸毁低级水果清场！",
-        "<b>⏱️ 60s/30s限时</b>：最后 10 秒开启🔥双倍冲刺与自动升阶狂热！",
-        "<b>🧘 休闲模式</b>：无时间限制，轻松解压自由合并！"
+        "<b>🔥 连击觉醒（被动）</b>：达成 10 连击时自动引爆棋盘、清除低级水果并获取大额加分！",
+        "<b>⏱️ 最后10秒 Rush（被动）</b>：自动触发狂热大升级与双倍积分冲刺！",
+        "<b>🧘 休闲模式</b>：无时间限制与倒计时，轻松解压自由合并！"
       ],
       readyMsg: "准备好了吗？点击开始！",
       playing: "请选择两个相同的水果。",
@@ -1043,8 +1043,8 @@ input {
       rushText: " 🔥RUSH 连击双倍爆发！",
       points: "分！",
       replenished: "自动补充了新的水果！",
-      autoBombMsg: "💥 达成 10 连击！自动引爆清场奖励！",
-      rushUpgradeMsg: "🪄 Rush 狂热！场上低级水果自动升阶！",
+      comboSurgeMsg: "✨ 10连击觉醒！自动清障与大额加分爆发！",
+      rushUpgradeMsg: "🪄 狂热大升级！低级水果自动升阶合并！",
       gameOverMsg: "游戏结束！再接再厉！",
       boardTitle: "🏆 排行榜 (Top 5)",
       defaultName: "匿名玩家",
@@ -1052,7 +1052,7 @@ input {
       normalModeName: "⏱️ 60秒限时 / 60s",
       blitzModeName: "⚡ 30秒闪电 / 30s",
       welcomeTitle: "🍓 水果大合并",
-      welcomeDesc: "10连击自动清场，最后10秒双倍冲刺！",
+      welcomeDesc: "被动连击觉醒与最后10秒狂热升级！",
       startBtn: "▶️ 开始游戏 / Start",
       playAgainBtn: "🔄 再来一局 / Play Again",
       shareBtn: "📤 邀请好友来挑战 / Invite",
@@ -1072,9 +1072,9 @@ input {
       rulesContent: [
         "Tap two matching fruits to merge and score.",
         "10 fruit tiers in total — merge up to the Golden Crown 👑!",
-        "<b>💥 Auto Combo Bomb</b>: Reaching 10 Combos triggers an automatic board-clearing blast!",
-        "<b>⏱️ Timed Modes</b>: Final 10s triggers 🔥 Rush double score & auto-upgrades!",
-        "<b>🧘 Zen Mode</b>: No time limits — relax and merge at your own pace!"
+        "<b>🔥 Combo Surge (Passive)</b>: Reaching 10 combos auto-clears low fruits & grants bonus pts!",
+        "<b>⏱️ Last 10s Rush (Passive)</b>: Auto triggers mega upgrades & double score surge!",
+        "<b>🧘 Zen Mode</b>: No time limits or timer — relax and merge at your own pace!"
       ],
       readyMsg: "Ready? Start the game!",
       playing: "Choose two matching fruits.",
@@ -1087,8 +1087,8 @@ input {
       rushText: " 🔥RUSH COMBO x2!",
       points: " pts!",
       replenished: "New fruits added automatically!",
-      autoBombMsg: "💥 10 Combos reached! Auto-bomb cleared space!",
-      rushUpgradeMsg: "🪄 Rush Fever! Low-tier fruits auto-upgraded!",
+      comboSurgeMsg: "✨ Combo Surge! Auto-cleared low fruits & bonus points!",
+      rushUpgradeMsg: "🪄 Rush Mega Upgrade! Low fruits upgraded!",
       gameOverMsg: "Game Over! Better luck next time!",
       boardTitle: "🏆 Leaderboard (Top 5)",
       defaultName: "Anonymous",
@@ -1096,7 +1096,7 @@ input {
       normalModeName: "⏱️ 60s Timed",
       blitzModeName: "⚡ 30s Blitz",
       welcomeTitle: "🍓 Fruit Merge Challenge",
-      welcomeDesc: "10 Combos Auto-Bomb, Final 10s Double Rush!",
+      welcomeDesc: "Passive Combo Surge & Last 10s Rush Upgrades!",
       startBtn: "▶️ Start Game",
       playAgainBtn: "🔄 Play Again",
       shareBtn: "📤 Invite Friends",
@@ -1368,51 +1368,57 @@ input {
     game.classList.add("shake-anim");
   }
 
-  // 被动技能 1：达成 10 连击时，自动引爆棋盘上最低级的 2 个水果进行清场与加分
-  function triggerAutoComboBomb() {
+  // 被动机制：10 连击觉醒特效（自动清障 + 巨额加分）
+  function triggerPassiveComboSurge() {
     const existing = getFruits();
     if (existing.length === 0) return;
-    
-    // 寻找等级最低的水果
-    existing.sort((a, b) => Number(a.dataset.level) - Number(b.dataset.level));
-    const targetFruits = existing.slice(0, 2);
 
-    targetFruits.forEach(f => {
-      const fx = parseFloat(f.style.left);
-      const fy = parseFloat(f.style.top);
-      spawnParticles(fx, fy, "#ff3366", 25);
-      f.remove();
+    // 挑选出棋盘上等级最低的最多 2 个水果进行爆破清除
+    existing.sort((a, b) => Number(a.dataset.level) - Number(b.dataset.level));
+    const targets = existing.slice(0, 2);
+
+    targets.forEach(el => {
+      const px = parseFloat(el.style.left);
+      const py = parseFloat(el.style.top);
+      spawnParticles(px, py, "#ffd700", 25);
+      el.remove();
     });
 
     playSound('bomb');
     triggerShake();
-    updateScore(150); // 奖励 150 分
-    message.textContent = say("autoBombMsg");
+    updateScore(500); // 奖励 500 分
+    message.textContent = say("comboSurgeMsg");
+    showFloatingText(game.clientWidth / 2 - 50, game.clientHeight / 2, "+500 SURGE!");
+    ensurePlayable();
   }
 
-  // 被动技能 2：进入 Rush 模式瞬间，自动将场上最低级的 2 个水果升一级
-  function triggerRushAutoUpgrade() {
+  // 被动机制：最后 10 秒 Rush 狂热大升级（自动将低级水果升阶）
+  function triggerPassiveRushUpgrade() {
     const existing = getFruits();
     if (existing.length === 0) return;
 
+    // 挑选出最多 2 个低级水果进行自动升一级
     existing.sort((a, b) => Number(a.dataset.level) - Number(b.dataset.level));
-    const targetFruits = existing.slice(0, 2);
+    const targets = existing.slice(0, 2);
 
-    targetFruits.forEach(f => {
-      const currentLevel = Number(f.dataset.level);
-      if (currentLevel < fruits.length - 1) {
-        const nextLevel = currentLevel + 1;
-        f.textContent = fruits[nextLevel].emoji;
-        f.style.backgroundColor = fruits[nextLevel].color;
-        f.dataset.level = String(nextLevel);
-        const fx = parseFloat(f.style.left);
-        const fy = parseFloat(f.style.top);
-        spawnParticles(fx, fy, fruits[nextLevel].color, 20);
+    targets.forEach(el => {
+      let lvl = Number(el.dataset.level);
+      if (lvl < fruits.length - 1) {
+        let nextLvl = lvl + 1;
+        el.textContent = fruits[nextLvl].emoji;
+        el.style.backgroundColor = fruits[nextLvl].color;
+        el.dataset.level = String(nextLvl);
+        const px = parseFloat(el.style.left);
+        const py = parseFloat(el.style.top);
+        spawnParticles(px, py, fruits[nextLvl].color, 20);
       }
     });
 
     playSound('magic');
+    updateScore(300); // 奖励 300 分
     message.textContent = say("rushUpgradeMsg");
+    showFloatingText(game.clientWidth / 2 - 50, game.clientHeight / 2 - 20, "+300 RUSH UPGRADE!");
+    ensurePlayable();
   }
 
   function handleClick(el) {
@@ -1475,9 +1481,9 @@ input {
     triggerComboAnnouncer(combo);
     if (combo >= 3) triggerShake();
 
-    // 触发被动：满 10 连击自动炸弹
+    // 触发被动技能：当刚好达成 10 连击时，触发被动觉醒
     if (combo === 10) {
-      triggerAutoComboBomb();
+      triggerPassiveComboSurge();
     }
 
     let basePoints = (level + 1) * 10;
@@ -1646,4 +1652,101 @@ input {
       timeLeft = 60;
       timerEl.textContent = timeLeft;
     } else if (currentMode === "blitz") {
-      timeLeft = 30
+      timeLeft = 30;
+      timerEl.textContent = timeLeft;
+    }
+
+    for (let i = 0; i < 10; i++) {
+      addRandomFruit(Math.floor(Math.random() * 4));
+    }
+
+    message.textContent = say("playing");
+
+    if (currentMode !== "zen") {
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        timerEl.textContent = timeLeft;
+
+        if (timeLeft <= 10 && timeLeft > 0) {
+          if (!isRushActive) {
+            isRushActive = true;
+            document.body.classList.add("rush-mode");
+            game.classList.add("rush-shake");
+            // 触发被动技能：进入最后 10 秒 Rush 时，自动触发狂热大升级！
+            triggerPassiveRushUpgrade();
+          }
+
+          if (!rushBannerTriggered) {
+            rushBannerTriggered = true;
+            rushBanner.classList.add("show");
+            setTimeout(() => rushBanner.classList.remove("show"), 1200);
+          }
+        }
+
+        if (timeLeft <= 5 && timeLeft > 0) {
+          playSound('tick');
+        }
+
+        if (timeLeft <= 0) {
+          endGame();
+        }
+      }, 1000);
+    }
+  }
+
+  playAgainBtn.addEventListener("click", () => {
+    if (!nameInput.value.trim()) {
+      gameOverOverlay.style.display = "none";
+      startOverlay.style.display = "flex";
+      nameInput.focus();
+    } else {
+      startGame();
+    }
+  });
+
+  shareBtn.addEventListener("click", () => {
+    const playerName = nameInput.value.trim() || "Player";
+    const gameUrl = window.location.href.split('?')[0];
+    const recordTag = isNewRecordInCurrentGame ? "👑【刷新最高纪录】" : "🏆";
+
+    const shareText = lang === "zh"
+      ? `🍓🍉🍍🍇🍒👑✨\n【水果大合并】战报新鲜出炉！\n\n玩家【${playerName}】在「${currentMode.toUpperCase()}」模式中打出了 ${recordTag} ${score} 分！\n\n你能合成出终极金皇冠👑并超越我吗？\n👇 戳链接立即加入游戏挑战：\n${gameUrl}`
+      : `🍓🍉🍍🍇🍒👑✨\nFruit Merge Challenge Result!\n\nPlayer [${playerName}] scored ${recordTag} ${score} pts in [${currentMode.toUpperCase()}] mode!\n\nCan you merge to the Golden Crown 👑 and beat this score?\n👇 Play now:\n${gameUrl}`;
+
+    if (navigator.share) {
+      navigator.share({ title: 'Fruit Merge Challenge', text: shareText, url: gameUrl }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(shareText).then(() => {
+        alert(lang === "zh" ? "📋 战报已复制！快发给好友让他们来挑战吧！" : "📋 Score and invite link copied!");
+      }).catch(() => { alert(shareText); });
+    }
+  });
+
+  modeButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      modeButtons.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentMode = btn.dataset.mode;
+
+      if (currentMode === "zen") timerEl.textContent = "--";
+      else if (currentMode === "normal") timerEl.textContent = "60";
+      else if (currentMode === "blitz") timerEl.textContent = "30";
+
+      updateBestDisplay();
+      updateLeaderboardUI();
+      if (running) endGame();
+    });
+  });
+
+  startBtn.addEventListener("click", startGame);
+
+  document.getElementById("language").addEventListener("click", () => {
+    lang = lang === "zh" ? "en" : "zh";
+    updateLanguage();
+  });
+
+  updateLanguage();
+})();
+</script>
+</body>
+</html>
