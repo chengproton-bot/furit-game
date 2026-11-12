@@ -3,754 +3,338 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Fruit Merge Challenge - Ergonomic Edition v2.7</title>
+<title>Fruit Merge Challenge v3.0 — Ultimate Arcade Edition</title>
+<script src="https://cdn.tailwindcss.com"></script>
 <style>
-* { 
-  box-sizing: border-box; 
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  user-select: none;
-}
-
-body {
-  margin: 0;
-  padding: 10px 10px;
-  font-family: Arial, sans-serif;
-  text-align: center;
-  color: #493344;
-  background: linear-gradient(135deg, #fff1d6, #ffd6e7);
-  transition: background 0.5s ease, color 0.5s ease;
-  overflow: hidden; 
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  left: 0;
-  top: 0;
-}
-
-/* ================= DARK MODE 样式 ================= */
-body.dark-mode {
-  background: linear-gradient(135deg, #121212, #1f1b24) !important;
-  color: #f1f1f1;
-}
-
-body.dark-mode .sidebar {
-  background: #1e1e1e;
-  color: #e0e0e6;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-}
-
-body.dark-mode .sidebar h3 {
-  color: #ff758c;
-}
-
-body.dark-mode .instructions-content {
-  color: #bbb;
-}
-
-body.dark-mode .stat {
-  background: #252525;
-  color: #f1f1f1;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-}
-
-body.dark-mode #game {
-  background: #1a1a1a;
-  border-color: #333;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.6);
-}
-
-body.dark-mode .overlay-panel {
-  background: rgba(26, 26, 26, 0.96);
-  color: #f1f1f1;
-}
-
-body.dark-mode .overlay-panel p {
-  color: #ccc;
-}
-
-body.dark-mode .name-input-group input {
-  background: #252525;
-  color: white;
-  border-color: #ff758c;
-}
-
-body.dark-mode .mode-btn {
-  background: #252525;
-  color: #ff758c;
-  border-color: #ff758c;
-}
-body.dark-mode .mode-btn.active {
-  background: #ff758c;
-  color: white;
-}
-
-body.dark-mode #message {
-  color: #ddd;
-}
-/* ================================================= */
-
-body.rush-mode {
-  background: linear-gradient(135deg, #00c6ff, #0072ff, #7f00ff) !important;
-}
-
-body.combo-tier-1 { animation: bgPulse 0.8s infinite alternate; }
-body.combo-tier-2 { animation: bgPulse 0.6s infinite alternate; }
-body.combo-tier-3 { animation: bgPulse 0.4s infinite alternate; }
-body.combo-tier-4 { animation: bgPulse 0.3s infinite alternate; }
-body.combo-tier-5 { animation: bgPulse 0.2s infinite alternate; }
-
-@keyframes bgPulse {
-  0% { filter: brightness(1); }
-  100% { filter: brightness(1.08); }
-}
-
-h1 { font-size: 22px; margin: 4px 0 8px 0; }
-
-button {
-  font-family: inherit;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
-}
-
-input { 
-  font-family: inherit;
-  -webkit-user-select: text;
-  user-select: text;
-}
-
-.toolbar {
-  display: flex;
-  justify-content: center;
-  gap: 6px;
-  flex-wrap: wrap;
-  margin-bottom: 6px;
-}
-
-.control {
-  border: 0;
-  border-radius: 10px;
-  padding: 6px 12px;
-  margin: 2px;
-  background: #ed6193;
-  color: white;
-  font-weight: bold;
-  font-size: 12px;
-  transition: transform 0.1s, background 0.2s;
-}
-
-.control:active { transform: scale(0.95); }
-
-.mode-selector {
-  display: flex;
-  justify-content: center;
-  gap: 5px;
-  margin: 4px 0 6px 0;
-  flex-wrap: wrap;
-}
-
-.mode-btn {
-  border: 2px solid #ed6193;
-  border-radius: 8px;
-  padding: 4px 8px;
-  background: white;
-  color: #ed6193;
-  font-weight: bold;
-  font-size: 11px;
-  cursor: pointer;
-}
-
-.mode-btn.active {
-  background: #ed6193;
-  color: white;
-}
-
-.name-input-group { margin: 6px 0; }
-.name-input-group input {
-  padding: 8px 12px;
-  border-radius: 10px;
-  border: 2px solid #ed6193;
-  font-size: 13px;
-  outline: none;
-  width: 190px;
-  text-align: center;
-  background: white;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-}
-
-.name-input-group input.error-shake {
-  border-color: #ff3366 !important;
-  box-shadow: 0 0 10px rgba(255, 51, 102, 0.5) !important;
-  animation: shake 0.3s ease-in-out;
-}
-
-.stats {
-  display: flex;
-  justify-content: center;
-  gap: 6px;
-  margin: 6px auto;
-}
-
-.stat {
-  background: white;
-  border-radius: 8px;
-  padding: 6px 8px;
-  min-width: 75px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-  font-size: 12px;
-}
-.stat strong { font-size: 14px; }
-
-.main-layout {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  gap: 10px;
-  max-width: 960px;
-  margin: 0 auto;
-  flex-wrap: wrap;
-}
-
-.sidebar {
-  flex: 1;
-  min-width: 240px;
-  max-width: 260px;
-  background: white;
-  border-radius: 14px;
-  padding: 10px 12px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
-  text-align: left;
-  max-height: 380px;
-  overflow-y: auto;
-}
-
-.sidebar h3 {
-  margin: 0 0 6px 0;
-  font-size: 14px;
-  text-align: center;
-  color: #ed6193;
-}
-
-.instructions-content {
-  font-size: 12px;
-  line-height: 1.5;
-  color: #555;
-  margin: 0;
-  padding-left: 16px;
-}
-.instructions-content li { margin-bottom: 4px; }
-
-.center-container { flex: 0 0 360px; }
-
-#game {
-  position: relative;
-  width: 360px;
-  height: 380px;
-  margin: auto;
-  background: #fffaf3;
-  border: 4px solid white;
-  border-radius: 18px;
-  overflow: hidden;
-  touch-action: none; 
-  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-  transition: box-shadow 0.3s ease, border-color 0.3s ease;
-}
-
-#particleCanvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 15;
-}
-
-.overlay-panel {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(255, 250, 243, 0.96);
-  backdrop-filter: blur(4px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  z-index: 25;
-  padding: 15px;
-}
-
-.overlay-panel h2 {
-  font-size: 22px;
-  color: #ed6193;
-  margin: 0 0 4px 0;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.overlay-panel p {
-  font-size: 12px;
-  color: #493344;
-  margin: 0 0 8px 0;
-  font-weight: bold;
-}
-
-.name-prompt-tip {
-  font-size: 11px;
-  color: #ed6193;
-  margin-bottom: 3px;
-  font-weight: bold;
-}
-
-.center-btn {
-  border: 0;
-  border-radius: 16px;
-  padding: 10px 20px;
-  background: linear-gradient(135deg, #ff69b4, #ed6193);
-  color: white;
-  font-weight: bold;
-  font-size: 14px;
-  box-shadow: 0 4px 10px rgba(237, 97, 147, 0.4);
-  transition: transform 0.15s, box-shadow 0.15s;
-  cursor: pointer;
-  margin-top: 4px;
-}
-
-.center-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 6px 16px rgba(237, 97, 147, 0.6);
-}
-
-.center-btn:active { transform: scale(0.95); }
-
-.secondary-btn {
-  background: white;
-  color: #ed6193;
-  border: 2px solid #ed6193;
-  margin-top: 5px;
-}
-.secondary-btn:hover {
-  background: #fff0f5;
-}
-
-.combo-banner {
-  position: absolute;
-  top: 40%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0.2) rotate(-10deg);
-  font-size: 30px;
-  font-weight: 900;
-  font-style: italic;
-  color: #ff2a6d;
-  text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 2px 3px 0px #000;
-  pointer-events: none;
-  z-index: 30;
-  white-space: nowrap;
-  opacity: 0;
-  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s ease-out;
-}
-
-.combo-banner.show {
-  opacity: 1;
-  transform: translate(-50%, -50%) scale(1.1) rotate(0deg);
-}
-
-.rush-banner {
-  position: absolute;
-  top: 20%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0);
-  font-size: 26px;
-  font-weight: 900;
-  color: #00ffff;
-  text-shadow: 0 0 12px rgba(0, 255, 255, 0.9), 2px 2px 0px #000;
-  pointer-events: none;
-  z-index: 35;
-  white-space: nowrap;
-  opacity: 0;
-  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s ease;
-}
-.rush-banner.show {
-  opacity: 1;
-  transform: translate(-50%, -50%) scale(1.1) rotate(-3deg);
-}
-
-.new-best-banner {
-  position: absolute;
-  top: 32%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0);
-  font-size: 24px;
-  font-weight: 900;
-  color: #ffb703;
-  text-shadow: 0 0 12px rgba(255, 183, 3, 0.8), 2px 2px 0px #000;
-  pointer-events: none;
-  z-index: 35;
-  white-space: nowrap;
-  opacity: 0;
-  transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.15s ease;
-}
-.new-best-banner.show {
-  opacity: 1;
-  transform: translate(-50%, -50%) scale(1.05) rotate(-2deg);
-}
-
-.game-over-record {
-  font-size: 13px;
-  font-weight: bold;
-  color: #ff8c00;
-  background: #fff3cd;
-  border: 1px dashed #ffc107;
-  padding: 4px 10px;
-  border-radius: 10px;
-  margin-bottom: 6px;
-  display: none;
-  animation: pulseNotice 1s infinite alternate;
-}
-
-@keyframes pulseNotice {
-  0% { transform: scale(0.98); }
-  100% { transform: scale(1.03); }
-}
-
-#game.glow-tier-1 {
-  border-color: #ff3366;
-  box-shadow: 0 0 20px #ff69b4, inset 0 0 15px rgba(255, 105, 180, 0.3);
-}
-#game.glow-tier-2 {
-  border-color: #ff8c00;
-  box-shadow: 0 0 25px #ffa500, inset 0 0 20px rgba(255, 165, 0, 0.4);
-}
-#game.glow-tier-3 {
-  border-color: #00ffff;
-  box-shadow: 0 0 30px #00bfff, inset 0 0 25px rgba(0, 191, 255, 0.5);
-}
-#game.glow-tier-4 {
-  border-color: #9370db;
-  box-shadow: 0 0 35px #da70d6, inset 0 0 30px rgba(186, 85, 211, 0.6);
-}
-
-#game.glow-tier-5 {
-  border-color: #ffd700 !important;
-  box-shadow: 0 0 40px #ffd700, 0 0 70px rgba(255, 215, 0, 0.6), inset 0 0 30px rgba(255, 215, 0, 0.4) !important;
-  animation: goldAura 1.2s infinite alternate;
-}
-
-@keyframes goldAura {
-  0% { transform: scale(1); }
-  100% { transform: scale(1.015); }
-}
-
-@keyframes shake {
-  0% { transform: translate(0, 0) rotate(0deg); }
-  20% { transform: translate(-3px, 3px) rotate(-2deg); }
-  40% { transform: translate(3px, -3px) rotate(2deg); }
-  60% { transform: translate(-3px, -2px) rotate(0deg); }
-  80% { transform: translate(3px, 3px) rotate(-1deg); }
-  100% { transform: translate(0, 0) rotate(0deg); }
-}
-.shake-anim { animation: shake 0.25s ease-in-out; }
-
-#game.rush-shake {
-  animation: rushShakeAnim 0.15s infinite alternate;
-}
-
-@keyframes rushShakeAnim {
-  0% { transform: translate(-2px, 1px) rotate(-0.5deg); }
-  100% { transform: translate(2px, -1px) rotate(0.5deg); }
-}
-
-#comboBarContainer {
-  width: 360px;
-  height: 5px;
-  background: #eee;
-  margin: 4px auto;
-  border-radius: 3px;
-  overflow: hidden;
-  display: none;
-}
-#comboBar {
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, #ff69b4, #ff8c00);
-  transition: width 0.05s linear;
-}
-
-.floating-text {
-  position: absolute;
-  font-weight: bold;
-  font-size: 16px;
-  color: #ff3366;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-  pointer-events: none;
-  animation: floatUp 0.8s ease-out forwards;
-  z-index: 10;
-}
-
-@keyframes floatUp {
-  0% { opacity: 1; transform: translateY(0) scale(0.8); }
-  50% { transform: translateY(-22px) scale(1.2); }
-  100% { opacity: 0; transform: translateY(-45px) scale(1); }
-}
-
-.fruit {
-  position: absolute;
-  width: 54px;
-  height: 54px;
-  border: 3px solid white;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 0;
-  font-size: 28px;
-  box-shadow: 0 3px 6px #0002;
-  user-select: none;
-  transition: transform 0.15s ease;
-}
-
-.fruit.selected {
-  border: 4px solid #e83e82;
-  transform: scale(1.12);
-}
-
-#message {
-  min-height: 32px;
-  padding: 4px;
-  font-weight: bold;
-  font-size: 13px;
-}
-
-.leaderboard ol {
-  margin: 0;
-  padding-left: 18px;
-  font-size: 12px;
-}
-.leaderboard li { margin-bottom: 4px; }
-
-.zen-notice {
-  font-size: 12px;
-  color: #888;
-  text-align: center;
-  margin-top: 15px;
-  line-height: 1.4;
-}
-
-@media screen and (max-width: 900px) {
-  body {
-    overflow: auto;
-    position: static;
-    height: auto;
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap');
+  * { box-sizing: border-box; -webkit-user-select: none; user-select: none; }
+  body { font-family: 'Fredoka', sans-serif; background: radial-gradient(circle at center, #1e1b4b 0%, #0f172a 100%); color: #f8fafc; min-height: 100vh; overflow-x: hidden; transition: background 0.3s ease, color 0.3s ease; }
+  
+  /* Theme Styles */
+  body.light-theme { background: radial-gradient(circle at center, #e0f2fe 0%, #bae6fd 100%); color: #0f172a; }
+  body.light-theme .bg-slate-900\/80 { background-color: rgba(255, 255, 255, 0.9) !important; color: #0f172a !important; border-color: rgba(0,0,0,0.1) !important; }
+  body.light-theme .text-white { color: #1e293b !important; }
+  body.light-theme .text-gray-400 { color: #64748b !important; }
+  body.light-theme .bg-slate-950\/40 { background-color: rgba(241, 245, 249, 0.8) !important; border-color: rgba(0,0,0,0.15) !important; }
+
+  body.theme-neon { background: radial-gradient(circle at center, #2e0854 0%, #090014 100%); color: #00ffcc; }
+  body.theme-neon .bg-slate-900\/80 { background-color: rgba(15, 5, 30, 0.9) !important; border-color: rgba(0,255,204,0.3) !important; }
+
+  body.theme-candy { background: radial-gradient(circle at center, #fbcfe8 0%, #f472b6 100%); color: #500724; }
+  body.theme-candy .bg-slate-900\/80 { background-color: rgba(255, 255, 255, 0.85) !important; border-color: rgba(244,114,182,0.4) !important; color: #831843 !important; }
+
+  .font-arcade { font-family: 'Fredoka', cursive, sans-serif; }
+  .btn-3d { transition: transform 0.1s ease, box-shadow 0.1s ease; cursor: pointer; border-radius: 1rem; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+  .btn-3d:active { transform: scale(0.95); }
+  .btn-purple { background: linear-gradient(135deg, #a855f7, #7e22ce); box-shadow: 0 4px 0 #581c87; color: white; }
+  .btn-gold { background: linear-gradient(135deg, #fbbf24, #d97706); box-shadow: 0 4px 0 #b45309; color: #fff; }
+  .active-mode { border: 2px solid #fbbf24 !important; background: rgba(251, 191, 36, 0.2) !important; }
+  .fruit-card {
+    position: absolute; width: 56px; height: 56px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; font-size: 28px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 3px solid rgba(255,255,255,0.8);
+    cursor: pointer; transition: transform 0.15s ease; user-select: none;
+    touch-action: manipulation;
   }
-  .main-layout {
-    flex-direction: column;
-    align-items: center;
-  }
-  .sidebar {
-    width: 100%;
-    max-width: 360px;
-    margin-bottom: 8px;
-    max-height: 180px;
-  }
-  .center-container {
-    order: -1;
-    width: 100%;
-  }
-  #game, #comboBarContainer { width: min(100%, 360px); }
-}
+  .fruit-card.selected { border: 4px solid #ef4444; transform: scale(1.15); z-index: 10; animation: bounceCard 0.4s infinite alternate; }
+  @keyframes bounceCard { 0% { transform: scale(1.1); } 100% { transform: scale(1.18); } }
+  .float-score { position: absolute; font-weight: 900; font-size: 16px; color: #facc15; text-shadow: 0 2px 4px #000; pointer-events: none; animation: floatUp 0.7s ease-out forwards; z-index: 25; }
+  @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(0.8); } 100% { opacity: 0; transform: translateY(-40px) scale(1.2); } }
+  .banner-announcer { position: absolute; top: 35%; left: 50%; transform: translate(-50%, -50%) scale(0); opacity: 0; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s ease; z-index: 30; }
+  .banner-announcer.active { opacity: 1; transform: translate(-50%, -50%) scale(1.15) rotate(-3deg); }
+  @keyframes shakeLight { 0% { transform: translate(0,0); } 25% { transform: translate(-3px, 2px); } 50% { transform: translate(3px, -2px); } 75% { transform: translate(-2px, -1px); } 100% { transform: translate(0,0); } }
+  .shake-light { animation: shakeLight 0.2s ease-in-out; }
+  @keyframes shakeHeavy { 0% { transform: translate(0,0); } 20% { transform: translate(-6px, 4px); } 40% { transform: translate(6px, -4px); } 60% { transform: translate(-5px, -2px); } 80% { transform: translate(5px, 4px); } 100% { transform: translate(0,0); } }
+  .shake-heavy { animation: shakeHeavy 0.3s ease-in-out; }
 </style>
 </head>
-<body>
+<body class="flex flex-col items-center justify-between p-2 md:p-4">
 
-<h1>🍓 Fruit Merge Challenge 🍉</h1>
-
-<div class="toolbar">
-  <button class="control" id="language">中文 / English</button>
-  <button class="control" id="pauseBtn" style="display:none;">⏸️ 暂停 / Pause</button>
-  <button class="control" id="muteBtn">🔊 音效: 开 / Sound: ON</button>
-  <button class="control" id="darkModeBtn">🌙 暗黑模式 / Dark</button>
-</div>
-
-<div class="mode-selector">
-  <button class="mode-btn active" data-mode="normal" id="modeNormal">⏱️ 60秒限时 / 60s</button>
-  <button class="mode-btn" data-mode="blitz" id="modeBlitz">⚡ 30秒闪电 / 30s</button>
-  <button class="mode-btn" data-mode="zen" id="modeZen">🧘 休闲 / Zen</button>
-</div>
-
-<div class="stats">
-  <div class="stat">
-    <span id="scoreLabel">分数</span><br>
-    <strong id="score">0</strong>
-  </div>
-  <div class="stat">
-    <span id="timeLabel">时间</span><br>
-    <strong id="timer">60</strong>
-  </div>
-  <div class="stat">
-    <span id="bestLabel">最高分</span><br>
-    <strong id="best">0</strong>
-  </div>
-</div>
-
-<div class="main-layout">
-  <div class="sidebar" id="instructionsPanel">
-    <h3 id="rulesTitle">📖 游戏玩法说明</h3>
-    <ul class="instructions-content" id="rulesList"></ul>
-  </div>
-
-  <div class="center-container">
-    <div id="comboBarContainer">
-      <div id="comboBar"></div>
+  <!-- Top Toolbar Header -->
+  <header class="w-full max-w-5xl flex flex-wrap justify-between items-center gap-2 bg-slate-900/80 backdrop-blur border border-white/10 rounded-2xl p-3 shadow-xl mb-3">
+    <div class="flex items-center gap-2">
+      <span class="text-2xl">🍓</span>
+      <h1 class="font-arcade text-lg md:text-xl text-amber-400 font-bold tracking-wide">Fruit Merge v3.0</h1>
     </div>
-    <div id="game">
-      <canvas id="particleCanvas"></canvas>
-      <div id="comboBanner" class="combo-banner">GOOD!</div>
-      <div id="rushBanner" class="rush-banner">🔥 LAST 10S RUSH x2!</div>
-      <div id="newBestBanner" class="new-best-banner">🔥 NEW BEST!</div>
 
-      <!-- 开始面板 -->
-      <div id="startOverlay" class="overlay-panel">
-        <h2 id="welcomeTitle">🍓 水果大合并</h2>
-        <p id="welcomeDesc">10种丰富水果，被动连击觉醒与最后10秒狂热升级！</p>
-        <div class="name-prompt-tip" id="nameTip">请输入你的玩家大名：</div>
-        <div class="name-input-group" style="margin-bottom: 10px;">
-          <input type="text" id="playerName" placeholder="输入你的名字 / Your Name" maxlength="12">
+    <div class="flex items-center gap-2 text-xs">
+      <div class="bg-black/40 border border-white/10 px-3 py-1.5 rounded-xl flex items-center gap-2">
+        <span>⭐ XP:</span>
+        <div class="w-20 h-2.5 bg-slate-800 rounded-full overflow-hidden border border-white/20">
+          <div id="xpBar" class="h-full bg-gradient-to-r from-green-400 to-emerald-500 w-0 transition-all duration-300"></div>
         </div>
-        <button class="center-btn" id="startBtn">▶️ 开始游戏 / Start</button>
+        <span id="playerLevelBadge" class="font-bold text-amber-300">1</span>
       </div>
-
-      <!-- 结束面板 -->
-      <div id="gameOverOverlay" class="overlay-panel" style="display:none;">
-        <h2>💥 GAME OVER</h2>
-        <div id="gameOverRecord" class="game-over-record">🎉 刷新最高纪录！ / NEW RECORD!</div>
-        <p id="finalScoreDesc">最终得分: <span id="finalScoreVal">0</span></p>
-        <button class="center-btn" id="playAgainBtn">🔄 再来一局 / Play Again</button>
-        <button class="center-btn secondary-btn" id="shareBtn">📤 邀请好友来挑战 / Invite</button>
-      </div>
-
-      <div id="pauseOverlay" class="overlay-panel" style="display:none;">
-        <h2>⏸️ 游戏已暂停</h2>
-        <p style="font-size: 13px; font-weight: normal; margin: 0;">Game Paused</p>
+      <div id="loginStreakBadge" class="bg-purple-900/50 border border-purple-500/30 text-purple-200 px-2.5 py-1.5 rounded-xl font-bold">
+        Day 1
       </div>
     </div>
 
-    <div id="message">准备好了吗？点击开始！ / Ready? Press Start!</div>
-  </div>
+    <div class="flex items-center gap-1.5">
+      <button id="langBtn" class="btn-3d btn-purple px-3 py-1.5 text-xs">中文 / EN</button>
+      <button id="audioBtn" class="btn-3d btn-purple px-3 py-1.5 text-xs">🔊 Sound: ON</button>
+      <button id="themeBtn" class="btn-3d btn-purple px-3 py-1.5 text-xs">🎨 Theme</button>
+    </div>
+  </header>
 
-  <div class="sidebar leaderboard" id="rightSidebar">
-    <h3 id="boardTitle">🏆 排行榜 (Top 5)</h3>
-    <ol id="leaderboardList"></ol>
-    <div id="zenNotice" class="zen-notice" style="display:none;">
-      休闲模式无排行榜，轻松享受合并解压吧！<br>Zen Mode has no leaderboard.
+  <!-- Main Game Layout -->
+  <div class="main-layout flex flex-col md:flex-row justify-center items-start gap-4 w-full max-w-5xl mx-auto my-auto">
+    <!-- Left Sidebar: Modes & Missions -->
+    <div class="sidebar bg-slate-900/80 backdrop-blur border border-white/10 rounded-2xl p-4 w-full md:w-64 flex flex-col gap-4 text-white shadow-xl">
+      <div>
+        <h3 class="font-arcade text-amber-400 text-sm mb-2" id="modeTitleText">🎮 Game Modes</h3>
+        <div class="grid grid-cols-2 md:grid-cols-1 gap-1.5" id="modeSelectorContainer">
+          <button class="mode-btn btn-3d btn-purple text-xs py-2 px-3 justify-start active-mode" data-mode="normal">
+            ⏱️ 60s Normal
+          </button>
+          <button class="mode-btn btn-3d btn-purple text-xs py-2 px-3 justify-start" data-mode="blitz">
+            ⚡ Blitz (30s)
+          </button>
+          <button class="mode-btn btn-3d btn-purple text-xs py-2 px-3 justify-start" data-mode="zen">
+            🧘 Zen (Casual)
+          </button>
+          <button class="mode-btn btn-3d btn-purple text-xs py-2 px-3 justify-start" data-mode="survival">
+            ☣️ Survival
+          </button>
+          <button class="mode-btn btn-3d btn-purple text-xs py-2 px-3 justify-start" data-mode="target">
+            🎯 Target (2k)
+          </button>
+        </div>
+      </div>
+
+      <div class="mt-2 bg-black/30 p-2.5 rounded-xl border border-white/10 flex flex-col gap-2">
+        <h4 class="font-arcade text-xs text-cyan-300" id="missionsHeader">📜 Daily Missions</h4>
+        <div id="missionsList" class="flex flex-col gap-1.5 text-xs">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Center Play Area -->
+    <div class="center-container flex flex-col items-center gap-2">
+      <!-- Game Top Score Bar -->
+      <div class="w-[360px] max-w-full flex justify-between gap-2">
+        <div class="flex-1 bg-slate-900/80 border border-white/10 rounded-xl px-3 py-1.5 text-center shadow">
+          <span class="text-[10px] text-gray-400 uppercase tracking-wider" id="scoreLabel">Score</span><br>
+          <strong id="scoreDisplay" class="font-arcade text-lg text-amber-400">0</strong>
+        </div>
+        <div class="flex-1 bg-slate-900/80 border border-white/10 rounded-xl px-3 py-1.5 text-center shadow">
+          <span class="text-[10px] text-gray-400 uppercase tracking-wider" id="timerLabel">Timer</span><br>
+          <strong id="timerDisplay" class="font-arcade text-lg text-cyan-400">60</strong>
+        </div>
+        <div class="flex-1 bg-slate-900/80 border border-white/10 rounded-xl px-3 py-1.5 text-center shadow">
+          <span class="text-[10px] text-gray-400 uppercase tracking-wider" id="bestLabel">High Score</span><br>
+          <strong id="bestDisplay" class="font-arcade text-lg text-pink-400">0</strong>
+        </div>
+      </div>
+
+      <!-- Combo Progress Bar -->
+      <div class="w-[360px] max-w-full h-1.5 bg-black/30 rounded-full overflow-hidden border border-white/10">
+        <div id="comboBar" class="h-full bg-gradient-to-r from-amber-400 to-pink-500 w-0 transition-all duration-75"></div>
+      </div>
+
+      <div id="gameContainer" class="game-board relative w-[360px] h-[400px] bg-slate-950/40 backdrop-blur border-4 border-white/20 rounded-2xl overflow-hidden shadow-2xl">
+        <!-- Canvas for particle effects and animations -->
+        <canvas id="fxCanvas" class="absolute inset-0 w-full h-full pointer-events-none z-20"></canvas>
+
+        <div id="bannerAnnouncer" class="banner-announcer font-arcade text-amber-300 text-xl font-bold tracking-wider pointer-events-none z-30">GREAT!</div>
+
+        <!-- Start Overlay -->
+        <div id="startOverlay" class="overlay-screen absolute inset-0 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-6 z-40">
+          <h2 class="font-arcade text-3xl text-amber-400 text-center mb-1 drop-shadow-md">FRUIT MERGE</h2>
+          <p class="text-xs text-pink-200 text-center mb-4 max-w-[260px]" id="startDesc">
+            Combine matching fruits to synthesize the Golden Crown 👑!
+          </p>
+
+          <div class="w-full max-w-[240px] flex flex-col gap-1 mb-4">
+            <label class="text-[11px] font-bold text-cyan-300 text-center" id="nameInputLabel">Player Name:</label>
+            <input type="text" id="playerNameInput" maxlength="12" placeholder="FruitMaster" 
+                   class="w-full bg-black/60 border-2 border-amber-400/50 rounded-xl px-3 py-2 text-center text-sm font-bold text-amber-300 outline-none focus:border-amber-400 shadow-inner">
+          </div>
+
+          <button id="startGameBtn" class="btn-3d btn-gold px-8 py-3 text-base">
+            ▶️ PLAY NOW
+          </button>
+        </div>
+
+        <!-- Game Over Overlay -->
+        <div id="gameOverOverlay" class="overlay-screen absolute inset-0 bg-slate-950/92 backdrop-blur-md flex flex-col items-center justify-center p-6 z-40 hidden">
+          <h2 class="font-arcade text-2xl text-red-500 text-center mb-1">GAME OVER</h2>
+          <div id="newRecordBadge" class="bg-amber-500/20 border border-amber-400/50 text-amber-300 text-[11px] font-bold px-3 py-1 rounded-full mb-2 hidden animate-bounce">
+            🎉 NEW HIGH SCORE!
+          </div>
+          
+          <div class="w-full max-w-[260px] bg-black/40 border border-white/10 rounded-xl p-3 mb-4 flex flex-col gap-1.5 text-xs text-gray-200">
+            <div class="flex justify-between"><span>Final Score:</span> <strong id="statScore" class="text-amber-400 font-arcade">0</strong></div>
+            <div class="flex justify-between"><span>Max Combo:</span> <strong id="statCombo" class="text-pink-400 font-arcade">x0</strong></div>
+            <div class="flex justify-between"><span>Total Merges:</span> <strong id="statMerges" class="text-cyan-400">0</strong></div>
+            <div class="flex justify-between"><span>Crown Merges:</span> <strong id="statCrowns" class="text-yellow-400">0</strong></div>
+            <div class="flex justify-between"><span>XP Earned:</span> <strong id="statXp" class="text-green-400">+0</strong></div>
+            <div class="flex justify-between"><span>Player Level:</span> <strong id="statLevel" class="text-purple-400">Lv.1</strong></div>
+          </div>
+
+          <div class="flex flex-col gap-2 w-full max-w-[240px]">
+            <button id="restartGameBtn" class="btn-3d btn-gold py-2.5 text-sm font-bold">🔄 PLAY AGAIN</button>
+            <button id="shareBtn" class="btn-3d btn-purple py-2 text-xs font-bold">📤 SHARE</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="statusMsg" class="text-xs font-bold text-pink-300 h-5 flex items-center justify-center">
+        Tap matching fruits to merge!
+      </div>
+    </div>
+
+    <!-- Right Sidebar: Leaderboard -->
+    <div class="sidebar bg-slate-900/80 backdrop-blur border border-white/10 rounded-2xl p-4 w-full md:w-64 flex flex-col gap-3 text-white shadow-xl">
+      <h3 class="font-arcade text-amber-400 text-sm mb-1 text-center">🏆 Leaderboard (Top 6)</h3>
+      <div id="leaderboardList" class="flex flex-col gap-1.5 text-xs">
+        <div class="text-gray-400 text-center py-2">Loading scores...</div>
+      </div>
     </div>
   </div>
-</div>
+
+  <div id="toastNotification" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900/95 border border-amber-400/50 text-white px-4 py-2 rounded-xl shadow-2xl flex items-center gap-2.5 text-xs z-50 opacity-0 pointer-events-none transition-opacity duration-300">
+    <span id="toastIcon" class="text-base">🏆</span>
+    <span id="toastText" class="font-bold">Achievement Unlocked!</span>
+  </div>
 
 <script>
 (() => {
-  const game = document.getElementById("game");
+  const SUPABASE_URL = "https://xeqzhgewxiwazoadlghj.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_JUPfEfcqDpk94v3MqxdQ2g_2JYst1Us";
+
+  const I18N = {
+    en: {
+      score: "Score",
+      timer: "Timer",
+      best: "High Score",
+      modeTitle: "🎮 Game Modes",
+      missionsHeader: "📜 Daily Missions",
+      nameLabel: "Player Name:",
+      playBtn: "▶️ PLAY NOW",
+      replayBtn: "🔄 PLAY AGAIN",
+      shareBtn: "📤 SHARE",
+      statusStart: "Tap matching fruits to merge!",
+      statusSwitched: "Different fruits! Combo reset.",
+      statusMerged: "Merged! +{pts} pts!",
+      statusSurge: "💥 ULTRA COMBO SHOCKWAVE!",
+      statusTargetWin: "🎯 TARGET REACHED! VICTORY!",
+      statusSurvivalOverflow: "☣️ BOARD OVERFLOWED!",
+      copySuccess: "📋 Result copied to clipboard!",
+      missions: {
+        1: "Merge 30 Fruits",
+        2: "Reach 50 Combo",
+        3: "Trigger 2 Special Fruits"
+      },
+      modes: {
+        normal: "⏱️ 60s Normal",
+        blitz: "⚡ Blitz (30s)",
+        zen: "🧘 Zen (Casual)",
+        survival: "☣️ Survival",
+        target: "🎯 Target (2k)"
+      }
+    },
+    zh: {
+      score: "当前得分",
+      timer: "剩余时间",
+      best: "历史最高",
+      modeTitle: "🎮 游戏模式",
+      missionsHeader: "📜 每日任务",
+      nameLabel: "玩家大名:",
+      playBtn: "▶️ 开始游戏",
+      replayBtn: "🔄 再来一局",
+      shareBtn: "📤 分享战报",
+      statusStart: "点击两个相同的水果进行合并！",
+      statusSwitched: "水果种类不同，连击重置！",
+      statusMerged: "合并成功！获得 {pts} 分！",
+      statusSurge: "💥 触发超级连击彩虹冲击波！",
+      statusTargetWin: "🎯 达成指定目标分数！大获全胜！",
+      statusSurvivalOverflow: "☣️ 棋盘空间已满，游戏结束！",
+      copySuccess: "📋 战报已复制到剪贴板！",
+      missions: {
+        1: "合成 30 个水果",
+        2: "达成 50 连击",
+        3: "触发 2 个特殊水果"
+      },
+      modes: {
+        normal: "⏱️ 60秒限时",
+        blitz: "⚡ 30秒闪电",
+        zen: "🧘 休闲模式",
+        survival: "☣️ 生存模式",
+        target: "🎯 目标模式"
+      }
+    }
+  };
+
+  const FRUITS = [
+    { emoji: "🍒", name: "Cherry", color: "#ff4d6d" },
+    { emoji: "🍓", name: "Strawberry", color: "#ff2a8d" },
+    { emoji: "🍊", name: "Orange", color: "#ff9e00" },
+    { emoji: "🍋", name: "Lemon", color: "#ffd60a" },
+    { emoji: "🍏", name: "Apple", color: "#70e000" },
+    { emoji: "🍉", name: "Watermelon", color: "#38b000" },
+    { emoji: "🍍", name: "Pineapple", color: "#ffb703" },
+    { emoji: "🍇", name: "Grape", color: "#9d4edd" },
+    { emoji: "🍑", name: "Peach", color: "#ff85a1" },
+    { emoji: "👑", name: "Golden Crown", color: "#ffd700" }
+  ];
+
+  const SPECIAL_TYPES = {
+    BOMB: "BOMB",
+    RAINBOW: "RAINBOW",
+    LIGHTNING: "LIGHTNING"
+  };
+
+  let lang = "en";
+  let currentMode = "normal";
+  let score = 0;
+  let combo = 0;
+  let maxComboCount = 0;
+  let totalMergesCount = 0;
+  let crownsMergedCount = 0;
+  let selectedId = null;
+  let nextFruitId = 1;
+  let isRunning = false;
+  let isPaused = false;
+  let timeLeft = 60;
+  let gameTimer = null;
+  let survivalTimer = null;
+  let lastMergeTime = 0;
+  let initialHighScore = 0;
+  const comboWindowMs = 2500;
+
+  let playerData = {
+    xp: 0,
+    level: 1,
+    highScores: { normal: 0, blitz: 0, zen: 0, survival: 0, target: 0 },
+    name: "FruitMaster",
+    loginStreak: 1,
+    lastLoginDate: "",
+    theme: "",
+    achievements: {},
+    missions: [
+      { id: 1, target: 30, progress: 0, rewardXp: 100, claimed: false },
+      { id: 2, target: 50, progress: 0, rewardXp: 200, claimed: false },
+      { id: 3, target: 2, progress: 0, rewardXp: 150, claimed: false }
+    ]
+  };
+
+  const gameContainer = document.getElementById("gameContainer");
+  const fxCanvas = document.getElementById("fxCanvas");
+  const ctx = fxCanvas ? fxCanvas.getContext("2d") : null;
+  const scoreDisplay = document.getElementById("scoreDisplay");
+  const timerDisplay = document.getElementById("timerDisplay");
+  const bestDisplay = document.getElementById("bestDisplay");
+  const statusMsg = document.getElementById("statusMsg");
+  const comboBar = document.getElementById("comboBar");
   const startOverlay = document.getElementById("startOverlay");
   const gameOverOverlay = document.getElementById("gameOverOverlay");
-  const pauseOverlay = document.getElementById("pauseOverlay");
-  const comboBanner = document.getElementById("comboBanner");
-  const rushBanner = document.getElementById("rushBanner");
-  const newBestBanner = document.getElementById("newBestBanner");
-  const gameOverRecord = document.getElementById("gameOverRecord");
-
-  const startBtn = document.getElementById("startBtn");
-  const playAgainBtn = document.getElementById("playAgainBtn");
-  const shareBtn = document.getElementById("shareBtn");
-  const pauseBtn = document.getElementById("pauseBtn");
-  const muteBtn = document.getElementById("muteBtn");
-  const darkModeBtn = document.getElementById("darkModeBtn");
-
-  const scoreEl = document.getElementById("score");
-  const timerEl = document.getElementById("timer");
-  const bestEl = document.getElementById("best");
-  const finalScoreVal = document.getElementById("finalScoreVal");
-  const message = document.getElementById("message");
-  const nameInput = document.getElementById("playerName");
-  const nameTip = document.getElementById("nameTip");
-  const leaderboardList = document.getElementById("leaderboardList");
-  const zenNotice = document.getElementById("zenNotice");
-  const boardTitle = document.getElementById("boardTitle");
-  const modeButtons = document.querySelectorAll(".mode-btn");
-  const comboBarContainer = document.getElementById("comboBarContainer");
-  const comboBar = document.getElementById("comboBar");
-
-  const canvas = document.getElementById("particleCanvas");
-  const ctx = canvas.getContext("2d");
-
-  // ================= SUPABASE 配置 =================
-  const SUPABASE_URL = "https://xeqzhgewxiwazoadlghj.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_JUPfEfcqDpk94v3MqxdQ2g_2JYst1Us"; 
-  // =================================================
-
-  let currentMode = "normal";
-  let isPaused = false;
-  let isMuted = false;
-  let isDarkMode = false;
-  let isNewRecordInCurrentGame = false;
-  let isRushActive = false;
-  let rushBannerTriggered = false;
-
-  let particles = [];
-
-  function resizeCanvas() {
-    canvas.width = game.clientWidth;
-    canvas.height = game.clientHeight;
-  }
-  resizeCanvas();
-
-  window.addEventListener("resize", resizeCanvas);
-  window.addEventListener("orientationchange", () => {
-    setTimeout(resizeCanvas, 200);
-  });
-
-  function spawnParticles(x, y, color, count = 20) {
-    for (let i = 0; i < count; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const speed = Math.random() * 5 + 2;
-      particles.push({
-        x: x + 27,
-        y: y + 27,
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed,
-        radius: Math.random() * 4 + 2,
-        color: color,
-        alpha: 1
-      });
-    }
-  }
-
-  function updateParticles() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    for (let i = particles.length - 1; i >= 0; i--) {
-      const p = particles[i];
-      p.x += p.vx;
-      p.y += p.vy;
-      p.alpha -= 0.02;
-      if (p.alpha <= 0) {
-        particles.splice(i, 1);
-        continue;
-      }
-      ctx.save();
-      ctx.globalAlpha = p.alpha;
-      ctx.fillStyle = p.color;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-    }
-    requestAnimationFrame(updateParticles);
-  }
-  requestAnimationFrame(updateParticles);
+  const bannerAnnouncer = document.getElementById("bannerAnnouncer");
+  const playerNameInput = document.getElementById("playerNameInput");
 
   let audioCtx = null;
-  let bgmTimeout = null;
-  let bgmNoteIndex = 0;
+  let isMuted = false;
 
   function initAudio() {
     if (!audioCtx) {
@@ -761,436 +345,641 @@ input {
     }
   }
 
-  const bgmNotes = [261.63, 329.63, 392.00, 523.25, 392.00, 329.63, 293.66, 349.23];
-
-  function startBGM() {
-    stopBGM();
+  function playSynthSound(type, comboLevel = 1) {
     if (isMuted) return;
-    initAudio();
-    bgmNoteIndex = 0;
-
-    function playNextNote() {
-      if (!audioCtx || isPaused || isMuted || !running) return;
-
-      let speed = isRushActive ? 110 : 250;
-      let freqMultiplier = isRushActive ? 1.7 : 1;
-      if (combo >= 3 && combo < 10) { speed = isRushActive ? 90 : 200; freqMultiplier = 1.2; }
-      else if (combo >= 10 && combo < 20) { speed = isRushActive ? 80 : 160; freqMultiplier = 1.35; }
-      else if (combo >= 20 && combo < 30) { speed = isRushActive ? 70 : 130; freqMultiplier = 1.5; }
-      else if (combo >= 30) { speed = isRushActive ? 50 : 100; freqMultiplier = 1.75; }
-
-      try {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-
-        const now = audioCtx.currentTime;
-        let freq = bgmNotes[bgmNoteIndex % bgmNotes.length] * freqMultiplier;
-
-        osc.type = isRushActive ? 'sawtooth' : 'triangle';
-        osc.frequency.setValueAtTime(freq, now);
-
-        gain.gain.setValueAtTime(isRushActive ? 0.2 : 0.12, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
-
-        osc.start(now);
-        osc.stop(now + 0.15);
-
-        bgmNoteIndex++;
-      } catch (e) {}
-
-      bgmTimeout = setTimeout(playNextNote, speed);
-    }
-    playNextNote();
-  }
-
-  function stopBGM() {
-    if (bgmTimeout) {
-      clearTimeout(bgmTimeout);
-      bgmTimeout = null;
-    }
-    resetComboVisuals();
-  }
-
-  function resetComboVisuals() {
-    document.body.classList.remove("combo-tier-1", "combo-tier-2", "combo-tier-3", "combo-tier-4", "combo-tier-5");
-    game.classList.remove("glow-tier-1", "glow-tier-2", "glow-tier-3", "glow-tier-4", "glow-tier-5");
-    if (!isRushActive) comboBarContainer.style.display = "none";
-  }
-
-  function updateComboVisuals() {
-    resetComboVisuals();
-    if (combo > 0 && !isPaused) {
-      comboBarContainer.style.display = "block";
-    }
-
-    if (combo >= 50) {
-      document.body.classList.add("combo-tier-5");
-      game.classList.add("glow-tier-5");
-    } else if (combo >= 30) {
-      document.body.classList.add("combo-tier-4");
-      game.classList.add("glow-tier-4");
-    } else if (combo >= 20) {
-      document.body.classList.add("combo-tier-3");
-      game.classList.add("glow-tier-3");
-    } else if (combo >= 10) {
-      document.body.classList.add("combo-tier-2");
-      game.classList.add("glow-tier-2");
-    } else if (combo >= 3) {
-      document.body.classList.add("combo-tier-1");
-      game.classList.add("glow-tier-1");
-    }
-  }
-
-  function triggerComboAnnouncer(comboCount) {
-    let title = "";
-    let soundType = "";
-
-    if (comboCount >= 20) { title = "GODLIKE! 👑"; soundType = "godlike"; }
-    else if (comboCount >= 16) { title = "UNSTOPPABLE! ⚡"; soundType = "unstoppable"; }
-    else if (comboCount >= 12) { title = "AWESOME! 🔥"; soundType = "awesome"; }
-    else if (comboCount >= 8) { title = "EXCELLENT! 🎉"; soundType = "excellent"; }
-    else if (comboCount >= 5) { title = "GREAT! 🌟"; soundType = "great"; }
-    else if (comboCount >= 3) { title = "GOOD! 👍"; soundType = "good"; }
-
-    if (title !== "") {
-      comboBanner.textContent = title;
-      comboBanner.classList.remove("show");
-      void comboBanner.offsetWidth;
-      comboBanner.classList.add("show");
-
-      setTimeout(() => { comboBanner.classList.remove("show"); }, 700);
-      playComboVoiceSound(soundType);
-      if (navigator.vibrate) { navigator.vibrate(comboCount >= 12 ? [50, 50, 50] : 40); }
-    }
-  }
-
-  function playComboVoiceSound(type) {
-    if (isPaused || isMuted) return;
-    try {
-      initAudio();
-      if (type === "good") playTone([300, 450], [0.08, 0.15], 'sine');
-      else if (type === "great") playTone([400, 600, 800], [0.08, 0.08, 0.2], 'triangle');
-      else if (type === "excellent") playTone([523, 659, 783, 1046], [0.06, 0.06, 0.06, 0.25], 'sine');
-      else if (type === "awesome") playArpeggio([300, 450, 600, 900], 0.05, 'sawtooth');
-      else if (type === "unstoppable") playGlitchSound();
-      else if (type === "godlike") playGodlikeBass();
-    } catch (e) {}
-  }
-
-  function playTone(freqs, durations, type = 'sine') {
-    let t = audioCtx.currentTime;
-    freqs.forEach((freq, i) => {
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = type;
-      osc.frequency.setValueAtTime(freq, t);
-      gain.gain.setValueAtTime(0.3, t);
-      gain.gain.exponentialRampToValueAtTime(0.01, t + durations[i]);
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start(t);
-      osc.stop(t + durations[i]);
-      t += durations[i];
-    });
-  }
-
-  function playArpeggio(freqs, step, type) {
-    let t = audioCtx.currentTime;
-    freqs.forEach((freq) => {
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = type;
-      osc.frequency.setValueAtTime(freq, t);
-      gain.gain.setValueAtTime(0.25, t);
-      gain.gain.exponentialRampToValueAtTime(0.01, t + 0.15);
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start(t);
-      osc.stop(t + 0.15);
-      t += step;
-    });
-  }
-
-  function playGlitchSound() {
-    const now = audioCtx.currentTime;
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(200, now);
-    osc.frequency.exponentialRampToValueAtTime(1200, now + 0.3);
-    gain.gain.setValueAtTime(0.3, now);
-    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.start(now);
-    osc.stop(now + 0.3);
-  }
-
-  function playGodlikeBass() {
-    const now = audioCtx.currentTime;
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(120, now);
-    osc.frequency.exponentialRampToValueAtTime(40, now + 0.5);
-    gain.gain.setValueAtTime(0.5, now);
-    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.start(now);
-    osc.stop(now + 0.5);
-    setTimeout(() => playArpeggio([400, 600, 800, 1200, 1600], 0.04, 'sine'), 100);
-  }
-
-  function playSound(type, comboMultiplier = 1) {
-    if (isPaused || isMuted) return;
     try {
       initAudio();
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
       osc.connect(gain);
       gain.connect(audioCtx.destination);
-
       const now = audioCtx.currentTime;
 
       if (type === 'pop') {
+        const freq = 300 + Math.min(comboLevel * 25, 500);
         osc.type = 'sine';
-        let baseFreq = 300 + Math.min(comboMultiplier * 30, 600);
-        osc.frequency.setValueAtTime(baseFreq, now);
-        osc.frequency.exponentialRampToValueAtTime(baseFreq * 2, now + 0.1);
-        gain.gain.setValueAtTime(0.3, now);
+        osc.frequency.setValueAtTime(freq, now);
+        osc.frequency.exponentialRampToValueAtTime(freq * 1.8, now + 0.1);
+        gain.gain.setValueAtTime(0.25, now);
         gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
         osc.start(now);
         osc.stop(now + 0.1);
-      } else if (type === 'tick') {
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(800, now);
-        gain.gain.setValueAtTime(0.15, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
-        osc.start(now);
-        osc.stop(now + 0.05);
       } else if (type === 'bomb') {
         osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(150, now);
-        osc.frequency.linearRampToValueAtTime(40, now + 0.3);
-        gain.gain.setValueAtTime(0.4, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+        osc.frequency.setValueAtTime(180, now);
+        osc.frequency.linearRampToValueAtTime(30, now + 0.35);
+        gain.gain.setValueAtTime(0.5, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
         osc.start(now);
-        osc.stop(now + 0.3);
-      } else if (type === 'magic') {
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(400, now);
-        osc.frequency.exponentialRampToValueAtTime(880, now + 0.2);
-        gain.gain.setValueAtTime(0.3, now);
+        osc.stop(now + 0.35);
+      } else if (type === 'lightning') {
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(600, now);
+        osc.frequency.exponentialRampToValueAtTime(1200, now + 0.2);
+        gain.gain.setValueAtTime(0.2, now);
         gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
         osc.start(now);
         osc.stop(now + 0.2);
-      } else if (type === 'gameover') {
-        stopBGM();
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(400, now);
-        osc.frequency.linearRampToValueAtTime(150, now + 0.4);
-        gain.gain.setValueAtTime(0.3, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
-        osc.start(now);
-        osc.stop(now + 0.4);
+      } else if (type === 'crown') {
+        [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => {
+          const o = audioCtx.createOscillator();
+          const g = audioCtx.createGain();
+          o.type = 'triangle';
+          o.frequency.setValueAtTime(f, now + i * 0.05);
+          g.gain.setValueAtTime(0.2, now + i * 0.05);
+          g.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+          o.connect(g);
+          g.connect(audioCtx.destination);
+          o.start(now + i * 0.05);
+          o.stop(now + 0.4);
+        });
       }
     } catch (e) {}
   }
 
-  const fruits = [
-    { emoji: "🍒", color: "#ffd9df" },
-    { emoji: "🍓", color: "#ffc7ce" },
-    { emoji: "🍊", color: "#ffe0ad" },
-    { emoji: "🍋", color: "#fff2a8" },
-    { emoji: "🍏", color: "#d9f2b4" },
-    { emoji: "🍉", color: "#c8efcb" },
-    { emoji: "🍍", color: "#ffe4a6" },
-    { emoji: "🍇", color: "#dfd0ff" },
-    { emoji: "🍑", color: "#ffccbb" },
-    { emoji: "👑", color: "#fff4b8" }
-  ];
-
-  const text = {
-    zh: {
-      score: "分数",
-      time: "时间",
-      best: "最高分",
-      pause: "⏸️ 暂停 / Pause",
-      resume: "▶️ 继续 / Resume",
-      soundOn: "🔊 音效: 开 / Sound: ON",
-      soundOff: "🔇 音效: 关 / Sound: OFF",
-      darkOn: "🌙 暗黑模式: 开 / Dark",
-      darkOff: "☀️ 暗黑模式: 关 / Light",
-      rulesTitle: "📖 游戏玩法说明",
-      rulesContent: [
-        "点击两个相同的水果进行合并得分。",
-        "共 10 种水果，从小到大合成终极皇冠👑！",
-        "<b>🔥 连击觉醒（被动）</b>：达成 10 连击时自动引爆棋盘、清除低级水果并获取大额加分！",
-        "<b>⏱️ 最后10秒 Rush（被动）</b>：自动触发狂热大升级与双倍积分冲刺！",
-        "<b>🧘 休闲模式</b>：无时间限制与倒计时，轻松解压自由合并！"
-      ],
-      readyMsg: "准备好了吗？点击开始！",
-      playing: "请选择两个相同的水果。",
-      pausedMsg: "游戏已暂停",
-      selected: "已选择",
-      chooseSame: "，请再选一个相同的水果！",
-      switched: "等级不同，连击中断已重置！",
-      merged: "合并成功！",
-      comboText: " 连击 x",
-      rushText: " 🔥RUSH 连击双倍爆发！",
-      points: "分！",
-      replenished: "自动补充了新的水果！",
-      comboSurgeMsg: "✨ 10连击觉醒！自动清障与大额加分爆发！",
-      rushUpgradeMsg: "🪄 狂热大升级！低级水果自动升阶合并！",
-      gameOverMsg: "游戏结束！再接再厉！",
-      boardTitle: "🏆 排行榜 (Top 5)",
-      defaultName: "匿名玩家",
-      zenModeName: "🧘 休闲 / Zen",
-      normalModeName: "⏱️ 60秒限时 / 60s",
-      blitzModeName: "⚡ 30秒闪电 / 30s",
-      welcomeTitle: "🍓 水果大合并",
-      welcomeDesc: "被动连击觉醒与最后10秒狂热升级！",
-      startBtn: "▶️ 开始游戏 / Start",
-      playAgainBtn: "🔄 再来一局 / Play Again",
-      shareBtn: "📤 邀请好友来挑战 / Invite",
-      namePromptTip: "请输入你的玩家大名："
-    },
-    en: {
-      score: "Score",
-      time: "Time",
-      best: "Best",
-      pause: "⏸️ Pause",
-      resume: "▶️ Resume",
-      soundOn: "🔊 Sound: ON",
-      soundOff: "🔇 Sound: OFF",
-      darkOn: "🌙 Dark Mode: ON",
-      darkOff: "☀️ Dark Mode: OFF",
-      rulesTitle: "📖 How to Play",
-      rulesContent: [
-        "Tap two matching fruits to merge and score.",
-        "10 fruit tiers in total — merge up to the Golden Crown 👑!",
-        "<b>🔥 Combo Surge (Passive)</b>: Reaching 10 combos auto-clears low fruits & grants bonus pts!",
-        "<b>⏱️ Last 10s Rush (Passive)</b>: Auto triggers mega upgrades & double score surge!",
-        "<b>🧘 Zen Mode</b>: No time limits or timer — relax and merge at your own pace!"
-      ],
-      readyMsg: "Ready? Start the game!",
-      playing: "Choose two matching fruits.",
-      pausedMsg: "Game Paused",
-      selected: "Selected",
-      chooseSame: ". Choose another matching fruit!",
-      switched: "Different fruits! Combo reset.",
-      merged: "Merged! ",
-      comboText: " Combo x",
-      rushText: " 🔥RUSH COMBO x2!",
-      points: " pts!",
-      replenished: "New fruits added automatically!",
-      comboSurgeMsg: "✨ Combo Surge! Auto-cleared low fruits & bonus points!",
-      rushUpgradeMsg: "🪄 Rush Mega Upgrade! Low fruits upgraded!",
-      gameOverMsg: "Game Over! Better luck next time!",
-      boardTitle: "🏆 Leaderboard (Top 5)",
-      defaultName: "Anonymous",
-      zenModeName: "🧘 Zen",
-      normalModeName: "⏱️ 60s Timed",
-      blitzModeName: "⚡ 30s Blitz",
-      welcomeTitle: "🍓 Fruit Merge Challenge",
-      welcomeDesc: "Passive Combo Surge & Last 10s Rush Upgrades!",
-      startBtn: "▶️ Start Game",
-      playAgainBtn: "🔄 Play Again",
-      shareBtn: "📤 Invite Friends",
-      namePromptTip: "Enter Your Player Name:"
+  let particles = [];
+  function resizeCanvas() {
+    if (fxCanvas && gameContainer) {
+      fxCanvas.width = gameContainer.clientWidth;
+      fxCanvas.height = gameContainer.clientHeight;
     }
-  };
-
-  let lang = "en";
-  let score = 0;
-
-  let bestScores = { normal: 0, blitz: 0, zen: 0 };
-  let timeLeft = 0;
-  let timerInterval = null;
-  let selectedId = null;
-  let nextId = 1;
-  let running = false;
-
-  let combo = 0;
-  let lastMergeTime = 0;
-  const comboWindow = 2500;
-  let comboBarInterval = null;
-
-  try {
-    const legacyBest = Number(localStorage.getItem("fruitBest")) || 0;
-    bestScores.normal = Number(localStorage.getItem("fruitBest_normal")) || (legacyBest > 0 ? legacyBest : 0);
-    bestScores.blitz = Number(localStorage.getItem("fruitBest_blitz")) || 0;
-    bestScores.zen = Number(localStorage.getItem("fruitBest_zen")) || 0;
-    isDarkMode = localStorage.getItem("fruitDarkMode") === "true";
-    if (isDarkMode) document.body.classList.add("dark-mode");
-  } catch (e) {}
-
-  function updateBestDisplay() {
-    bestEl.textContent = bestScores[currentMode];
   }
-  updateBestDisplay();
+  resizeCanvas();
+  window.addEventListener("resize", resizeCanvas);
 
-  function say(key) { return text[lang][key]; }
-
-  async function updateLeaderboardUI() {
-    if (currentMode === "zen") {
-      boardTitle.style.display = "none";
-      leaderboardList.style.display = "none";
-      zenNotice.style.display = "block";
-      return;
-    } else {
-      boardTitle.style.display = "block";
-      leaderboardList.style.display = "block";
-      zenNotice.style.display = "none";
-    }
-
-    if (!SUPABASE_KEY) {
-      leaderboardList.innerHTML = `<li style="color:#e83e82;">⚠️ 未找到 SUPABASE_KEY</li>`;
-      return;
-    }
-
-    leaderboardList.innerHTML = `<li style="color:#888;">加载中... / Loading...</li>`;
-
-    try {
-      const response = await fetch(
-        `${SUPABASE_URL}/rest/v1/leaderboards?mode=eq.${currentMode}&order=score.desc&limit=5`,
-        {
-          method: 'GET',
-          headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
-        }
-      );
-
-      if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
-      const currentList = await response.json();
-      leaderboardList.innerHTML = "";
-
-      if (!currentList || !Array.isArray(currentList) || currentList.length === 0) {
-        const li = document.createElement("li");
-        li.textContent = lang === "zh" ? "暂无记录" : "No records yet";
-        leaderboardList.appendChild(li);
-        return;
-      }
-
-      currentList.forEach(item => {
-        const li = document.createElement("li");
-        li.textContent = `${item.name}: ${item.score} pts`;
-        leaderboardList.appendChild(li);
+  function spawnParticles(x, y, color, count = 18) {
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = Math.random() * 6 + 2;
+      particles.push({
+        x: x,
+        y: y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        radius: Math.random() * 4 + 2,
+        color: color,
+        alpha: 1
       });
-    } catch (e) {
-      leaderboardList.innerHTML = `<li style="color:#e83e82;">加载失败 / Error</li>`;
     }
   }
 
-  async function saveScoreToLeaderboard(finalScore) {
-    if (currentMode === "zen") return;
-    if (!SUPABASE_KEY) return;
-    const playerName = nameInput.value.trim() || (lang === "zh" ? "匿名玩家" : "Anonymous");
+  function renderParticles() {
+    if (ctx && fxCanvas) {
+      ctx.clearRect(0, 0, fxCanvas.width, fxCanvas.height);
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.alpha -= 0.025;
+        if (p.alpha <= 0) {
+          particles.splice(i, 1);
+          continue;
+        }
+        ctx.save();
+        ctx.globalAlpha = p.alpha;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+    requestAnimationFrame(renderParticles);
+  }
+  requestAnimationFrame(renderParticles);
 
+  function loadPlayerData() {
     try {
-      await fetch(`${SUPABASE_URL}/rest/v1/leaderboards`, {
+      const saved = localStorage.getItem("fruitMerge_v3_data");
+      if (saved) playerData = { ...playerData, ...JSON.parse(saved) };
+    } catch (e) {}
+    if (playerNameInput) playerNameInput.value = playerData.name || "FruitMaster";
+    
+    if (playerData.theme) {
+      document.body.classList.add(playerData.theme);
+    }
+
+    updateXpDisplay();
+    checkDailyLogin();
+    renderMissions();
+  }
+
+  function savePlayerData() {
+    try {
+      localStorage.setItem("fruitMerge_v3_data", JSON.stringify(playerData));
+    } catch (e) {}
+  }
+
+  function checkDailyLogin() {
+    const today = new Date().toDateString();
+    if (playerData.lastLoginDate !== today) {
+      if (playerData.lastLoginDate) {
+        const lastDate = new Date(playerData.lastLoginDate);
+        const nowDate = new Date(today);
+        const diffDays = Math.floor((nowDate - lastDate) / (1000 * 60 * 60 * 24));
+        if (diffDays === 1) {
+          playerData.loginStreak = (playerData.loginStreak % 7) + 1;
+        } else if (diffDays > 1) {
+          playerData.loginStreak = 1;
+        }
+      }
+      playerData.lastLoginDate = today;
+      addXp(50 * playerData.loginStreak);
+      showToast(`📅 Daily Login Bonus: +${50 * playerData.loginStreak} XP!`);
+      savePlayerData();
+    }
+    const streakBadge = document.getElementById("loginStreakBadge");
+    if (streakBadge) streakBadge.textContent = `Day ${playerData.loginStreak}`;
+  }
+
+  function addXp(amount) {
+    playerData.xp += amount;
+    let requiredXp = playerData.level * 150;
+    while (playerData.xp >= requiredXp) {
+      playerData.xp -= requiredXp;
+      playerData.level++;
+      showToast(`🌟 LEVEL UP! You reached Level ${playerData.level}!`);
+      requiredXp = playerData.level * 150;
+    }
+    updateXpDisplay();
+    savePlayerData();
+  }
+
+  function updateXpDisplay() {
+    const playerLevelBadge = document.getElementById("playerLevelBadge");
+    if (playerLevelBadge) playerLevelBadge.textContent = playerData.level;
+    const requiredXp = playerData.level * 150;
+    const pct = Math.min(100, (playerData.xp / requiredXp) * 100);
+    const xpBar = document.getElementById("xpBar");
+    if (xpBar) xpBar.style.width = `${pct}%`;
+  }
+
+  function showToast(text, icon = "🏆") {
+    const toast = document.getElementById("toastNotification");
+    if (!toast) return;
+    document.getElementById("toastIcon").textContent = icon;
+    document.getElementById("toastText").textContent = text;
+    toast.classList.remove("opacity-0", "pointer-events-none");
+    toast.classList.add("opacity-100");
+    setTimeout(() => {
+      toast.classList.remove("opacity-100");
+      toast.classList.add("opacity-0", "pointer-events-none");
+    }, 2800);
+  }
+
+  function updateLanguageDisplay() {
+    const d = I18N[lang];
+    if (scoreLabel) scoreLabel.textContent = d.score;
+    if (timerLabel) timerLabel.textContent = d.timer;
+    if (bestLabel) bestLabel.textContent = d.best;
+    if (modeTitleText) modeTitleText.textContent = d.modeTitle;
+    if (missionsHeader) missionsHeader.textContent = d.missionsHeader;
+    if (nameInputLabel) nameInputLabel.textContent = d.nameLabel;
+    if (startGameBtn) startGameBtn.textContent = d.playBtn;
+    if (restartGameBtn) restartGameBtn.textContent = d.replayBtn;
+    if (shareBtn) shareBtn.textContent = d.shareBtn;
+
+    document.querySelectorAll(".mode-btn").forEach(btn => {
+      const modeKey = btn.dataset.mode;
+      if (d.modes[modeKey]) btn.textContent = d.modes[modeKey];
+    });
+
+    if (statusMsg) statusMsg.textContent = d.statusStart;
+    renderMissions();
+    updateLeaderboardUI();
+  }
+
+  function getFruitElements() {
+    return [...gameContainer.querySelectorAll(".fruit-card")];
+  }
+
+  function createFruitCard(level, x, y, specialType = null) {
+    const el = document.createElement("div");
+    el.className = "fruit-card";
+    
+    if (specialType) {
+      el.dataset.special = specialType;
+      if (specialType === SPECIAL_TYPES.BOMB) {
+        el.textContent = "💣";
+        el.style.backgroundColor = "#ff2200";
+      } else if (specialType === SPECIAL_TYPES.RAINBOW) {
+        el.textContent = "🌈";
+        el.style.backgroundColor = "#9d4edd";
+      } else if (specialType === SPECIAL_TYPES.LIGHTNING) {
+        el.textContent = "⚡";
+        el.style.backgroundColor = "#00f0ff";
+      }
+    } else {
+      const fruitDef = FRUITS[level];
+      el.textContent = fruitDef.emoji;
+      el.style.backgroundColor = fruitDef.color;
+      el.dataset.level = String(level);
+    }
+
+    el.style.left = `${x}px`;
+    el.style.top = `${y}px`;
+    el.dataset.id = String(nextFruitId++);
+
+    el.addEventListener("click", () => handleFruitClick(el));
+    gameContainer.appendChild(el);
+    return el;
+  }
+
+  function spawnRandomFruit(forceLevel = null) {
+    if (!isRunning || isPaused) return;
+    const size = 56;
+    const maxX = Math.max(0, gameContainer.clientWidth - size - 10);
+    const maxY = Math.max(0, gameContainer.clientHeight - size - 10);
+    const existing = getFruitElements();
+
+    let bestX = 10 + Math.random() * maxX;
+    let bestY = 10 + Math.random() * maxY;
+    let maxDist = -1;
+
+    for (let i = 0; i < 40; i++) {
+      const x = 10 + Math.random() * maxX;
+      const y = 10 + Math.random() * maxY;
+      let minDist = Infinity;
+      for (const other of existing) {
+        const ox = parseFloat(other.style.left);
+        const oy = parseFloat(other.style.top);
+        minDist = Math.min(minDist, Math.hypot(x - ox, y - oy));
+      }
+      if (minDist > maxDist) {
+        maxDist = minDist;
+        bestX = x;
+        bestY = y;
+      }
+      if (minDist >= size * 1.1) break;
+    }
+
+    let specialType = null;
+    if (!forceLevel && Math.random() < 0.08) {
+      const types = [SPECIAL_TYPES.BOMB, SPECIAL_TYPES.RAINBOW, SPECIAL_TYPES.LIGHTNING];
+      specialType = types[Math.floor(Math.random() * types.length)];
+    }
+
+    let lvl = forceLevel !== null ? forceLevel : Math.floor(Math.random() * 4);
+    if (lvl >= FRUITS.length) lvl = FRUITS.length - 2;
+    createFruitCard(lvl, bestX, bestY, specialType);
+  }
+
+  function ensurePlayableBoard() {
+    if (!isRunning || isPaused) return;
+    const fruits = getFruitElements();
+    
+    if (currentMode === "survival" && fruits.length >= 24) {
+      endGame(I18N[lang].statusSurvivalOverflow);
+      return;
+    }
+
+    const minFruits = 9;
+    if (fruits.length < minFruits) {
+      const needed = minFruits - fruits.length;
+      for (let i = 0; i < needed; i++) {
+        spawnRandomFruit();
+      }
+    }
+  }
+
+  function showFloatingScore(x, y, textStr) {
+    const el = document.createElement("div");
+    el.className = "float-score";
+    el.textContent = textStr;
+    el.style.left = `${x}px`;
+    el.style.top = `${y}px`;
+    gameContainer.appendChild(el);
+    setTimeout(() => el.remove(), 800);
+  }
+
+  function triggerScreenShake(heavy = false) {
+    gameContainer.classList.remove("shake-light", "shake-heavy");
+    void gameContainer.offsetWidth;
+    gameContainer.classList.add(heavy ? "shake-heavy" : "shake-light");
+  }
+
+  function triggerAnnouncer(text) {
+    if (!bannerAnnouncer) return;
+    bannerAnnouncer.textContent = text;
+    bannerAnnouncer.classList.remove("active");
+    void bannerAnnouncer.offsetWidth;
+    bannerAnnouncer.classList.add("active");
+    setTimeout(() => bannerAnnouncer.classList.remove("active"), 800);
+  }
+
+  function handleFruitClick(el) {
+    if (!isRunning || isPaused || !el.isConnected) return;
+
+    const x = parseFloat(el.style.left) + 28;
+    const y = parseFloat(el.style.top) + 28;
+    const special = el.dataset.special;
+    const id = el.dataset.id;
+
+    if (special === SPECIAL_TYPES.BOMB) {
+      el.remove();
+      spawnParticles(x, y, "#ff3300", 40);
+      playSynthSound('bomb');
+      triggerScreenShake(true);
+      
+      let clearedCount = 0;
+      getFruitElements().forEach(other => {
+        const ox = parseFloat(other.style.left) + 28;
+        const oy = parseFloat(other.style.top) + 28;
+        if (Math.hypot(x - ox, y - oy) < 130) {
+          other.remove();
+          clearedCount++;
+          spawnParticles(ox, oy, "#ff9900", 15);
+        }
+      });
+
+      addScore(300);
+      showFloatingScore(x, y, "+300 BOMB!");
+      updateMissionProgress(3, 1);
+
+      for (let i = 0; i < Math.max(2, clearedCount); i++) {
+        spawnRandomFruit();
+      }
+      ensurePlayableBoard();
+      return;
+    }
+
+    if (special === SPECIAL_TYPES.LIGHTNING) {
+      el.remove();
+      spawnParticles(x, y, "#00f0ff", 40);
+      playSynthSound('lightning');
+      triggerScreenShake(false);
+
+      let clearedCount = 0;
+      getFruitElements().forEach(other => {
+        const ox = parseFloat(other.style.left) + 28;
+        const oy = parseFloat(other.style.top) + 28;
+        if (Math.abs(x - ox) < 45 || Math.abs(y - oy) < 45) {
+          other.remove();
+          clearedCount++;
+          spawnParticles(ox, oy, "#00f0ff", 15);
+        }
+      });
+
+      addScore(400);
+      showFloatingScore(x, y, "+400 LIGHTNING!");
+      updateMissionProgress(3, 1);
+
+      for (let i = 0; i < Math.max(2, clearedCount); i++) {
+        spawnRandomFruit();
+      }
+      ensurePlayableBoard();
+      return;
+    }
+
+    if (selectedId === null) {
+      selectedId = id;
+      el.classList.add("selected");
+      return;
+    }
+
+    if (selectedId === id) {
+      el.classList.remove("selected");
+      selectedId = null;
+      return;
+    }
+
+    const first = getFruitElements().find(item => item.dataset.id === selectedId);
+    if (!first) {
+      selectedId = null;
+      return;
+    }
+
+    const firstLevel = Number(first.dataset.level);
+    const secondLevel = Number(el.dataset.level);
+    const firstSpecial = first.dataset.special;
+    const secondSpecial = el.dataset.special;
+
+    const isMatch = (!firstSpecial && !secondSpecial && firstLevel === secondLevel) ||
+                    (firstSpecial === SPECIAL_TYPES.RAINBOW && !secondSpecial) ||
+                    (secondSpecial === SPECIAL_TYPES.RAINBOW && !firstSpecial);
+
+    if (!isMatch) {
+      first.classList.remove("selected");
+      selectedId = id;
+      el.classList.add("selected");
+      combo = 0;
+      if (statusMsg) statusMsg.textContent = I18N[lang].statusSwitched;
+      return;
+    }
+
+    // Check if rainbow was involved to track special fruit mission
+    if (firstSpecial === SPECIAL_TYPES.RAINBOW || secondSpecial === SPECIAL_TYPES.RAINBOW) {
+      updateMissionProgress(3, 1);
+    }
+
+    first.remove();
+    el.remove();
+    selectedId = null;
+    totalMergesCount++;
+
+    const now = Date.now();
+    if (now - lastMergeTime <= comboWindowMs && combo > 0) {
+      combo++;
+    } else {
+      combo = 1;
+    }
+    lastMergeTime = now;
+    if (combo > maxComboCount) maxComboCount = combo;
+
+    if (combo >= 50) triggerAnnouncer("ULTRA COMBO x50! 🔥");
+    else if (combo >= 25) triggerAnnouncer("GODLIKE! 👑");
+    else if (combo >= 10) triggerAnnouncer("UNSTOPPABLE! ⚡");
+    else if (combo >= 5) triggerAnnouncer("GREAT! 🌟");
+
+    if (combo === 10) {
+      spawnParticles(x, y, "#00f0ff", 50);
+      if (statusMsg) statusMsg.textContent = I18N[lang].statusSurge;
+      triggerScreenShake(true);
+    }
+
+    let baseLvl = 0;
+    if (!isNaN(firstLevel)) {
+      baseLvl = firstLevel;
+    } else if (!isNaN(secondLevel)) {
+      baseLvl = secondLevel;
+    }
+    const targetLevel = Math.min(baseLvl + 1, FRUITS.length - 1);
+    
+    if (targetLevel === FRUITS.length - 1) {
+      crownsMergedCount++;
+      playSynthSound('crown');
+      spawnParticles(x, y, "#ffd700", 60);
+      triggerAnnouncer("LEGENDARY CROWN! 👑");
+    } else {
+      playSynthSound('pop', combo);
+      spawnParticles(x, y, FRUITS[targetLevel].color, 20);
+    }
+
+    let pts = (targetLevel + 1) * 25 * combo;
+    addScore(pts);
+    showFloatingScore(x, y, `+${pts} (x${combo})`);
+
+    createFruitCard(targetLevel, x - 28, y - 28);
+    spawnRandomFruit();
+
+    updateMissionProgress(1, 1);
+    updateMissionProgress(2, maxComboCount);
+
+    ensurePlayableBoard();
+  }
+
+  function addScore(pts) {
+    score += pts;
+    if (scoreDisplay) scoreDisplay.textContent = score;
+
+    if (score > playerData.highScores[currentMode]) {
+      playerData.highScores[currentMode] = score;
+      if (bestDisplay) bestDisplay.textContent = score;
+      savePlayerData();
+    }
+
+    if (currentMode === "target" && score >= 2000) {
+      endGame(I18N[lang].statusTargetWin);
+    }
+  }
+
+  function updateMissionProgress(id, amt) {
+    playerData.missions.forEach(m => {
+      if (m.id === id && !m.claimed) {
+        if (id === 2) {
+          m.progress = Math.min(m.target, Math.max(m.progress, amt));
+        } else {
+          m.progress = Math.min(m.target, m.progress + amt);
+        }
+        if (m.progress >= m.target) {
+          m.claimed = true;
+          addXp(m.rewardXp);
+          showToast(`📜 Mission Completed! +${m.rewardXp} XP`);
+        }
+      }
+    });
+    renderMissions();
+  }
+
+  function renderMissions() {
+    const list = document.getElementById("missionsList");
+    if (!list) return;
+    list.innerHTML = "";
+    playerData.missions.forEach(m => {
+      const item = document.createElement("div");
+      item.className = "flex justify-between items-center bg-black/40 px-2 py-1 rounded border border-white/5";
+      const descText = I18N[lang].missions[m.id] || m.desc || `Mission ${m.id}`;
+      item.innerHTML = `
+        <span class="${m.claimed ? 'line-through text-gray-500' : 'text-gray-200'}">${descText}</span>
+        <span class="font-bold ${m.claimed ? 'text-green-400' : 'text-amber-400'}">${m.progress}/${m.target}</span>
+      `;
+      list.appendChild(item);
+    });
+  }
+
+  function startGame() {
+    const name = playerNameInput && playerNameInput.value.trim() ? playerNameInput.value.trim() : "FruitMaster";
+    playerData.name = name;
+    savePlayerData();
+
+    score = 0;
+    combo = 0;
+    maxComboCount = 0;
+    totalMergesCount = 0;
+    crownsMergedCount = 0;
+    isRunning = true;
+    isPaused = false;
+    selectedId = null;
+    initialHighScore = playerData.highScores[currentMode] || 0;
+
+    if (scoreDisplay) scoreDisplay.textContent = "0";
+    if (bestDisplay) bestDisplay.textContent = initialHighScore;
+
+    getFruitElements().forEach(f => f.remove());
+    if (startOverlay) startOverlay.classList.add("hidden");
+    if (gameOverOverlay) gameOverOverlay.classList.add("hidden");
+
+    if (currentMode === "normal") timeLeft = 60;
+    else if (currentMode === "blitz") timeLeft = 30;
+    else if (currentMode === "zen") timeLeft = 0;
+    else if (currentMode === "survival") timeLeft = 0;
+    else if (currentMode === "target") timeLeft = 45;
+
+    if (timerDisplay) {
+      timerDisplay.textContent = currentMode === "zen" || currentMode === "survival" ? "--" : timeLeft;
+    }
+
+    for (let i = 0; i < 10; i++) {
+      spawnRandomFruit();
+    }
+
+    clearInterval(gameTimer);
+    clearInterval(survivalTimer);
+
+    if (currentMode !== "zen" && currentMode !== "survival") {
+      gameTimer = setInterval(() => {
+        if (isPaused) return;
+        timeLeft--;
+        if (timerDisplay) timerDisplay.textContent = timeLeft;
+        if (timeLeft <= 0) {
+          endGame("⏱️ TIME UP!");
+        }
+      }, 1000);
+    }
+
+    if (currentMode === "survival") {
+      survivalTimer = setInterval(() => {
+        if (!isPaused && isRunning) {
+          spawnRandomFruit();
+          ensurePlayableBoard();
+        }
+      }, 2500);
+    }
+  }
+
+  function endGame(reasonStr = "") {
+    if (!isRunning) return; // Guard against multiple triggers
+    isRunning = false;
+    clearInterval(gameTimer);
+    clearInterval(survivalTimer);
+
+    const xpGained = Math.floor(score / 20) + (maxComboCount * 5);
+    addXp(xpGained);
+
+    const statScore = document.getElementById("statScore");
+    const statCombo = document.getElementById("statCombo");
+    const statMerges = document.getElementById("statMerges");
+    const statCrowns = document.getElementById("statCrowns");
+    const statXp = document.getElementById("statXp");
+    const statLevel = document.getElementById("statLevel");
+
+    if (statScore) statScore.textContent = score;
+    if (statCombo) statCombo.textContent = `x${maxComboCount}`;
+    if (statMerges) statMerges.textContent = totalMergesCount;
+    if (statCrowns) statCrowns.textContent = crownsMergedCount;
+    if (statXp) statXp.textContent = `+${xpGained} XP`;
+    if (statLevel) statLevel.textContent = `Lv.${playerData.level}`;
+
+    const newRecordBadge = document.getElementById("newRecordBadge");
+    if (newRecordBadge) {
+      // Strict comparison against pre-game high score
+      if (score > 0 && score > initialHighScore) {
+        newRecordBadge.classList.remove("hidden");
+      } else {
+        newRecordBadge.classList.add("hidden");
+      }
+    }
+
+    if (gameOverOverlay) gameOverOverlay.classList.remove("hidden");
+    if (reasonStr && statusMsg) statusMsg.textContent = reasonStr;
+
+    saveScoreToSupabase(score);
+  }
+
+  async function saveScoreToSupabase(finalScore) {
+    if (!SUPABASE_KEY || currentMode === "zen") return;
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/leaderboards`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1198,554 +987,142 @@ input {
           'Authorization': `Bearer ${SUPABASE_KEY}`,
           'Prefer': 'return=minimal'
         },
-        body: JSON.stringify({ mode: currentMode, name: playerName, score: finalScore })
+        body: JSON.stringify({ mode: currentMode, name: playerData.name, score: finalScore })
       });
+      if (!res.ok) throw new Error("Failed to upload score");
       updateLeaderboardUI();
     } catch (e) {}
   }
 
-  function updateLanguage() {
-    document.getElementById("scoreLabel").textContent = say("score");
-    document.getElementById("timeLabel").textContent = say("time");
-    document.getElementById("bestLabel").textContent = say("best");
-    document.getElementById("boardTitle").textContent = say("boardTitle");
-    document.getElementById("rulesTitle").textContent = say("rulesTitle");
-    document.getElementById("modeZen").textContent = say("zenModeName");
-    document.getElementById("modeNormal").textContent = say("normalModeName");
-    document.getElementById("modeBlitz").textContent = say("blitzModeName");
+  async function updateLeaderboardUI() {
+    const list = document.getElementById("leaderboardList");
+    if (!list) return;
+    list.innerHTML = `<div class="text-gray-400 text-center py-2">Loading scores...</div>`;
 
-    document.getElementById("welcomeTitle").textContent = say("welcomeTitle");
-    document.getElementById("welcomeDesc").textContent = say("welcomeDesc");
-    nameTip.textContent = say("namePromptTip");
-    startBtn.textContent = say("startBtn");
-    playAgainBtn.textContent = say("playAgainBtn");
-    shareBtn.textContent = say("shareBtn");
-    muteBtn.textContent = isMuted ? say("soundOff") : say("soundOn");
-    darkModeBtn.textContent = isDarkMode ? say("darkOff") : say("darkOn");
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/leaderboards?mode=eq.${currentMode}&order=score.desc&limit=6`, {
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+      });
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      list.innerHTML = "";
 
-    if (currentMode === "zen" && running) {
-      pauseBtn.textContent = isPaused ? say("resume") : say("pause");
-    }
-
-    const rulesListEl = document.getElementById("rulesList");
-    rulesListEl.innerHTML = "";
-    say("rulesContent").forEach(rule => {
-      const li = document.createElement("li");
-      li.innerHTML = rule;
-      rulesListEl.appendChild(li);
-    });
-
-    nameInput.placeholder = lang === "zh" ? "输入你的名字 / Your Name" : "Your Name / 输入名字";
-    document.getElementById("language").textContent = lang === "zh" ? "Switch to English" : "切换中文";
-
-    if (!running) {
-      if (currentMode === "zen") timerEl.textContent = "--";
-      else if (currentMode === "normal") timerEl.textContent = timeLeft > 0 ? timeLeft : "60";
-      else if (currentMode === "blitz") timerEl.textContent = timeLeft > 0 ? timeLeft : "30";
-    }
-    updateLeaderboardUI();
-  }
-
-  function triggerQuickNewBestNotice() {
-    newBestBanner.classList.remove("show");
-    void newBestBanner.offsetWidth;
-    newBestBanner.classList.add("show");
-    spawnParticles(game.clientWidth / 2, game.clientHeight / 3, "#ffd700", 20);
-    setTimeout(() => { newBestBanner.classList.remove("show"); }, 500);
-  }
-
-  function updateScore(points) {
-    score += points;
-    scoreEl.textContent = score;
-
-    if (score > bestScores[currentMode]) {
-      const isFirstBreak = bestScores[currentMode] > 0;
-      bestScores[currentMode] = score;
-      bestEl.textContent = bestScores[currentMode];
-
-      if (isFirstBreak && !isNewRecordInCurrentGame) {
-        isNewRecordInCurrentGame = true;
-        triggerQuickNewBestNotice();
-      }
-      try {
-        localStorage.setItem(`fruitBest_${currentMode}`, String(bestScores[currentMode]));
-      } catch (e) {}
-    }
-  }
-
-  function getFruits() {
-    return [...game.querySelectorAll(".fruit")];
-  }
-
-  function hasPair() {
-    const counts = {};
-    for (const el of getFruits()) {
-      const level = el.dataset.level;
-      counts[level] = (counts[level] || 0) + 1;
-      if (counts[level] >= 2) return true;
-    }
-    return false;
-  }
-
-  function makeFruit(level, x, y) {
-    const el = document.createElement("button");
-    el.type = "button";
-    el.className = "fruit";
-    el.textContent = fruits[level].emoji;
-    el.style.backgroundColor = fruits[level].color;
-    el.style.left = x + "px";
-    el.style.top = y + "px";
-    el.dataset.id = String(nextId++);
-    el.dataset.level = String(level);
-
-    el.addEventListener("click", () => handleClick(el));
-    game.appendChild(el);
-    return el;
-  }
-
-  function addRandomFruit(level) {
-    if (!running || isPaused) return;
-    const size = 54;
-    const maxX = Math.max(0, game.clientWidth - size);
-    const maxY = Math.max(0, game.clientHeight - size);
-    const existing = getFruits();
-
-    let bestX = Math.random() * maxX;
-    let bestY = Math.random() * maxY;
-    let bestDistance = -1;
-
-    for (let i = 0; i < 100; i++) {
-      const x = Math.random() * maxX;
-      const y = Math.random() * maxY;
-      let nearest = Infinity;
-      for (const other of existing) {
-        const ox = parseFloat(other.style.left);
-        const oy = parseFloat(other.style.top);
-        nearest = Math.min(nearest, Math.hypot(x - ox, y - oy));
-      }
-      if (nearest > bestDistance) {
-        bestDistance = nearest;
-        bestX = x;
-        bestY = y;
-      }
-      if (nearest >= size * 1.05) break;
-    }
-    makeFruit(level, bestX, bestY);
-  }
-
-  function ensurePlayable() {
-    if (!running || isPaused) return;
-    let attempts = 0;
-    while (getFruits().length < 10 && attempts < 15) {
-      addRandomFruit(Math.floor(Math.random() * 4));
-      attempts++;
-    }
-    if (!hasPair()) {
-      const existing = getFruits();
-      if (existing.length > 0) {
-        const targetLevel = Number(existing[Math.floor(Math.random() * existing.length)].dataset.level);
-        addRandomFruit(targetLevel);
-        message.textContent = say("replenished");
-      }
-    }
-  }
-
-  function showFloatingText(x, y, textString) {
-    if (isPaused) return;
-    const ft = document.createElement("div");
-    ft.className = "floating-text";
-    ft.textContent = textString;
-    ft.style.left = x + "px";
-    ft.style.top = y + "px";
-    game.appendChild(ft);
-    setTimeout(() => ft.remove(), 800);
-  }
-
-  function triggerShake() {
-    if (isPaused) return;
-    game.classList.remove("shake-anim");
-    void game.offsetWidth;
-    game.classList.add("shake-anim");
-  }
-
-  // 被动机制：10 连击觉醒特效（自动清障 + 巨额加分）
-  function triggerPassiveComboSurge() {
-    const existing = getFruits();
-    if (existing.length === 0) return;
-
-    // 挑选出棋盘上等级最低的最多 2 个水果进行爆破清除
-    existing.sort((a, b) => Number(a.dataset.level) - Number(b.dataset.level));
-    const targets = existing.slice(0, 2);
-
-    targets.forEach(el => {
-      const px = parseFloat(el.style.left);
-      const py = parseFloat(el.style.top);
-      spawnParticles(px, py, "#ffd700", 25);
-      el.remove();
-    });
-
-    playSound('bomb');
-    triggerShake();
-    updateScore(500); // 奖励 500 分
-    message.textContent = say("comboSurgeMsg");
-    showFloatingText(game.clientWidth / 2 - 50, game.clientHeight / 2, "+500 SURGE!");
-    ensurePlayable();
-  }
-
-  // 被动机制：最后 10 秒 Rush 狂热大升级（自动将低级水果升阶）
-  function triggerPassiveRushUpgrade() {
-    const existing = getFruits();
-    if (existing.length === 0) return;
-
-    // 挑选出最多 2 个低级水果进行自动升一级
-    existing.sort((a, b) => Number(a.dataset.level) - Number(b.dataset.level));
-    const targets = existing.slice(0, 2);
-
-    targets.forEach(el => {
-      let lvl = Number(el.dataset.level);
-      if (lvl < fruits.length - 1) {
-        let nextLvl = lvl + 1;
-        el.textContent = fruits[nextLvl].emoji;
-        el.style.backgroundColor = fruits[nextLvl].color;
-        el.dataset.level = String(nextLvl);
-        const px = parseFloat(el.style.left);
-        const py = parseFloat(el.style.top);
-        spawnParticles(px, py, fruits[nextLvl].color, 20);
-      }
-    });
-
-    playSound('magic');
-    updateScore(300); // 奖励 300 分
-    message.textContent = say("rushUpgradeMsg");
-    showFloatingText(game.clientWidth / 2 - 50, game.clientHeight / 2 - 20, "+300 RUSH UPGRADE!");
-    ensurePlayable();
-  }
-
-  function handleClick(el) {
-    if (!running || isPaused || !el.isConnected) return;
-
-    const posX = parseFloat(el.style.left);
-    const posY = parseFloat(el.style.top);
-    const level = Number(el.dataset.level);
-
-    const id = el.dataset.id;
-    if (selectedId === null) {
-      selectedId = id;
-      el.classList.add("selected");
-      message.textContent = say("selected") + " " + el.textContent + say("chooseSame");
-      return;
-    }
-
-    if (selectedId === id) {
-      el.classList.remove("selected");
-      selectedId = null;
-      message.textContent = say("playing");
-      return;
-    }
-
-    const first = getFruits().find(item => item.dataset.id === selectedId);
-    if (!first) {
-      selectedId = null;
-      message.textContent = say("playing");
-      return;
-    }
-
-    const firstLevel = Number(first.dataset.level);
-    if (firstLevel !== level) {
-      first.classList.remove("selected");
-      selectedId = id;
-      el.classList.add("selected");
-      combo = 0;
-      updateComboVisuals();
-      message.textContent = say("switched");
-      return;
-    }
-
-    first.remove();
-    el.remove();
-    selectedId = null;
-
-    spawnParticles(posX, posY, fruits[level].color, 18 + combo * 2);
-
-    const now = Date.now();
-    if (now - lastMergeTime <= comboWindow && combo > 0) {
-      combo++;
-    } else {
-      combo = 1;
-    }
-    lastMergeTime = now;
-
-    updateComboVisuals();
-    playSound('pop', combo);
-
-    triggerComboAnnouncer(combo);
-    if (combo >= 3) triggerShake();
-
-    // 触发被动技能：当刚好达成 10 连击时，触发被动觉醒
-    if (combo === 10) {
-      triggerPassiveComboSurge();
-    }
-
-    let basePoints = (level + 1) * 10;
-    let earnedPoints = basePoints * combo;
-    if (isRushActive) {
-      earnedPoints *= 2; 
-    }
-
-    updateScore(earnedPoints);
-
-    let floatStr = `+${earnedPoints}`;
-    if (isRushActive) {
-      floatStr += ` (RUSH x2, x${combo})`;
-    } else if (combo > 1) {
-      floatStr += ` (x${combo})`;
-    }
-    showFloatingText(posX, posY, floatStr);
-
-    const nextLevel = Math.min(level + 1, fruits.length - 1);
-    addRandomFruit(nextLevel);
-    addRandomFruit(Math.floor(Math.random() * 4));
-
-    let msg = say("merged") + earnedPoints + say("points");
-    if (isRushActive) {
-      msg += say("rushText") + ` (Combo x${combo})`;
-    } else if (combo > 1) {
-      msg += say("comboText") + combo + "!";
-    }
-    message.textContent = msg;
-
-    ensurePlayable();
-  }
-
-  function startComboBarLoop() {
-    if (comboBarInterval) clearInterval(comboBarInterval);
-    comboBarInterval = setInterval(() => {
-      if (!running || isPaused || combo === 0) {
-        if (!isPaused) comboBar.style.width = "0%";
+      if (!data || data.length === 0) {
+        list.innerHTML = `<div class="text-gray-400 text-center py-2">No records yet!</div>`;
         return;
       }
-      const elapsed = Date.now() - lastMergeTime;
-      const leftRatio = Math.max(0, (comboWindow - elapsed) / comboWindow);
-      comboBar.style.width = (leftRatio * 100) + "%";
 
-      if (elapsed > comboWindow && combo > 0) {
-        combo = 0;
-        updateComboVisuals();
+      data.forEach((item, idx) => {
+        const row = document.createElement("div");
+        row.className = "flex justify-between items-center bg-black/40 px-2.5 py-1.5 rounded border border-white/5";
+        
+        const rankDiv = document.createElement("div");
+        rankDiv.className = "flex items-center gap-2";
+        
+        const rankSpan = document.createElement("span");
+        rankSpan.className = `font-arcade ${idx === 0 ? 'text-amber-400' : idx === 1 ? 'text-gray-300' : idx === 2 ? 'text-amber-600' : 'text-gray-500'}`;
+        rankSpan.textContent = `#${idx + 1}`;
+        
+        const nameSpan = document.createElement("span");
+        nameSpan.className = "font-bold text-white";
+        nameSpan.textContent = item.name || "Anonymous";
+
+        rankDiv.appendChild(rankSpan);
+        rankDiv.appendChild(nameSpan);
+
+        const scoreSpan = document.createElement("span");
+        scoreSpan.className = "font-arcade text-amber-300";
+        scoreSpan.textContent = item.score;
+
+        row.appendChild(rankDiv);
+        row.appendChild(scoreSpan);
+        list.appendChild(row);
+      });
+    } catch (e) {
+      list.innerHTML = `<div class="text-gray-400 text-center py-2">Offline Mode</div>`;
+    }
+  }
+
+  const startGameBtn = document.getElementById("startGameBtn");
+  if (startGameBtn) startGameBtn.addEventListener("click", startGame);
+
+  const restartGameBtn = document.getElementById("restartGameBtn");
+  if (restartGameBtn) restartGameBtn.addEventListener("click", startGame);
+  
+  const langBtn = document.getElementById("langBtn");
+  if (langBtn) {
+    langBtn.addEventListener("click", () => {
+      lang = lang === "en" ? "zh" : "en";
+      updateLanguageDisplay();
+    });
+  }
+
+  const audioBtn = document.getElementById("audioBtn");
+  if (audioBtn) {
+    audioBtn.addEventListener("click", (e) => {
+      isMuted = !isMuted;
+      e.target.textContent = isMuted ? "🔇 Sound: OFF" : "🔊 Sound: ON";
+    });
+  }
+
+  const themeBtn = document.getElementById("themeBtn");
+  if (themeBtn) {
+    themeBtn.addEventListener("click", () => {
+      const themes = ["", "light-theme", "theme-neon", "theme-candy"];
+      let currentThemeIdx = themes.findIndex(t => t && document.body.classList.contains(t));
+      if (currentThemeIdx === -1) currentThemeIdx = 0;
+      
+      themes.forEach(t => { if (t) document.body.classList.remove(t); });
+      
+      const nextTheme = themes[(currentThemeIdx + 1) % themes.length];
+      if (nextTheme) {
+        document.body.classList.add(nextTheme);
+        playerData.theme = nextTheme;
+      } else {
+        playerData.theme = "";
       }
-    }, 50);
+      savePlayerData();
+    });
   }
 
-  let pauseStartTime = 0;
-  function togglePause() {
-    if (!running || currentMode !== "zen") return;
-    isPaused = !isPaused;
-    if (isPaused) {
-      pauseOverlay.style.display = "flex";
-      pauseBtn.textContent = say("resume");
-      message.textContent = say("pausedMsg");
-    } else {
-      pauseOverlay.style.display = "none";
-      pauseBtn.textContent = say("pause");
-      message.textContent = say("playing");
-      lastMergeTime += (Date.now() - pauseStartTime);
-    }
-  }
-
-  pauseBtn.addEventListener("click", () => {
-    if (!isPaused) pauseStartTime = Date.now();
-    togglePause();
-  });
-
-  muteBtn.addEventListener("click", () => {
-    isMuted = !isMuted;
-    if (isMuted) stopBGM();
-    else if (running) startBGM();
-    muteBtn.textContent = isMuted ? say("soundOff") : say("soundOn");
-  });
-
-  darkModeBtn.addEventListener("click", () => {
-    isDarkMode = !isDarkMode;
-    if (isDarkMode) {
-      document.body.classList.add("dark-mode");
-    } else {
-      document.body.classList.remove("dark-mode");
-    }
-    try {
-      localStorage.setItem("fruitDarkMode", String(isDarkMode));
-    } catch (e) {}
-    darkModeBtn.textContent = isDarkMode ? say("darkOff") : say("darkOn");
-  });
-
-  function endGame() {
-    running = false;
-    isPaused = false;
-    isRushActive = false;
-    document.body.classList.remove("rush-mode");
-    game.classList.remove("rush-shake");
-    pauseOverlay.style.display = "none";
-    pauseBtn.style.display = "none";
-    stopBGM();
-    clearInterval(timerInterval);
-    clearInterval(comboBarInterval);
-
-    game.querySelectorAll(".fruit").forEach(f => f.remove());
-    playSound('gameover');
-    saveScoreToLeaderboard(score);
-    finalScoreVal.textContent = score;
-
-    if (isNewRecordInCurrentGame) {
-      gameOverRecord.style.display = "block";
-      spawnParticles(game.clientWidth / 2, game.clientHeight / 4, "#ffd700", 35);
-    } else {
-      gameOverRecord.style.display = "none";
-    }
-
-    gameOverOverlay.style.display = "flex";
-    message.textContent = say("gameOverMsg");
-  }
-
-  function startGame() {
-    const enteredName = nameInput.value.trim();
-    if (!enteredName) {
-      nameInput.classList.add("error-shake");
-      nameInput.focus();
-      setTimeout(() => nameInput.classList.remove("error-shake"), 400);
-      return;
-    }
-
-    clearInterval(timerInterval);
-    game.querySelectorAll(".fruit").forEach(f => f.remove());
-    score = 0;
-    selectedId = null;
-    nextId = 1;
-    running = true;
-    isPaused = false;
-    isNewRecordInCurrentGame = false;
-    isRushActive = false;
-    rushBannerTriggered = false;
-    document.body.classList.remove("rush-mode");
-    game.classList.remove("rush-shake");
-
-    startOverlay.style.display = "none";
-    gameOverOverlay.style.display = "none";
-    pauseOverlay.style.display = "none";
-    gameOverRecord.style.display = "none";
-
-    combo = 0;
-    scoreEl.textContent = "0";
-
-    if (currentMode === "zen") {
-      pauseBtn.style.display = "inline-block";
-      pauseBtn.textContent = say("pause");
-    } else {
-      pauseBtn.style.display = "none";
-    }
-
-    resetComboVisuals();
-    startBGM();
-    startComboBarLoop();
-
-    if (currentMode === "zen") {
-      timeLeft = 0;
-      timerEl.textContent = "--";
-    } else if (currentMode === "normal") {
-      timeLeft = 60;
-      timerEl.textContent = timeLeft;
-    } else if (currentMode === "blitz") {
-      timeLeft = 30;
-      timerEl.textContent = timeLeft;
-    }
-
-    for (let i = 0; i < 10; i++) {
-      addRandomFruit(Math.floor(Math.random() * 4));
-    }
-
-    message.textContent = say("playing");
-
-    if (currentMode !== "zen") {
-      timerInterval = setInterval(() => {
-        timeLeft--;
-        timerEl.textContent = timeLeft;
-
-        if (timeLeft <= 10 && timeLeft > 0) {
-          if (!isRushActive) {
-            isRushActive = true;
-            document.body.classList.add("rush-mode");
-            game.classList.add("rush-shake");
-            // 触发被动技能：进入最后 10 秒 Rush 时，自动触发狂热大升级！
-            triggerPassiveRushUpgrade();
-          }
-
-          if (!rushBannerTriggered) {
-            rushBannerTriggered = true;
-            rushBanner.classList.add("show");
-            setTimeout(() => rushBanner.classList.remove("show"), 1200);
-          }
-        }
-
-        if (timeLeft <= 5 && timeLeft > 0) {
-          playSound('tick');
-        }
-
-        if (timeLeft <= 0) {
-          endGame();
-        }
-      }, 1000);
-    }
-  }
-
-  playAgainBtn.addEventListener("click", () => {
-    if (!nameInput.value.trim()) {
-      gameOverOverlay.style.display = "none";
-      startOverlay.style.display = "flex";
-      nameInput.focus();
-    } else {
-      startGame();
-    }
-  });
-
-  shareBtn.addEventListener("click", () => {
-    const playerName = nameInput.value.trim() || "Player";
-    const gameUrl = window.location.href.split('?')[0];
-    const recordTag = isNewRecordInCurrentGame ? "👑【刷新最高纪录】" : "🏆";
-
-    const shareText = lang === "zh"
-      ? `🍓🍉🍍🍇🍒👑✨\n【水果大合并】战报新鲜出炉！\n\n玩家【${playerName}】在「${currentMode.toUpperCase()}」模式中打出了 ${recordTag} ${score} 分！\n\n你能合成出终极金皇冠👑并超越我吗？\n👇 戳链接立即加入游戏挑战：\n${gameUrl}`
-      : `🍓🍉🍍🍇🍒👑✨\nFruit Merge Challenge Result!\n\nPlayer [${playerName}] scored ${recordTag} ${score} pts in [${currentMode.toUpperCase()}] mode!\n\nCan you merge to the Golden Crown 👑 and beat this score?\n👇 Play now:\n${gameUrl}`;
-
-    if (navigator.share) {
-      navigator.share({ title: 'Fruit Merge Challenge', text: shareText, url: gameUrl }).catch(() => {});
-    } else {
-      navigator.clipboard.writeText(shareText).then(() => {
-        alert(lang === "zh" ? "📋 战报已复制！快发给好友让他们来挑战吧！" : "📋 Score and invite link copied!");
-      }).catch(() => { alert(shareText); });
-    }
-  });
-
-  modeButtons.forEach(btn => {
+  document.querySelectorAll(".mode-btn").forEach(btn => {
     btn.addEventListener("click", () => {
-      modeButtons.forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
+      document.querySelectorAll(".mode-btn").forEach(b => b.classList.remove("active-mode"));
+      btn.classList.add("active-mode");
       currentMode = btn.dataset.mode;
-
-      if (currentMode === "zen") timerEl.textContent = "--";
-      else if (currentMode === "normal") timerEl.textContent = "60";
-      else if (currentMode === "blitz") timerEl.textContent = "30";
-
-      updateBestDisplay();
+      if (bestDisplay) bestDisplay.textContent = playerData.highScores[currentMode] || 0;
       updateLeaderboardUI();
-      if (running) endGame();
+      if (isRunning) endGame();
     });
   });
 
-  startBtn.addEventListener("click", startGame);
+  const shareBtn = document.getElementById("shareBtn");
+  if (shareBtn) {
+    shareBtn.addEventListener("click", () => {
+      const shareText = `🍓 FRUIT MERGE v3.0 🍉\nPlayer [${playerData.name}] scored ${score} pts in ${currentMode.toUpperCase()} mode!\nCan you beat me?`;
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(shareText);
+        showToast(I18N[lang].copySuccess);
+      }
+    });
+  }
 
-  document.getElementById("language").addEventListener("click", () => {
-    lang = lang === "zh" ? "en" : "zh";
-    updateLanguage();
-  });
+  setInterval(() => {
+    if (!isRunning || isPaused || combo === 0) {
+      if (comboBar) comboBar.style.width = "0%";
+      return;
+    }
+    const elapsed = Date.now() - lastMergeTime;
+    const ratio = Math.max(0, (comboWindowMs - elapsed) / comboWindowMs);
+    if (comboBar) comboBar.style.width = `${ratio * 100}%`;
+    if (elapsed > comboWindowMs) {
+      combo = 0;
+    }
+  }, 50);
 
-  updateLanguage();
+  loadPlayerData();
+  updateLanguageDisplay();
+
 })();
 </script>
 </body>
